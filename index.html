@@ -197,6 +197,39 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .act-item.danger{color:var(--danger);}
 .act-item.danger:hover{background:rgba(255,89,89,.08);}
 </style>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAK2KzThY4PfVAILTAom_jRbRevmoROLYg",
+  authDomain: "my-app-5455a.firebaseapp.com",
+  projectId: "my-app-5455a",
+  storageBucket: "my-app-5455a.firebasestorage.app",
+  messagingSenderId: "595348983835",
+  appId: "1:595348983835:web:5896d488e9471b631828be",
+  measurementId: "G-9QNWD9DJDF"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Expose db + Firestore helpers to global scope ──
+window._db = db;
+window._fsCollection  = collection;
+window._fsDoc         = doc;
+window._fsSetDoc      = setDoc;
+window._fsGetDocs     = getDocs;
+window._fsDeleteDoc   = deleteDoc;
+window._fsOnSnapshot  = onSnapshot;
+
+// ── Start real-time listeners once DOM is ready ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  window._fsListenReady = true;
+  if(window._startFirebaseListeners) window._startFirebaseListeners();
+});
+</script>
 </head>
 <body>
 
@@ -209,7 +242,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
     <div class="fi"><label>Username</label><input type="text" id="loginUser" placeholder="admin"/></div>
     <div class="fi"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
     <div class="lerr" id="loginErr"></div>
-    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <button class="btn-login" onclick="handleLogin()">Sign In</button>
     <div class="lhint">Demo: <span>admin</span> / <span>1234</span></div>
   </div>
 </div>
@@ -758,6 +791,18 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
     </div>
   </div>
 
+  <!-- SERVICE VIEW MODAL -->
+  <div id="svcViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;width:540px;max-width:96vw;max-height:85vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h3 style="font-size:15px;font-weight:600;">🔧 Service Records</h3>
+        <button onclick="closeSvcViewModal()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;" id="svcViewAssetLabel">Asset: —</p>
+      <div id="svcViewList"></div>
+    </div>
+  </div>
+
 </div><!-- /appScreen -->
 
 <script>
@@ -811,10 +856,6 @@ function doLogout(){
   $$('loginUser').value='';
   $$('loginPass').value='';
 }
-document.addEventListener('DOMContentLoaded', function(){
-  const lp = $$('loginPass');
-  if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-});
 
 // ══════════════════════════════════════════
 // NAVIGATION
@@ -1082,6 +1123,7 @@ function createUser(){
   const d = new Date();
   const created = d.toLocaleString('default',{month:'short'})+' '+d.getDate()+', '+d.getFullYear();
   loginAccounts.push({id:acctId++,name,username:user,password:pass,role,created});
+  fbSave(COL.accounts, loginAccounts[loginAccounts.length-1]);
   renderAccounts(); flash('um_ok'); clearUM();
 }
 function delUser(id){
@@ -1089,6 +1131,7 @@ function delUser(id){
   if(!a||a.id===0) return;
   if(!confirm(`Delete login for "${a.name}"?`)) return;
   loginAccounts = loginAccounts.filter(x=>x.id!==id);
+  fbDelete(COL.accounts, id);
   renderAccounts();
 }
 function clearUM(){ ['um_name','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
@@ -1152,7 +1195,14 @@ function addAlertEmail(){
   alertEmails.push(email); inp.value=''; renderAlertEmails();
 }
 function removeAlertEmail(i){ alertEmails.splice(i,1); renderAlertEmails(); }
-function saveAlertSettings(){ flash('alert_ok'); }
+function saveAlertSettings(){
+  flash('alert_ok');
+  const cfg={id:'cfg1',emails:alertEmails,
+    onDuplicate:$$('alertOnDuplicate')?$$('alertOnDuplicate').checked:true,
+    onNew:$$('alertOnNew')?$$('alertOnNew').checked:true,
+    onDelete:$$('alertOnDelete')?$$('alertOnDelete').checked:true};
+  fbSave(COL.alertCfg, cfg);
+}
 function triggerAlert(type,assetId){
   const onDup=$$(  'alertOnDuplicate'), onNew=$$('alertOnNew'), onDel=$$('alertOnDelete');
   if(type==='duplicate' && onDup && !onDup.checked) return;
@@ -1205,12 +1255,19 @@ function switchTab(t){
 const TDM = v=>`<td style="padding:9px 11px;font-family:'DM Mono',monospace;font-size:12px;">${v||'—'}</td>`;
 const TD  = v=>`<td style="padding:9px 11px;font-size:13px;">${v||'—'}</td>`;
 const TROW= inner=>`<tr style="border-bottom:1px solid rgba(37,42,56,.5);">${inner}</tr>`;
-const svcBadge = services=>{
+const svcBadge = (services,assetId)=>{
   const arr=Array.isArray(services)?services:[];
+  const safe=JSON.stringify(arr).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
   if(!arr.length) return `<td style="padding:9px 11px;"><span style="font-size:11px;color:var(--text3);">0</span></td>`;
   const last=arr[arr.length-1];
   const col={OK:'var(--accent2)','In Service':'var(--accent3)',Pending:'var(--accent)',Completed:'var(--accent2)'}[last.status]||'var(--text3)';
-  return `<td style="padding:9px 11px;"><span style="font-size:12px;font-weight:700;color:${col};">${arr.length}</span><div style="font-size:10px;color:var(--text3);margin-top:1px;">${last.status||''}</div></td>`;
+  return `<td style="padding:9px 11px;">
+    <div style="display:flex;align-items:center;gap:5px;">
+      <span style="font-size:12px;font-weight:700;color:${col};">${arr.length}</span>
+      <button onclick="viewServiceRecords('${assetId||''}',event)" title="View service records" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;padding:1px 3px;line-height:1;" onmouseover="this.style.color='var(--accent2)'" onmouseout="this.style.color='var(--accent)'">👁</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:1px;">${last.status||''}</div>
+  </td>`;
 };
 const userCell=(name,id,type)=>`<td style="padding:9px 11px;">
   <span style="color:var(--accent2);font-size:12px;font-weight:600;">${name||'Unassigned'}</span>
@@ -1229,7 +1286,7 @@ function renderAssigned(){
   tb.innerHTML=[...list].reverse().map(a=>TROW(
     TDM(a.assetId)+userCell(a.userName,a.id,'assigned')+
     TD(a.model)+TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.ram)+TD(a.warranty)+TD(a.purchaseDate)+
-    svcBadge(a.services)+
+    svcBadge(a.services,a.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       <button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:3px;">Edit</button>
       <button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
@@ -1249,7 +1306,7 @@ function renderSupporting(){
     TDM(s.assetId)+userCell(s.userName,s.id,'supporting')+
     `<td style="padding:9px 11px;font-size:12px;color:var(--accent);font-weight:600;">${s.laptop||'—'}</td>`+
     TDM(s.serial)+TD(s.brand)+TD(s.headset)+TD(s.ups)+TD(s.keyboard)+TD(s.mouse)+TD(s.warranty)+TD(s.purchaseDate)+
-    svcBadge(s.services)+
+    svcBadge(s.services,s.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       <button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:3px;">Edit</button>
       <button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
@@ -1272,7 +1329,7 @@ function renderBackup(){
     TD(b.model||'—')+TDM(b.serial)+TD(b.brand)+TD(b.proc||'—')+TD(b.ram||'—')+
     TD(b.headset||'—')+TD(b.mouse||'—')+TD(b.keyboard||'—')+
     TD(b.collectedDate)+TD(b.reason)+TD(b.warranty)+TD(b.purchaseDate)+
-    svcBadge(b.services)+
+    svcBadge(b.services,b.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       <button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:3px;">Edit</button>
       <button class="act-btn" onclick="openRestore(${b.id})" style="color:var(--accent2);border-color:var(--accent2);margin-right:3px;">↩ Restore</button>
@@ -1290,7 +1347,7 @@ function renderDead(){
   tb.innerHTML=[...list].reverse().map(d=>TROW(
     TDM(d.assetId)+`<td style="padding:9px 11px;color:var(--text2);font-size:12px;">${d.prevUser||'—'}</td>`+
     TDM(d.serial)+TD(d.brand)+`<td style="padding:9px 11px;color:var(--danger);font-size:12px;">${d.reason||'—'}</td>`+
-    TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+svcBadge(d.services)+TD(d.notes)+
+    TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+svcBadge(d.services,d.assetId)+TD(d.notes)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       <button class="act-btn" onclick="openEdit(${d.id},'dead')" style="margin-right:3px;">Edit</button>
       <button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>
@@ -1335,6 +1392,7 @@ function delAsset(id,type){
   if(type==='backup')     backupLogs=backupLogs.filter(x=>x.id!==id);
   if(type==='dead')       deadLogs=deadLogs.filter(x=>x.id!==id);
   triggerAlert('delete',a?a.assetId:'');
+  fbDelete(fbColFor(type), id);
   refreshAll();
 }
 
@@ -1349,6 +1407,8 @@ function moveToDeadDirect(id,type){
   deadLogs.push({id:dId++,assetId:a.assetId,serial:a.serial,brand:a.brand,prevUser:a.userName||'',reason,date:new Date().toISOString().split('T')[0],warranty:a.warranty,purchaseDate:a.purchaseDate,notes:'',services:[]});
   if(type==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==id);
   if(type==='supporting') supportLogs=supportLogs.filter(x=>x.id!==id);
+  fbSave(COL.dead, deadLogs[deadLogs.length-1]);
+  fbDelete(fbColFor(type), id);
   refreshAll();
 }
 
@@ -1405,6 +1465,7 @@ function submitAssetEntry(){
   }
   triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
   refreshAll(); flash('ae_ok'); closeAEForm();
+  fbAfterAdd(curAssetCat);
 }
 
 // ── CUSTOM FIELDS (Supporting) ──
@@ -1478,6 +1539,7 @@ function saveEdit(){
     if(a)Object.assign(a,{serial:g('serial'),brand:g('brand'),prevUser:g('prevUser'),reason:g('reason'),date:g('date'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),notes:g('notes')});
   }
   refreshAll(); flash('edit_ok'); setTimeout(closeEditModal,1200);
+  fbAfterEdit();
 }
 
 // ── ASSIGN USER ──
@@ -1494,6 +1556,7 @@ function confirmAssignUser(){
   const u=val('assign_user').trim();
   if(curAssignType==='assigned'){const a=assignedLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
   if(curAssignType==='supporting'){const a=supportLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
+  fbAfterAssign(curAssignType, curAssignId);
   refreshAll(); closeAssignModal();
 }
 
@@ -1519,8 +1582,11 @@ function confirmMoveToBackup(){
   if(curMoveType==='supporting') a=supportLogs.find(x=>x.id===curMoveId);
   if(!a){closeMoveModal();return;}
   backupLogs.push({id:bId++,fromType:curMoveType,assetId:a.assetId,model:a.model||'',serial:a.serial,brand:a.brand,proc:a.proc||'',ram:a.ram||'',headset:a.headset||'',mouse:a.mouse||'',keyboard:a.keyboard||'',warranty:a.warranty,purchaseDate:a.purchaseDate,prevUser,collectedDate,reason,notes,services:[]});
+  const movedId=curMoveId, movedType=curMoveType;
   if(curMoveType==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==curMoveId);
   if(curMoveType==='supporting') supportLogs=supportLogs.filter(x=>x.id!==curMoveId);
+  fbSave(COL.backup, backupLogs[backupLogs.length-1]);
+  fbDelete(fbColFor(movedType), movedId);
   refreshAll(); closeMoveModal();
 }
 
@@ -1535,17 +1601,56 @@ function closeRestoreModal(){ const m=$$('restoreModal');if(m)m.style.display='n
 function confirmRestore(){
   const target=val('restore_target'), user=val('restore_user').trim();
   const b=backupLogs.find(x=>x.id===curRestoreId);if(!b){closeRestoreModal();return;}
+  const restoredBkpId=curRestoreId;
   if(target==='assigned'){
     assignedLogs.push({id:aId++,assetId:b.assetId,model:b.model||'',serial:b.serial,brand:b.brand,proc:b.proc||'',ram:b.ram||'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user,services:[]});
+    fbSave(COL.assigned, assignedLogs[assignedLogs.length-1]);
   } else if(target==='supporting'){
     supportLogs.push({id:sId++,assetId:b.assetId,laptop:'',serial:b.serial,brand:b.brand,headset:b.headset||'',ups:'',keyboard:b.keyboard||'',mouse:b.mouse||'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user,services:[],custom:{}});
+    fbSave(COL.supporting, supportLogs[supportLogs.length-1]);
   } else {
     deadLogs.push({id:dId++,assetId:b.assetId,serial:b.serial,brand:b.brand,prevUser:user,reason:'Restored from backup — marked dead',date:new Date().toISOString().split('T')[0],warranty:b.warranty,purchaseDate:b.purchaseDate,notes:'',services:[]});
+    fbSave(COL.dead, deadLogs[deadLogs.length-1]);
   }
   backupLogs=backupLogs.filter(x=>x.id!==curRestoreId);
+  fbDelete(COL.backup, restoredBkpId);
   refreshAll(); closeRestoreModal();
 }
 
+
+// ── VIEW SERVICE RECORDS (eye button) ──
+function viewServiceRecords(assetId, e){
+  if(e) e.stopPropagation();
+  // find asset across all logs
+  const all=[...assignedLogs,...supportLogs,...backupLogs,...deadLogs];
+  const asset=all.find(x=>x.assetId===assetId);
+  const services=asset&&Array.isArray(asset.services)?asset.services:[];
+  setText('svcViewAssetLabel','Asset ID: '+assetId);
+  const el=$$('svcViewList');
+  if(!el) return;
+  if(!services.length){
+    el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text3);font-size:13px;">No service records for this asset</div>`;
+  } else {
+    const cols={OK:'var(--accent2)','In Service':'var(--accent3)',Pending:'var(--accent)',Completed:'var(--accent2)'};
+    el.innerHTML=services.map((s,i)=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;font-weight:700;background:rgba(79,142,247,.12);color:var(--text3);padding:2px 8px;border-radius:20px;">#${i+1}</span>
+            ${s.status?`<span style="font-size:12px;font-weight:700;color:${cols[s.status]||'var(--text3)'};">${s.status}</span>`:''}
+          </div>
+          ${s.date?`<span style="font-size:12px;color:var(--text3);">${s.date}</span>`:''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;">
+          ${s.provider?`<div><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;">Provider</span><div style="font-size:13px;margin-top:1px;">${s.provider}</div></div>`:''}
+          ${s.cost?`<div><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;">Cost</span><div style="font-size:13px;margin-top:1px;color:var(--accent2);">${s.cost}</div></div>`:''}
+          ${s.notes?`<div style="grid-column:span 2;"><span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;">Notes</span><div style="font-size:13px;margin-top:1px;color:var(--text2);">${s.notes}</div></div>`:''}
+        </div>
+      </div>`).join('');
+  }
+  const m=$$('svcViewModal'); if(m) m.style.display='flex';
+}
+function closeSvcViewModal(){ const m=$$('svcViewModal');if(m)m.style.display='none'; }
 
 // ── SERVICE RECORD HELPERS ──
 function renderSvcList(services){
@@ -1587,6 +1692,7 @@ function confirmAddServiceRecord(){
   a.services.push(rec);
   renderSvcList(a.services);
   cancelServiceRecord();
+  fbAfterSvc();
   updateSummary(); refreshAll();
 }
 function deleteServiceRecord(i){
@@ -1599,6 +1705,7 @@ function deleteServiceRecord(i){
   if(!a||!Array.isArray(a.services)) return;
   a.services.splice(i,1);
   renderSvcList(a.services);
+  fbAfterSvc();
   refreshAll();
 }
 
@@ -1621,6 +1728,189 @@ function downloadExcel(){
   const a=document.createElement('a');
   a.href=url;a.download='OptiCore_Assets_'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();URL.revokeObjectURL(url);
+}
+
+
+
+// ══════════════════════════════════════════
+// FIREBASE PERSISTENCE
+// ══════════════════════════════════════════
+
+// ── Loading overlay ──
+function showFbLoading(msg){
+  let el=$$('fbLoadOverlay');
+  if(!el){
+    el=document.createElement('div');
+    el.id='fbLoadOverlay';
+    el.style.cssText='position:fixed;inset:0;background:rgba(10,12,16,.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+    el.innerHTML=`<div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;"></div><div id="fbLoadMsg" style="color:var(--text2);font-size:14px;">${msg||'Connecting…'}</div>`;
+    document.body.appendChild(el);
+    if(!document.getElementById('spinStyle')){
+      const s=document.createElement('style');s.id='spinStyle';
+      s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(s);
+    }
+  } else { setText('fbLoadMsg', msg||'Connecting…'); }
+  el.style.display='flex';
+}
+function hideFbLoading(){ const el=$$('fbLoadOverlay');if(el)el.style.display='none'; }
+
+// ── Collection names ──
+const COL = { assigned:'assets_assigned', supporting:'assets_supporting', backup:'assets_backup', dead:'assets_dead', accounts:'login_accounts', perf:'perf_users', perfLogs:'perf_logs', alertCfg:'alert_config' };
+
+// ── Save single doc ──
+async function fbSave(colName, obj){
+  if(!window._db) return;
+  try { await window._fsSetDoc(window._fsDoc(window._db, colName, String(obj.id)), JSON.parse(JSON.stringify(obj))); }
+  catch(e){ console.error('fbSave error',colName,e); }
+}
+
+// ── Delete single doc ──
+async function fbDelete(colName, id){
+  if(!window._db) return;
+  try { await window._fsDeleteDoc(window._fsDoc(window._db, colName, String(id))); }
+  catch(e){ console.error('fbDelete error',colName,e); }
+}
+
+// ── Load all docs from a collection ──
+async function fbLoadAll(colName){
+  if(!window._db) return [];
+  try {
+    const snap = await window._fsGetDocs(window._fsCollection(window._db, colName));
+    return snap.docs.map(d=>d.data());
+  } catch(e){ console.error('fbLoadAll error',colName,e); return []; }
+}
+
+// ── Bootstrap: load all data from Firestore on login ──
+async function fbBootstrap(){
+  showFbLoading('Loading data from Firebase…');
+  try {
+    const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs] = await Promise.all([
+      fbLoadAll(COL.assigned), fbLoadAll(COL.supporting), fbLoadAll(COL.backup),
+      fbLoadAll(COL.dead),     fbLoadAll(COL.accounts),   fbLoadAll(COL.perf),
+      fbLoadAll(COL.perfLogs), fbLoadAll(COL.alertCfg)
+    ]);
+
+    // Restore asset logs
+    assignedLogs = asgn.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
+    supportLogs  = supp.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
+    backupLogs   = bkup.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
+    deadLogs     = dead.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
+
+    // Restore ID counters
+    aId = assignedLogs.length ? Math.max(...assignedLogs.map(x=>x.id||0))+1 : 1;
+    sId = supportLogs.length  ? Math.max(...supportLogs.map(x=>x.id||0))+1  : 1;
+    bId = backupLogs.length   ? Math.max(...backupLogs.map(x=>x.id||0))+1   : 1;
+    dId = deadLogs.length     ? Math.max(...deadLogs.map(x=>x.id||0))+1     : 1;
+
+    // Restore accounts (keep built-in admin, merge Firestore accounts)
+    if(accts.length){
+      const builtIn = loginAccounts.find(a=>a.id===0);
+      loginAccounts = [builtIn, ...accts.filter(a=>a.id!==0)];
+      acctId = Math.max(...loginAccounts.map(x=>x.id||0))+1;
+    }
+
+    // Restore perf users & logs
+    if(pUsers.length){
+      perfUsers = pUsers;
+      uId = Math.max(...perfUsers.map(x=>x.id||0))+1;
+    }
+    if(pLogs.length){
+      perfLogs = pLogs;
+      pId = Math.max(...perfLogs.map(x=>x.id||0))+1;
+    }
+
+    // Restore alert config
+    if(alertCfgDocs.length){
+      const cfg = alertCfgDocs[0];
+      alertEmails = Array.isArray(cfg.emails) ? cfg.emails : [];
+      if(cfg.onDuplicate!==undefined){ const el=$$('alertOnDuplicate'); if(el) el.checked=cfg.onDuplicate; }
+      if(cfg.onNew!==undefined){       const el=$$('alertOnNew');       if(el) el.checked=cfg.onNew; }
+      if(cfg.onDelete!==undefined){    const el=$$('alertOnDelete');    if(el) el.checked=cfg.onDelete; }
+    }
+
+    refreshAll();
+    renderUGrid && renderUGrid();
+    renderAccounts && renderAccounts();
+  } catch(e){
+    console.error('fbBootstrap error',e);
+    alert('Firebase load error: '+e.message);
+  }
+  hideFbLoading();
+}
+
+// ══════════════════════════════════════════
+// FIREBASE — SAVE HELPERS (called directly, no monkey-patching)
+// ══════════════════════════════════════════
+
+function fbGetAsset(type,id){
+  if(type==='assigned')   return assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') return supportLogs.find(x=>x.id===id);
+  if(type==='backup')     return backupLogs.find(x=>x.id===id);
+  if(type==='dead')       return deadLogs.find(x=>x.id===id);
+}
+function fbColFor(type){ return COL[type]||COL.dead; }
+
+// Called after submitAssetEntry adds to array
+async function fbAfterAdd(type){
+  const arr = type==='assigned'?assignedLogs:type==='supporting'?supportLogs:type==='backup'?backupLogs:deadLogs;
+  const newest = arr[arr.length-1];
+  if(newest) await fbSave(fbColFor(type), newest);
+}
+
+// Called after saveEdit
+async function fbAfterEdit(){
+  const a = fbGetAsset(curEditType, curEditId);
+  if(a) await fbSave(fbColFor(curEditType), a);
+}
+
+// Called after service record added
+async function fbAfterSvc(){
+  const a = fbGetAsset(curEditType, curEditId);
+  if(a) await fbSave(fbColFor(curEditType), a);
+}
+
+// Called after assign user
+async function fbAfterAssign(type, id){
+  const a = fbGetAsset(type, id);
+  if(a) await fbSave(fbColFor(type), a);
+}
+
+// ── Firebase status indicator ──
+function showFbStatus(ok){
+  let el=$$('fbStatusDot');
+  if(!el){
+    el=document.createElement('div'); el.id='fbStatusDot';
+    el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;box-shadow:0 0 0 2px rgba(0,0,0,.4);';
+    document.body.appendChild(el);
+  }
+  el.style.background = ok ? 'var(--accent2)' : 'var(--danger)';
+  el.title = ok ? '🟢 Firebase: Connected' : '🔴 Firebase: Offline';
+}
+
+// ── Test connection on page load ──
+window.addEventListener('load', async ()=>{
+  if(!window._db){ showFbStatus(false); return; }
+  try {
+    await window._fsGetDocs(window._fsCollection(window._db,'_ping'));
+    showFbStatus(true);
+  } catch(e){ showFbStatus(false); }
+});
+
+// ── Bootstrap called after successful login ──
+// Hooked via DOMContentLoaded — we replace the login button handler
+document.addEventListener('DOMContentLoaded', ()=>{
+  const lp = $$('loginPass');
+  if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
+});
+
+async function handleLogin(){
+  // Run original login logic (sets currentUser)
+  doLogin();
+  if(!currentUser) return; // bad credentials — doLogin showed error already
+  if(!window._db){ showFbStatus(false); return; }
+  await fbBootstrap();
+  showFbStatus(true);
 }
 
 
