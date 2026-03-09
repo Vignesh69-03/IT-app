@@ -975,6 +975,7 @@ function addPerfUser(){
   if(!name){ inp.focus(); return; }
   if(perfUsers.find(u=>u.name.toLowerCase()===name.toLowerCase())){ alert('User already exists.'); return; }
   perfUsers.push({id:uId++,name});
+  fbSave(COL.perf, perfUsers[perfUsers.length-1]);
   inp.value='';
   renderUGrid();
 }
@@ -982,8 +983,11 @@ function delPerfUser(id,ev){
   ev.stopPropagation();
   const u = perfUsers.find(x=>x.id===id);
   if(!confirm(`Delete "${u?u.name:'this user'}"? Their logs will also be removed.`)) return;
+  const logsToDelete = perfLogs.filter(x=>x.userId===id);
   perfUsers  = perfUsers.filter(x=>x.id!==id);
   perfLogs   = perfLogs.filter(x=>x.userId!==id);
+  fbDelete(COL.perf, id);
+  logsToDelete.forEach(l=>fbDelete(COL.perfLogs, l.id));
   renderUGrid(); refreshPerfDash();
 }
 function renderUGrid(){
@@ -1055,6 +1059,7 @@ function submitPerf(){
   const month = getPerfMonth();
   perfLogs.push({id:pId++, userId:curUserId, userName:u.name, cpu, mem,
     uptime:isNaN(uptime)?0:uptime, resp:isNaN(resp)?0:resp, time, month, dateObj:new Date()});
+  fbSave(COL.perfLogs, perfLogs[perfLogs.length-1]);
   renderULog(curUserId); renderUGrid(); refreshPerfDash();
   flash('pf_ok'); clearPF();
 }
@@ -1791,50 +1796,58 @@ async function fbBootstrap(){
       fbLoadAll(COL.perfLogs), fbLoadAll(COL.alertCfg)
     ]);
 
+    // Helper: Firestore Timestamps → plain string to avoid serialisation issues
+    const fixDate = x => ({ ...x,
+      services: Array.isArray(x.services) ? x.services : [],
+      dateObj: x.dateObj ? (x.dateObj.toDate ? x.dateObj.toDate().toISOString() : x.dateObj) : null
+    });
+
     // Restore asset logs
-    assignedLogs = asgn.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
-    supportLogs  = supp.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
-    backupLogs   = bkup.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
-    deadLogs     = dead.map(x=>({...x, services:Array.isArray(x.services)?x.services:[]}));
+    assignedLogs = asgn.map(fixDate);
+    supportLogs  = supp.map(fixDate);
+    backupLogs   = bkup.map(fixDate);
+    deadLogs     = dead.map(fixDate);
 
-    // Restore ID counters
-    aId = assignedLogs.length ? Math.max(...assignedLogs.map(x=>x.id||0))+1 : 1;
-    sId = supportLogs.length  ? Math.max(...supportLogs.map(x=>x.id||0))+1  : 1;
-    bId = backupLogs.length   ? Math.max(...backupLogs.map(x=>x.id||0))+1   : 1;
-    dId = deadLogs.length     ? Math.max(...deadLogs.map(x=>x.id||0))+1     : 1;
+    // Restore ID counters — always recalculate from data
+    const maxId = arr => arr.length ? Math.max(...arr.map(x => Number(x.id)||0)) + 1 : 1;
+    aId = maxId(assignedLogs);
+    sId = maxId(supportLogs);
+    bId = maxId(backupLogs);
+    dId = maxId(deadLogs);
 
-    // Restore accounts (keep built-in admin, merge Firestore accounts)
+    // Restore accounts (keep built-in admin id=0, merge rest from Firestore)
+    const builtIn = {id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'};
     if(accts.length){
-      const builtIn = loginAccounts.find(a=>a.id===0);
-      loginAccounts = [builtIn, ...accts.filter(a=>a.id!==0)];
-      acctId = Math.max(...loginAccounts.map(x=>x.id||0))+1;
+      loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
+    } else {
+      loginAccounts = [builtIn];
     }
+    acctId = maxId(loginAccounts);
 
-    // Restore perf users & logs
-    if(pUsers.length){
-      perfUsers = pUsers;
-      uId = Math.max(...perfUsers.map(x=>x.id||0))+1;
-    }
-    if(pLogs.length){
-      perfLogs = pLogs;
-      pId = Math.max(...perfLogs.map(x=>x.id||0))+1;
-    }
+    // Restore perf users & logs — fix Timestamp dateObj
+    perfUsers = pUsers.length ? pUsers : [];
+    perfLogs  = pLogs.length  ? pLogs.map(l=>({...l, dateObj: l.dateObj ? (l.dateObj.toDate ? l.dateObj.toDate().toISOString() : l.dateObj) : null})) : [];
+    uId = maxId(perfUsers);
+    pId = maxId(perfLogs);
 
     // Restore alert config
     if(alertCfgDocs.length){
       const cfg = alertCfgDocs[0];
       alertEmails = Array.isArray(cfg.emails) ? cfg.emails : [];
-      if(cfg.onDuplicate!==undefined){ const el=$$('alertOnDuplicate'); if(el) el.checked=cfg.onDuplicate; }
-      if(cfg.onNew!==undefined){       const el=$$('alertOnNew');       if(el) el.checked=cfg.onNew; }
-      if(cfg.onDelete!==undefined){    const el=$$('alertOnDelete');    if(el) el.checked=cfg.onDelete; }
+      const setChk = (id,v) => { const el=$$(id); if(el && v!==undefined) el.checked=v; };
+      setChk('alertOnDuplicate', cfg.onDuplicate);
+      setChk('alertOnNew',       cfg.onNew);
+      setChk('alertOnDelete',    cfg.onDelete);
     }
 
+    // Refresh all UI
     refreshAll();
-    renderUGrid && renderUGrid();
-    renderAccounts && renderAccounts();
+    if(typeof renderUGrid   ==='function') renderUGrid();
+    if(typeof renderAccounts==='function') renderAccounts();
+    if(typeof refreshPerfDash==='function') refreshPerfDash();
   } catch(e){
-    console.error('fbBootstrap error',e);
-    alert('Firebase load error: '+e.message);
+    console.error('fbBootstrap error', e);
+    alert('Firebase sync error: ' + e.message);
   }
   hideFbLoading();
 }
@@ -1889,30 +1902,36 @@ function showFbStatus(ok){
 }
 
 // ── Test connection on page load ──
-window.addEventListener('load', async ()=>{
-  if(!window._db){ showFbStatus(false); return; }
-  try {
-    await window._fsGetDocs(window._fsCollection(window._db,'_ping'));
-    showFbStatus(true);
-  } catch(e){ showFbStatus(false); }
-});
 
 // ── Bootstrap called after successful login ──
-// Hooked via DOMContentLoaded — we replace the login button handler
 document.addEventListener('DOMContentLoaded', ()=>{
   const lp = $$('loginPass');
   if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
 });
 
 async function handleLogin(){
-  // Run original login logic (sets currentUser)
   doLogin();
-  if(!currentUser) return; // bad credentials — doLogin showed error already
+  if(!currentUser) return;
   if(!window._db){ showFbStatus(false); return; }
-  await fbBootstrap();
+  // Data already loaded on page load — just refresh UI
+  refreshAll();
+  renderUGrid && renderUGrid();
+  renderAccounts && renderAccounts();
   showFbStatus(true);
 }
 
+// ── Auto-load data on every page load (so refresh never loses data) ──
+// Waits for Firebase module to expose window._db, then loads immediately
+async function waitForDbThenLoad(){
+  let tries = 0;
+  while(!window._db && tries < 40){ await new Promise(r=>setTimeout(r,100)); tries++; }
+  if(!window._db){ showFbStatus(false); return; }
+  try {
+    await fbBootstrap();
+    showFbStatus(true);
+  } catch(e){ console.error('Auto-load error', e); showFbStatus(false); }
+}
+window.addEventListener('load', waitForDbThenLoad);
 
 </script>
 </body>
