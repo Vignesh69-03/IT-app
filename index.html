@@ -842,9 +842,13 @@ function flash(id){ const e=$$(id); if(e){e.classList.add('show');setTimeout(()=
 // AUTH
 // ══════════════════════════════════════════
 function doLogin(){
+  // Legacy sync check — only used as fallback; handleLogin is the main async path
   const u = val('loginUser').trim().toLowerCase();
-  const p = val('loginPass');
-  const acct = loginAccounts.find(a=>a.username.toLowerCase()===u && a.password===p);
+  const p = val('loginPass').trim();
+  const acct = loginAccounts.find(a =>
+    ((a.email && a.email.trim().toLowerCase()===u) || (a.username && a.username.trim().toLowerCase()===u)) &&
+    String(a.password).trim()===p
+  );
   if(!acct){ setText('loginErr','Invalid username or password.'); return; }
   setText('loginErr','');
   currentUser = acct;
@@ -852,7 +856,7 @@ function doLogin(){
   $$('appScreen').classList.add('active');
   setText('tbAv', acct.name[0].toUpperCase());
   setText('tbName', acct.name);
-  $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none';
+  applyRoleUI();
   goHome();
 }
 function doLogout(){
@@ -1162,19 +1166,28 @@ function delUser(id){
   renderAccounts();
 }
 function clearUM(){ ['um_name','um_email','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
-function showPass(btn,pass){ const s=btn.previousElementSibling; if(btn.textContent==='show'){s.textContent=pass;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(pass.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
+function showPass(btn,pass){ const s=btn.previousElementSibling; const p=typeof pass==='string'?pass:String(pass||''); if(btn.textContent==='show'){s.textContent=p;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(p.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
 function renderAccounts(){
   const tb = $$('um_tb'); if(!tb) return;
-  tb.innerHTML = loginAccounts.map(a=>`<tr>
-    <td><strong>${a.name}</strong></td>
-    <td style="font-size:12px;color:var(--accent2);">${a.email?'<span title="'+a.email+'">'+a.email+'</span>':'<span style="color:var(--text3);">—</span>'}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:13px;">${a.username}</td>
-    <td><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min((a.password||'').length,8))}</span>
-        <button onclick="showPass(this,'${a.password||''}')" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button></td>
-    <td><span class="pill ${a.role==='Admin'?'pb':a.role==='Editor'?'pg':'po'}">${a.role}</span></td>
-    <td style="color:var(--text2);font-size:12px;">${a.created}</td>
-    <td>${a.id===0?'<span style="color:var(--text3);font-size:11px;">Protected</span>':`<button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button>`}</td>
-  </tr>`).join('');
+  tb.innerHTML = loginAccounts.map(a=>{
+    const pw = String(a.password||'');
+    const emailCell = a.email ? `<span style="color:var(--accent2);font-size:12px;">${a.email}</span>` : `<span style="color:var(--text3);font-size:11px;">—</span>`;
+    const pwCell = `<span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min(pw.length,8))}</span>
+        <button onclick="showPass(this,decodeURIComponent('${encodeURIComponent(pw)}'))" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button>`;
+    const rolePill = `<span class="pill ${a.role==='Admin'?'pb':a.role==='Editor'?'pg':'po'}">${a.role}</span>`;
+    const actionCell = a.id===0
+      ? '<span style="color:var(--text3);font-size:11px;">Protected</span>'
+      : `<button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button>`;
+    return `<tr>
+      <td><strong>${a.name}</strong></td>
+      <td>${emailCell}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;">${a.username||'—'}</td>
+      <td>${pwCell}</td>
+      <td>${rolePill}</td>
+      <td style="color:var(--text2);font-size:12px;">${a.created||''}</td>
+      <td>${actionCell}</td>
+    </tr>`;
+  }).join('');
 }
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
