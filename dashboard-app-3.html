@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OptiCore — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0c10;--surface:#12151c;--surface2:#1a1e28;--border:#252a38;--accent:#4f8ef7;--accent2:#38d9a9;--accent3:#f7834f;--accent4:#c77dff;--text:#e8ecf4;--text2:#8b93a7;--text3:#555e75;--danger:#f25c5c;--success:#38d9a9;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* LOGIN */
+#loginScreen{align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(79,142,247,.15),transparent 70%),var(--bg);}
+.lc{width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:slideUp .5s ease;}
+.ll{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+.lm{width:38px;height:38px;background:var(--accent);border-radius:10px;display:grid;place-items:center;font-size:18px;font-weight:700;color:#fff;}
+.lt{font-size:20px;font-weight:700;} .lt span{color:var(--accent);}
+.lh1{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.lh2{color:var(--text2);font-size:14px;margin-bottom:32px;}
+.fi{margin-bottom:18px;}
+.fi label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.fi input,.fi select,.fi textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.12);}
+.fi select option{background:var(--surface2);}
+.fi textarea{resize:vertical;min-height:80px;}
+.lerr{color:var(--danger);font-size:13px;margin-bottom:14px;min-height:18px;}
+.btn-login{width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 20px rgba(79,142,247,.35);}
+.btn-login:hover{background:#6a9ff8;} .btn-login:active{transform:scale(.98);}
+.lhint{margin-top:20px;text-align:center;font-size:12px;color:var(--text3);}
+.lhint span{color:var(--accent);}
+
+/* APP */
+#appScreen{flex-direction:column;}
+.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
+.tb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;cursor:pointer;flex-shrink:0;}
+.tb-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;}
+.tb-logo span{color:var(--accent);}
+.tb-sep{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);flex-shrink:0;}
+.crumb{cursor:pointer;} .crumb:hover{color:var(--accent);}
+.b-sep{color:var(--text3);} .b-cur{color:var(--text);font-weight:600;}
+
+/* GLOBAL FILTER in topbar */
+#gfBar{display:none;align-items:center;gap:6px;margin-left:10px;}
+.gfl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.gfb{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.gfb:hover{border-color:var(--accent);color:var(--accent);}
+.gfb.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+#gfCustom{display:none;align-items:center;gap:5px;}
+#gfCustom.show{display:flex;}
+#gfCustom input[type=date]{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:inherit;font-size:12px;outline:none;color-scheme:dark;cursor:pointer;width:130px;}
+#gfCustom input[type=date]:focus{border-color:var(--accent);}
+#gfResult{font-size:11px;color:var(--text3);white-space:nowrap;}
+
+.tb-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0;}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent4));display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;}
+.tb-name{font-size:13px;font-weight:500;}
+.btn-out{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;font-size:12px;cursor:pointer;transition:all .18s;}
+.btn-out:hover{border-color:var(--danger);color:var(--danger);}
+
+/* VIEWS */
+.view{display:none;flex:1;padding:32px 32px;animation:fadeIn .3s ease;}
+.view.active{display:block;}
+.ph{margin-bottom:24px;}
+.ph h1{font-size:22px;font-weight:700;letter-spacing:-.4px;}
+.ph p{color:var(--text2);font-size:13.5px;margin-top:4px;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.bb{background:rgba(79,142,247,.15);color:var(--accent);}
+.bg{background:rgba(56,217,169,.15);color:var(--accent2);}
+.bo{background:rgba(247,131,79,.15);color:var(--accent3);}
+.bp{background:rgba(199,125,255,.15);color:var(--accent4);}
+
+/* HOME CARDS */
+.hgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:840px;}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 26px;cursor:pointer;transition:border-color .2s,transform .18s,box-shadow .18s;position:relative;overflow:hidden;}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.mc.m1::before{background:var(--accent);}  .mc.m1:hover{border-color:rgba(79,142,247,.5);}
+.mc.m2::before{background:var(--accent2);} .mc.m2:hover{border-color:rgba(56,217,169,.5);}
+.mc.m3::before{background:var(--accent3);} .mc.m3:hover{border-color:rgba(247,131,79,.5);}
+.mc.m4::before{background:var(--accent4);} .mc.m4:hover{border-color:rgba(199,125,255,.5);}
+.mc.m5::before{background:var(--accent2);} .mc.m5:hover{border-color:rgba(56,217,169,.5);}
+.mc:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.3);}
+.mci{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:20px;margin-bottom:14px;}
+.i1{background:rgba(79,142,247,.15);} .i2{background:rgba(56,217,169,.15);}
+.i3{background:rgba(247,131,79,.15);} .i4{background:rgba(199,125,255,.15);}
+.i5{background:rgba(56,217,169,.15);}
+.mc-title{font-size:15px;font-weight:700;margin-bottom:5px;}
+.mc-desc{font-size:13px;color:var(--text2);line-height:1.5;}
+.mc-arr{position:absolute;bottom:20px;right:20px;font-size:16px;color:var(--text3);transition:all .15s;}
+.mc:hover .mc-arr{color:var(--accent);transform:translateX(3px);}
+
+/* STAT CARDS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.c1::after{background:var(--accent);} .sc.c2::after{background:var(--accent2);}
+.sc.c3::after{background:var(--accent3);} .sc.c4::after{background:var(--accent4);}
+.sl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.sv{font-size:26px;font-weight:700;letter-spacing:-1px;font-family:'DM Mono',monospace;}
+.ss{font-size:11.5px;color:var(--text3);margin-top:4px;}
+
+/* TABLES */
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.th{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.th h3{font-size:14px;font-weight:600;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--border);}
+th{padding:9px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+td{padding:11px 16px;font-size:13.5px;border-bottom:1px solid rgba(37,42,56,.5);}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:rgba(255,255,255,.015);}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.pg{background:rgba(56,217,169,.15);color:var(--accent2);} .po{background:rgba(247,131,79,.15);color:var(--accent3);}
+.pr{background:rgba(242,92,92,.15);color:var(--danger);} .pb{background:rgba(79,142,247,.15);color:var(--accent);}
+
+/* BUTTONS */
+.btn{padding:7px 13px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.p{background:var(--accent);border-color:var(--accent);color:#fff;} .btn.p:hover{background:#6a9ff8;}
+.btn.d{background:rgba(242,92,92,.1);border-color:rgba(242,92,92,.3);color:var(--danger);} .btn.d:hover{border-color:var(--danger);}
+
+/* FORM CARDS */
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:24px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg .full{grid-column:1/-1;}
+.fa{display:flex;gap:9px;margin-top:18px;align-items:center;}
+.ok{display:none;align-items:center;gap:7px;color:var(--success);font-size:13px;font-weight:500;}
+.ok.show{display:flex;}
+
+/* CHART BARS */
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.cl{font-size:12px;color:var(--text2);width:85px;flex-shrink:0;}
+.cbg{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.cb{height:100%;border-radius:4px;transition:width .7s ease;}
+.cv{font-size:12px;font-family:'DM Mono',monospace;width:60px;text-align:right;color:var(--text2);}
+
+/* USER LIST */
+.ugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:16px;}
+.uc{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 16px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .15s;position:relative;}
+.uc:hover{border-color:rgba(247,131,79,.5);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.25);}
+.ua{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent4));display:grid;place-items:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.ui{flex:1;min-width:0;}
+.un{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ur{font-size:12px;color:var(--text2);margin-top:2px;}
+.udot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.udot.on{background:var(--success);}
+.udel{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:transparent;border:none;color:transparent;font-size:12px;cursor:pointer;display:grid;place-items:center;transition:all .15s;}
+.uc:hover .udel{color:var(--danger);background:rgba(242,92,92,.15);}
+.addrow{background:var(--surface);border:1px dashed var(--border);border-radius:13px;padding:18px 16px;display:flex;align-items:center;gap:11px;margin-bottom:6px;}
+.addrow input{flex:1;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:14px;outline:none;}
+.addrow input::placeholder{color:var(--text3);}
+
+/* USER FORM */
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:inherit;font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:20px;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ufhdr{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+.ufav{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent4));display:grid;place-items:center;font-size:19px;font-weight:700;color:#fff;flex-shrink:0;}
+.ufname{font-size:19px;font-weight:700;letter-spacing:-.3px;}
+.ufsub{font-size:13px;color:var(--text2);margin-top:3px;}
+
+/* INLINE EDIT */
+.amtcell{cursor:pointer;}
+.amtcell:hover .amtd{color:var(--accent);text-decoration:underline dotted;}
+.amtcell .eh{font-size:10px;color:var(--text3);margin-left:4px;opacity:0;transition:opacity .15s;}
+.amtcell:hover .eh{opacity:1;}
+.iinput{width:100px;background:var(--surface2);border:1px solid var(--accent);border-radius:6px;padding:4px 9px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;outline:none;box-shadow:0 0 0 3px rgba(79,142,247,.15);}
+
+/* MONTH SELECT */
+.msel{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:inherit;font-size:13px;font-weight:600;outline:none;cursor:pointer;}
+.msel:focus{border-color:var(--accent);}
+
+/* ASSET TABS — underline style */
+.ltab{padding:8px 16px;border:none;background:transparent;color:var(--text3);font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.ltab:hover{color:var(--text);}
+.ltab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+/* Asset helpers */
+.th-s{padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.td-empty{padding:28px 12px;text-align:center;color:var(--text3);font-size:13px;}
+.cat-btn{padding:14px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;text-align:left;width:100%;}
+.cat-btn strong{display:block;margin-bottom:2px;}
+.cat-btn span{font-size:12px;color:var(--text3);}
+/* Row action dropdown */
+.act-wrap{position:relative;display:inline-block;}
+.act-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:3px 9px;font-size:12px;cursor:pointer;font-family:inherit;}
+.act-btn:hover{color:var(--text);border-color:var(--accent);}
+.act-menu{display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:9px;min-width:165px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:100;overflow:hidden;}
+.act-menu.open{display:block;}
+.act-item{display:block;width:100%;padding:9px 14px;background:none;border:none;color:var(--text2);font-family:inherit;font-size:13px;text-align:left;cursor:pointer;}
+.act-item:hover{background:var(--surface2);color:var(--text);}
+.act-item.danger{color:var(--danger);}
+.act-item.danger:hover{background:rgba(255,89,89,.08);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="lc">
+    <div class="ll"><div class="lm">O</div><div class="lt">Opti<span>Core</span></div></div>
+    <div class="lh1">Welcome back</div>
+    <div class="lh2">Sign in to access the management system</div>
+    <div class="fi"><label>Username</label><input type="text" id="loginUser" placeholder="admin"/></div>
+    <div class="fi"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+    <div class="lerr" id="loginErr"></div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="lhint">Demo: <span>admin</span> / <span>1234</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="screen">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-logo" onclick="goHome()">
+      <div class="tb-mark">O</div>Opti<span>Core</span>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="breadcrumb" id="breadcrumb"><span class="b-cur">Home</span></div>
+
+    <!-- GLOBAL FILTER BAR -->
+    <div id="gfBar">
+      <span class="gfl">🗓 Filter:</span>
+      <button class="gfb on" onclick="applyGF('all',this)">All Time</button>
+      <button class="gfb" onclick="applyGF('today',this)">Today</button>
+      <button class="gfb" onclick="applyGF('lastMonth',this)">Last Month</button>
+      <button class="gfb" onclick="applyGF('custom',this)">Custom ▾</button>
+      <div id="gfCustom">
+        <input type="date" id="gfFrom" onchange="applyGF('custom',null)"/>
+        <span style="color:var(--text3);font-size:11px;">→</span>
+        <input type="date" id="gfTo" onchange="applyGF('custom',null)"/>
+      </div>
+      <span id="gfResult"></span>
+    </div>
+
+    <div class="tb-right">
+      <div class="av" id="tbAv">A</div>
+      <span class="tb-name" id="tbName">Admin</span>
+      <button class="btn-out" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="v-home">
+    <div class="ph"><h1>Management System</h1><p>Choose a module to get started</p></div>
+    <div class="hgrid">
+      <div class="mc m3" onclick="nav('perfUsers')"><div class="mci i3">⚡</div><div class="mc-title">System Performance</div><div class="mc-desc">Add users, select a month, click a user to fill in their system performance details.</div><div class="mc-arr">→</div></div>
+      <div class="mc m4" onclick="nav('perfDash')"><div class="mci i4">📈</div><div class="mc-title">Performance Summary</div><div class="mc-desc">Aggregated metrics and logs across all users — updates automatically as data is entered.</div><div class="mc-arr">→</div></div>
+      <div class="mc m1" onclick="nav('assetDetail')"><div class="mci i1">🗂️</div><div class="mc-title">Asset Sheet</div><div class="mc-desc">Manage assets — view assigned assets, supporting assets, and log new asset entries.</div><div class="mc-arr">→</div></div>
+      <div class="mc m5" id="cardUM" onclick="nav('userMgmt')" style="display:none;"><div class="mci i5">🔐</div><div class="mc-title">User Management</div><div class="mc-desc">Create and manage login credentials. Add users with a username and password.</div><div class="mc-arr">→</div></div>
+    </div>
+  </div>
+
+  <!-- PERF USER LIST -->
+  <div class="view" id="v-perfUsers">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <h1>System Performance</h1><span class="badge bo">User List</span>
+      </div>
+      <p>Select a month → click a user card to fill in their performance data</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">📅 Month:</span>
+      <select class="msel" id="perfMonth" onchange="renderUGrid()">
+        <option>January 2026</option><option>February 2026</option><option selected>March 2026</option>
+        <option>April 2026</option><option>May 2026</option><option>June 2026</option>
+        <option>July 2026</option><option>August 2026</option><option>September 2026</option>
+        <option>October 2026</option><option>November 2026</option><option>December 2026</option>
+      </select>
+      <span style="font-size:12px;color:var(--text3);">🟢 = data submitted for this month</span>
+    </div>
+    <div class="addrow">
+      <div style="width:42px;height:42px;border-radius:50%;background:var(--surface2);border:1px dashed var(--border);display:grid;place-items:center;font-size:18px;color:var(--text3);flex-shrink:0;">+</div>
+      <input type="text" id="newUN" placeholder="Type a user name and press Enter…" onkeydown="if(event.key==='Enter')addPerfUser()"/>
+      <button class="btn p" onclick="addPerfUser()">Add User</button>
+    </div>
+    <p style="font-size:11.5px;color:var(--text3);margin-bottom:2px;">Hover a card and click ✕ to delete user</p>
+    <div class="ugrid" id="uGrid"></div>
+    <div id="uEmpty" style="display:none;text-align:center;color:var(--text3);padding:40px;font-size:14px;">No users yet — type a name above and press Enter.</div>
+  </div>
+
+  <!-- PERF USER FORM -->
+  <div class="view" id="v-perfForm">
+    <button class="back-btn" onclick="nav('perfUsers')">← Back to User List</button>
+    <div class="ufhdr">
+      <div class="ufav" id="uf_av">J</div>
+      <div>
+        <div class="ufname" id="uf_name">User</div>
+        <div class="ufsub">Submitting for: <strong id="uf_month" style="color:var(--accent3);">March 2026</strong></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;">
+      <div class="fc">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:20px;">System Performance Metrics</h3>
+        <div class="fi" style="margin-bottom:15px;"><label>CPU Usage (%)</label><input type="number" id="pf_cpu" placeholder="e.g. 72" min="0" max="100"/></div>
+        <div class="fi" style="margin-bottom:15px;"><label>Memory Usage (%)</label><input type="number" id="pf_mem" placeholder="e.g. 58" min="0" max="100"/></div>
+        <div class="fi" style="margin-bottom:15px;"><label>Uptime (%)</label><input type="number" id="pf_uptime" placeholder="e.g. 99.9" min="0" max="100" step="0.1"/></div>
+        <div class="fi" style="margin-bottom:4px;"><label>Response Time (ms)</label><input type="number" id="pf_resp" placeholder="e.g. 142" min="0"/></div>
+        <div class="fa">
+          <button class="btn p" onclick="submitPerf()">Save Entry</button>
+          <button class="btn" onclick="clearPF()">Clear</button>
+          <span class="ok" id="pf_ok">✓ Saved</span>
+        </div>
+      </div>
+      <div class="tw">
+        <div class="th"><h3 id="uf_logTitle">Logs</h3><span id="uf_logMonth" style="font-size:11.5px;color:var(--accent3);font-weight:600;"></span></div>
+        <table><thead><tr><th>Time</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Response</th></tr></thead>
+        <tbody id="uf_logTb"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">No entries yet</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERF SUMMARY DASHBOARD -->
+  <div class="view" id="v-perfDash">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <h1>Performance Summary Dashboard</h1><span class="badge bp" id="pd_badge">March 2026</span>
+      </div>
+      <p>Aggregated data — use month selector and date filter above to slice the data</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">📅 Month:</span>
+      <select class="msel" id="dashMonth" onchange="refreshPerfDash()">
+        <option>January 2026</option><option>February 2026</option><option selected>March 2026</option>
+        <option>April 2026</option><option>May 2026</option><option>June 2026</option>
+        <option>July 2026</option><option>August 2026</option><option>September 2026</option>
+        <option>October 2026</option><option>November 2026</option><option>December 2026</option>
+      </select>
+    </div>
+    <div class="sg">
+      <div class="sc c3"><div class="sl">Avg CPU</div><div class="sv" id="pd_cpu">—</div><div class="ss" id="pd_cpuS">No data</div></div>
+      <div class="sc c1"><div class="sl">Avg Memory</div><div class="sv" id="pd_mem">—</div><div class="ss" id="pd_memS">No data</div></div>
+      <div class="sc c2"><div class="sl">Avg Uptime</div><div class="sv" id="pd_up">—</div><div class="ss" id="pd_upS">No data</div></div>
+      <div class="sc c4"><div class="sl">Total Logs</div><div class="sv" id="pd_cnt">0</div><div class="ss" id="pd_cntS">0 users</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="tw">
+        <div class="th"><h3>All Performance Logs</h3></div>
+        <table><thead><tr><th>User</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Response</th><th>Time</th></tr></thead>
+        <tbody id="pd_logs"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody></table>
+      </div>
+      <div class="tw" style="padding:20px;">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">CPU Usage by User</h3>
+        <div id="pd_bars"><div style="text-align:center;color:var(--text3);font-size:13px;padding:20px 0;">No data yet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER MANAGEMENT -->
+  <div class="view" id="v-userMgmt">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <h1>User Management</h1><span class="badge bp">Admin Only</span>
+      </div>
+      <p>Create login credentials so other people can sign in to this system</p>
+    </div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start;">
+      <div class="fc">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:18px;">Create New Login</h3>
+        <div class="fi"><label>Full Name</label><input type="text" id="um_name" placeholder="e.g. John Smith"/></div>
+        <div class="fi"><label>Username</label><input type="text" id="um_user" placeholder="e.g. jsmith" autocomplete="off"/></div>
+        <div class="fi"><label>Password</label><input type="password" id="um_pass" placeholder="Min 3 characters" autocomplete="new-password"/></div>
+        <div class="fi"><label>Role</label>
+          <select id="um_role"><option>Viewer</option><option>Editor</option><option>Admin</option></select>
+        </div>
+        <div class="fa">
+          <button class="btn p" onclick="createUser()">Create User</button>
+          <button class="btn" onclick="clearUM()">Clear</button>
+          <span class="ok" id="um_ok">✓ Created</span>
+        </div>
+        <div class="lerr" id="um_err" style="margin-top:10px;margin-bottom:0;"></div>
+      </div>
+      <div class="tw">
+        <div class="th"><h3>Login Accounts</h3><span style="font-size:11px;color:var(--text3);">Admin account is protected</span></div>
+        <table><thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Role</th><th>Created</th><th></th></tr></thead>
+        <tbody id="um_tb"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSET SHEET -->
+  <div class="view" id="v-assetDetail">
+    <div class="ph">
+      <h1>Asset Sheet</h1>
+      <p>Manage all assets — entry, assignment, peripherals and backup</p>
+    </div>
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);">
+      <button class="ltab on" id="tab-assigned"  onclick="switchTab('assigned')">Assigned Assets</button>
+      <button class="ltab"    id="tab-supporting" onclick="switchTab('supporting')">Supporting Assets</button>
+      <button class="ltab"    id="tab-backup"     onclick="switchTab('backup')">Backup Assets</button>
+      <button class="ltab"    id="tab-entry"      onclick="switchTab('entry')">Asset Entry</button>
+    </div>
+
+    <!-- TAB: ASSIGNED -->
+    <div id="tabp-assigned">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:13px;color:var(--text2);" id="av_assignedCount">0 assets</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;" id="assignedTable">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th class="th-s">Asset ID</th><th class="th-s">User Name</th><th class="th-s">Serial No</th>
+          <th class="th-s">Brand</th><th class="th-s">Processor</th><th class="th-s">Warranty</th>
+          <th class="th-s">Purchase Date</th><th class="th-s" style="min-width:140px;"></th>
+        </tr></thead>
+        <tbody id="av_assignedTb"><tr><td colspan="8" class="td-empty">No assigned assets yet — add via Asset Entry tab</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: SUPPORTING -->
+    <div id="tabp-supporting" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:13px;color:var(--text2);" id="av_supportCount">0 assets</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th class="th-s">Asset ID</th><th class="th-s">User Name</th><th class="th-s">Serial No</th>
+          <th class="th-s">Brand</th><th class="th-s">Headset</th><th class="th-s">UPS</th>
+          <th class="th-s">Keyboard</th><th class="th-s">Mouse</th><th class="th-s">Warranty</th>
+          <th class="th-s">Purchase Date</th><th class="th-s"></th>
+        </tr></thead>
+        <tbody id="av_supportTb"><tr><td colspan="11" class="td-empty">No supporting assets yet — add via Asset Entry tab</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: BACKUP -->
+    <div id="tabp-backup" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:13px;color:var(--text2);" id="av_backupCount">0 assets</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th class="th-s">Type</th><th class="th-s">Asset ID</th><th class="th-s">Prev User</th>
+          <th class="th-s">Serial No</th><th class="th-s">Brand</th>
+          <th class="th-s">Headset</th><th class="th-s">Mouse</th><th class="th-s">Keyboard</th>
+          <th class="th-s">Collected</th><th class="th-s">Reason</th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s"></th>
+        </tr></thead>
+        <tbody id="av_backupTb"><tr><td colspan="13" class="td-empty">No backup assets yet</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: ASSET ENTRY -->
+    <div id="tabp-entry" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:13px;color:var(--text2);" id="av_allCount">0 entries</span>
+        <button class="btn p" onclick="openCatPicker()">+ New Asset Entry</button>
+      </div>
+
+      <!-- Category picker -->
+      <div id="catPicker" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;max-width:520px;">
+        <p style="font-size:14px;font-weight:600;margin-bottom:6px;">What type of asset?</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">Choose a category to continue</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button onclick="selectCat('assigned')"   class="cat-btn" onmouseover="this.style.borderColor='var(--accent)'"   onmouseout="this.style.borderColor='var(--border)'"><strong>📋 Assigned Asset</strong><span>Laptop, desktop — assigned directly to a user</span></button>
+          <button onclick="selectCat('supporting')" class="cat-btn" onmouseover="this.style.borderColor='var(--accent2)'"  onmouseout="this.style.borderColor='var(--border)'"><strong>🔧 Supporting Asset</strong><span>Headset, UPS, keyboard, mouse and peripherals</span></button>
+          <button onclick="selectCat('backup')"     class="cat-btn" onmouseover="this.style.borderColor='var(--accent3)'"  onmouseout="this.style.borderColor='var(--border)'"><strong>💾 Backup Asset</strong><span>Spare / reserve asset not currently assigned</span></button>
+        </div>
+        <button class="btn" style="margin-top:14px;" onclick="closeCatPicker()">Cancel</button>
+      </div>
+
+      <!-- Entry form (assigned / supporting / backup) -->
+      <div id="aeForm" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:20px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span id="ae_catLabel" style="font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(79,142,247,.15);color:var(--accent);">Assigned Asset</span>
+          <button onclick="backToPicker()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;">Change type</button>
+        </div>
+
+        <!-- ASSIGNED fields -->
+        <div id="ae_fAssigned" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+          <div class="fi"><label>Asset ID *</label><input id="ae_id" placeholder="e.g. AST-001"/></div>
+          <div class="fi"><label>Serial Number</label><input id="ae_serial" placeholder="e.g. SN-12345"/></div>
+          <div class="fi"><label>Brand</label><input id="ae_brand" placeholder="e.g. Dell"/></div>
+          <div class="fi"><label>Processor</label><input id="ae_proc" placeholder="e.g. Intel i7"/></div>
+          <div class="fi"><label>Warranty</label><input id="ae_warranty" placeholder="e.g. 3 years"/></div>
+          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_purchaseDate" style="color-scheme:dark;"/></div>
+          <div class="fi" style="grid-column:span 3;"><label>Assigned User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
+        </div>
+
+        <!-- SUPPORTING fields -->
+        <div id="ae_fSupporting" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+          <div class="fi"><label>Asset ID *</label><input id="ae_sid" placeholder="e.g. SUP-001"/></div>
+          <div class="fi"><label>Serial Number</label><input id="ae_sserial" placeholder="e.g. SN-99999"/></div>
+          <div class="fi"><label>Brand</label><input id="ae_sbrand" placeholder="e.g. Logitech"/></div>
+          <div class="fi"><label>Headset</label><input id="ae_sheadset" placeholder="e.g. Logitech H390"/></div>
+          <div class="fi"><label>UPS</label><input id="ae_sups" placeholder="e.g. APC 600VA"/></div>
+          <div class="fi"><label>Keyboard</label><input id="ae_skeyboard" placeholder="e.g. Dell KB216"/></div>
+          <div class="fi"><label>Mouse</label><input id="ae_smouse" placeholder="e.g. Logitech M100"/></div>
+          <div class="fi"><label>Warranty</label><input id="ae_swarranty" placeholder="e.g. 1 year"/></div>
+          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_spurchaseDate" style="color-scheme:dark;"/></div>
+          <div class="fi" style="grid-column:span 3;"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
+        </div>
+
+        <!-- BACKUP fields -->
+        <div id="ae_fBackup" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+          <div class="fi"><label>Asset ID *</label><input id="ae_bid" placeholder="e.g. BKP-001"/></div>
+          <div class="fi"><label>Serial Number</label><input id="ae_bserial" placeholder="e.g. SN-77777"/></div>
+          <div class="fi"><label>Brand</label><input id="ae_bbrand" placeholder="e.g. Lenovo"/></div>
+          <div class="fi"><label>Headset</label>
+            <select id="ae_bheadset" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+              <option value="">— None —</option>
+              <option>Logitech H390</option><option>Logitech H540</option><option>Jabra Evolve 20</option>
+              <option>Jabra Evolve 40</option><option>Plantronics Blackwire</option><option>Sony WH-1000XM5</option>
+              <option>Bose QC45</option><option>Sennheiser HD 450</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fi"><label>Mouse</label>
+            <select id="ae_bmouse" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+              <option value="">— None —</option>
+              <option>Logitech M100</option><option>Logitech M185</option><option>Logitech MX Master 3</option>
+              <option>Dell MS116</option><option>HP X1000</option><option>Microsoft Sculpt</option>
+              <option>Razer DeathAdder</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fi"><label>Keyboard</label>
+            <select id="ae_bkeyboard" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+              <option value="">— None —</option>
+              <option>Dell KB216</option><option>Dell KB522</option><option>Logitech K120</option>
+              <option>Logitech MK270</option><option>HP K1500</option><option>Microsoft Wired 600</option>
+              <option>Keychron K2</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fi"><label>Warranty</label><input id="ae_bwarranty" placeholder="e.g. 1 year"/></div>
+          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_bpurchaseDate" style="color-scheme:dark;"/></div>
+          <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_bnotes" placeholder="Any notes about this backup asset"/></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;">
+          <button class="btn p" onclick="submitAssetEntry()">Save Asset</button>
+          <button class="btn" onclick="closeAEForm()">Cancel</button>
+          <span class="ok" id="ae_ok">✓ Saved</span>
+        </div>
+        <div class="lerr" id="ae_err" style="margin-top:8px;margin-bottom:0;"></div>
+      </div>
+
+      <!-- All entries list -->
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th class="th-s">Type</th><th class="th-s">Asset ID</th><th class="th-s">Serial No</th>
+          <th class="th-s">Brand</th><th class="th-s">Details</th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s">User</th><th class="th-s"></th>
+        </tr></thead>
+        <tbody id="av_allTb"><tr><td colspan="9" class="td-empty">No entries yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:560px;max-width:95vw;max-height:85vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 style="font-size:15px;font-weight:600;" id="editModalTitle">Edit Asset</h3>
+        <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div id="editModalBody"></div>
+      <div style="display:flex;align-items:center;gap:9px;margin-top:16px;">
+        <button class="btn p" onclick="saveEdit()">Save Changes</button>
+        <button class="btn" onclick="closeEditModal()">Cancel</button>
+        <span class="ok" id="edit_ok">✓ Saved</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVE TO BACKUP MODAL -->
+  <div id="moveBackupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:480px;max-width:95vw;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h3 style="font-size:15px;font-weight:600;">Move to Backup</h3>
+        <button onclick="closeMoveModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">User is leaving — collect this asset back into backup storage</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="fi" style="grid-column:span 2;"><label>Previous User Name</label><input id="mb_prevUser" placeholder="Name of user returning asset"/></div>
+        <div class="fi"><label>Date Collected</label><input type="date" id="mb_date" style="color-scheme:dark;"/></div>
+        <div class="fi"><label>Reason</label><input id="mb_reason" placeholder="e.g. Employee resigned"/></div>
+      </div>
+      <div style="display:flex;gap:9px;">
+        <button class="btn p" onclick="confirmMoveToBackup()" style="background:var(--accent3);border-color:var(--accent3);">Move to Backup</button>
+        <button class="btn" onclick="closeMoveModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN USER MODAL -->
+  <div id="assignModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:400px;max-width:95vw;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 style="font-size:15px;font-weight:600;">Assign / Update User</h3>
+        <button onclick="closeAssignModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="fi" style="margin-bottom:16px;"><label>User Name</label><input id="assign_user" placeholder="Enter name of user"/></div>
+      <div style="display:flex;gap:9px;">
+        <button class="btn p" onclick="confirmAssignUser()">Save</button>
+        <button class="btn" onclick="closeAssignModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /appScreen -->
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+
+let perfUsers   = [];
+let perfLogs    = [];
+let loginAccounts = [{id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'}];
+let pId=1, uId=1, acctId=1;
+let curUserId = null;
+let currentUser = null;
+
+// Global date filter
+let gfType = 'all';
+let gfFrom = null;
+let gfTo   = null;
+
+// ══════════════════════════════════════════
+// HELPERS — always null-safe
+// ══════════════════════════════════════════
+function $$(id){ return document.getElementById(id); }
+function setText(id,v){ const e=$$( id); if(e) e.textContent=v; }
+function setHTML(id,v){ const e=$$(id); if(e) e.innerHTML=v; }
+function val(id){ const e=$$(id); return e?e.value:''; }
+function fmt(n){ return (n||0).toLocaleString(undefined,{maximumFractionDigits:0}); }
+function flash(id){ const e=$$(id); if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);} }
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function doLogin(){
+  const u = val('loginUser').trim().toLowerCase();
+  const p = val('loginPass');
+  const acct = loginAccounts.find(a=>a.username.toLowerCase()===u && a.password===p);
+  if(!acct){ setText('loginErr','Invalid username or password.'); return; }
+  setText('loginErr','');
+  currentUser = acct;
+  $$('loginScreen').classList.remove('active');
+  $$('appScreen').classList.add('active');
+  setText('tbAv', acct.name[0].toUpperCase());
+  setText('tbName', acct.name);
+  $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none';
+  goHome();
+}
+function doLogout(){
+  currentUser = null;
+  $$('appScreen').classList.remove('active');
+  $$('loginScreen').classList.add('active');
+  $$('loginUser').value='';
+  $$('loginPass').value='';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  const lp = $$('loginPass');
+  if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const VL = {home:'Home','perfUsers':'System Performance','perfForm':'User Form','perfDash':'Performance Summary','userMgmt':'User Management','assetDetail':'Asset Sheet','backupDetail':'Backup Asset Details'};
+const FILTER_VIEWS = ['perfUsers','perfDash'];
+
+function goHome(){ showView('home'); }
+
+function nav(id){
+  if(id==='perfUsers')  renderUGrid();
+  if(id==='perfDash')   refreshPerfDash();
+  if(id==='userMgmt')   renderAccounts();
+  if(id==='assetDetail') switchTab('assigned');
+  showView(id);
+}
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const v = $$('v-'+id);
+  if(v) v.classList.add('active');
+  setBread(id);
+  const gfBar = $$('gfBar');
+  if(gfBar) gfBar.style.display = FILTER_VIEWS.includes(id) ? 'flex' : 'none';
+}
+
+function setBread(id){
+  const el = $$('breadcrumb');
+  if(!el) return;
+  if(id==='home'){ el.innerHTML=`<span class="b-cur">Home</span>`; return; }
+  if(id==='perfForm'){
+    const nm = (perfUsers.find(u=>u.id===curUserId)||{}).name||'User';
+    el.innerHTML=`<span class="crumb" onclick="goHome()">Home</span><span class="b-sep">/</span><span class="crumb" onclick="nav('perfUsers')">System Performance</span><span class="b-sep">/</span><span class="b-cur">${nm}</span>`;
+    return;
+  }
+  if(id==='backupDetail'){
+    const a   = assetLogs.find(x=>x.id===curAssetId);
+    const aNm = a ? (a.assetId||a.brand||'Asset') : 'Asset';
+    el.innerHTML=`<span class="crumb" onclick="goHome()">Home</span><span class="b-sep">/</span><span class="crumb" onclick="nav('assetDetail')">Asset Sheet</span><span class="b-sep">/</span><span class="b-cur">${aNm} — Backup</span>`;
+    return;
+  }
+  el.innerHTML=`<span class="crumb" onclick="goHome()">Home</span><span class="b-sep">/</span><span class="b-cur">${VL[id]||id}</span>`;
+}
+
+// ══════════════════════════════════════════
+// GLOBAL DATE FILTER
+// ══════════════════════════════════════════
+function applyGF(type, btn){
+  // update button states
+  if(btn){
+    document.querySelectorAll('.gfb').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+  const customDiv = $$('gfCustom');
+  if(type==='custom'){
+    if(customDiv) customDiv.classList.add('show');
+    gfType='custom';
+    gfFrom = val('gfFrom') || null;
+    gfTo   = val('gfTo')   || null;
+    if(!gfFrom && !gfTo) return; // wait for dates
+  } else {
+    if(customDiv) customDiv.classList.remove('show');
+    gfType = type; gfFrom=null; gfTo=null;
+  }
+  refreshAllFiltered();
+}
+
+function getGFRange(){
+  const now = new Date();
+  if(gfType==='all') return {from:null,to:null};
+  if(gfType==='today') return {
+    from: new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0),
+    to:   new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59)
+  };
+  if(gfType==='lastMonth') return {
+    from: new Date(now.getFullYear(),now.getMonth()-1,1),
+    to:   new Date(now.getFullYear(),now.getMonth(),0,23,59,59)
+  };
+  if(gfType==='custom'){
+    return {
+      from: gfFrom ? new Date(gfFrom) : null,
+      to:   gfTo   ? new Date(gfTo+'T23:59:59') : null
+    };
+  }
+  return {from:null,to:null};
+}
+
+function logInRange(l){
+  const {from,to} = getGFRange();
+  if(!from&&!to) return true;
+  if(!l.dateObj) return true;
+  if(from && l.dateObj < from) return false;
+  if(to   && l.dateObj > to)   return false;
+  return true;
+}
+
+function showGFResult(total, shown){
+  const el = $$('gfResult');
+  if(!el) return;
+  el.textContent = (gfType==='all') ? '' : shown+'/'+total+' records';
+}
+
+function refreshAllFiltered(){
+  renderUGrid();
+  refreshPerfDash();
+}
+
+// ══════════════════════════════════════════
+// PERF USERS
+// ══════════════════════════════════════════
+function getPerfMonth(){ const e=$$('perfMonth'); return e?e.value:'March 2026'; }
+function getDashMonth(){ const e=$$('dashMonth'); return e?e.value:'March 2026'; }
+
+function addPerfUser(){
+  const inp = $$('newUN'); if(!inp) return;
+  const name = inp.value.trim();
+  if(!name){ inp.focus(); return; }
+  if(perfUsers.find(u=>u.name.toLowerCase()===name.toLowerCase())){ alert('User already exists.'); return; }
+  perfUsers.push({id:uId++,name});
+  inp.value='';
+  renderUGrid();
+}
+function delPerfUser(id,ev){
+  ev.stopPropagation();
+  const u = perfUsers.find(x=>x.id===id);
+  if(!confirm(`Delete "${u?u.name:'this user'}"? Their logs will also be removed.`)) return;
+  perfUsers  = perfUsers.filter(x=>x.id!==id);
+  perfLogs   = perfLogs.filter(x=>x.userId!==id);
+  renderUGrid(); refreshPerfDash();
+}
+function renderUGrid(){
+  const grid  = $$('uGrid');
+  const empty = $$('uEmpty');
+  if(!grid) return;
+  const month = getPerfMonth();
+  if(!perfUsers.length){
+    grid.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  grid.innerHTML = perfUsers.map(u=>{
+    const mLogs = perfLogs.filter(l=>l.userId===u.id && l.month===month && logInRange(l));
+    const has   = mLogs.length>0;
+    return `<div class="uc" onclick="openUForm(${u.id})">
+      <div class="ua">${u.name[0].toUpperCase()}</div>
+      <div class="ui">
+        <div class="un">${u.name}</div>
+        <div class="ur">${has?mLogs.length+' log'+(mLogs.length===1?'':'s')+' — '+month:'No data for '+month}</div>
+      </div>
+      <div class="udot ${has?'on':''}" title="${has?'Data submitted':'No data'}"></div>
+      <button class="udel" onclick="delPerfUser(${u.id},event)" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// PERF FORM
+// ══════════════════════════════════════════
+function openUForm(id){
+  curUserId = id;
+  const u = perfUsers.find(x=>x.id===id); if(!u) return;
+  const month = getPerfMonth();
+  setText('uf_av',    u.name[0].toUpperCase());
+  setText('uf_name',  u.name);
+  setText('uf_month', month);
+  setText('uf_logTitle', u.name+"'s Logs");
+  setText('uf_logMonth', month);
+  renderULog(id);
+  showView('perfForm');
+}
+function renderULog(id){
+  const tb    = $$('uf_logTb'); if(!tb) return;
+  const month = getPerfMonth();
+  const logs  = perfLogs.filter(l=>l.userId===id && l.month===month);
+  if(!logs.length){
+    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:22px;">No entries for ${month}</td></tr>`;
+    return;
+  }
+  tb.innerHTML = [...logs].reverse().map(l=>`<tr>
+    <td>${l.time}</td>
+    <td style="color:${l.cpu>80?'var(--danger)':l.cpu>60?'var(--accent3)':'var(--accent2)'}">${l.cpu}%</td>
+    <td style="color:${l.mem>80?'var(--danger)':l.mem>60?'var(--accent3)':'var(--accent2)'}">${l.mem}%</td>
+    <td>${l.uptime?l.uptime+'%':'—'}</td>
+    <td>${l.resp?l.resp+' ms':'—'}</td>
+  </tr>`).join('');
+}
+function submitPerf(){
+  const cpu    = parseFloat(val('pf_cpu'));
+  const mem    = parseFloat(val('pf_mem'));
+  const uptime = parseFloat(val('pf_uptime'));
+  const resp   = parseFloat(val('pf_resp'));
+  if(isNaN(cpu)||isNaN(mem)){ alert('Please fill in at least CPU and Memory.'); return; }
+  const u = perfUsers.find(x=>x.id===curUserId); if(!u) return;
+  const now   = new Date();
+  const time  = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const month = getPerfMonth();
+  perfLogs.push({id:pId++, userId:curUserId, userName:u.name, cpu, mem,
+    uptime:isNaN(uptime)?0:uptime, resp:isNaN(resp)?0:resp, time, month, dateObj:new Date()});
+  renderULog(curUserId); renderUGrid(); refreshPerfDash();
+  flash('pf_ok'); clearPF();
+}
+function clearPF(){ ['pf_cpu','pf_mem','pf_uptime','pf_resp'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); }
+
+// ══════════════════════════════════════════
+// PERF DASHBOARD
+// ══════════════════════════════════════════
+function refreshPerfDash(){
+  const month = getDashMonth();
+  setText('pd_badge', month);
+  const logs  = perfLogs.filter(l=>l.month===month && logInRange(l));
+  const n     = logs.length;
+  const reporters = [...new Set(logs.map(l=>l.userName))];
+  setText('pd_cnt',  n);
+  setText('pd_cntS', reporters.length+' user'+(reporters.length===1?'':'s')+' reported');
+  if(!n){
+    ['pd_cpu','pd_mem','pd_up'].forEach(id=>setText(id,'—'));
+    ['pd_cpuS','pd_memS','pd_upS'].forEach(id=>setText(id,'No data for '+month));
+    setHTML('pd_logs',`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">No data for ${month}</td></tr>`);
+    setHTML('pd_bars',`<div style="text-align:center;color:var(--text3);font-size:13px;padding:20px 0;">No data for ${month}</div>`);
+    return;
+  }
+  const avgCPU = (logs.reduce((s,l)=>s+l.cpu,0)/n).toFixed(1);
+  const avgMem = (logs.reduce((s,l)=>s+l.mem,0)/n).toFixed(1);
+  const upL    = logs.filter(l=>l.uptime>0);
+  const avgUp  = upL.length ? (upL.reduce((s,l)=>s+l.uptime,0)/upL.length).toFixed(1) : '—';
+  setText('pd_cpu',  avgCPU+'%'); setText('pd_cpuS', `Avg across ${n} log${n===1?'':'s'}`);
+  setText('pd_mem',  avgMem+'%'); setText('pd_memS', `Avg across ${n} log${n===1?'':'s'}`);
+  setText('pd_up',   avgUp+(avgUp!=='—'?'%':'')); setText('pd_upS', upL.length?`From ${upL.length} reports`:'Not reported');
+  setHTML('pd_logs', [...logs].reverse().map(l=>`<tr>
+    <td><strong>${l.userName}</strong></td>
+    <td style="color:${l.cpu>80?'var(--danger)':l.cpu>60?'var(--accent3)':'var(--accent2)'}">${l.cpu}%</td>
+    <td style="color:${l.mem>80?'var(--danger)':l.mem>60?'var(--accent3)':'var(--accent2)'}">${l.mem}%</td>
+    <td>${l.uptime?l.uptime+'%':'—'}</td>
+    <td>${l.resp?l.resp+' ms':'—'}</td>
+    <td>${l.time}</td></tr>`).join(''));
+  // bars
+  const uCpu={};
+  logs.forEach(l=>{ if(!uCpu[l.userName]) uCpu[l.userName]=[]; uCpu[l.userName].push(l.cpu); });
+  const uAvg = Object.entries(uCpu).map(([nm,v])=>([nm,(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1)]));
+  const mx   = Math.max(...uAvg.map(x=>parseFloat(x[1])),1);
+  const barsEl = $$('pd_bars');
+  if(barsEl) barsEl.innerHTML = uAvg.sort((a,b)=>b[1]-a[1]).map(([nm,val])=>`
+    <div class="cr">
+      <span class="cl">${nm.length>10?nm.slice(0,10)+'…':nm}</span>
+      <div class="cbg"><div class="cb" style="width:${Math.max(4,(parseFloat(val)/mx)*100).toFixed(1)}%;background:${parseFloat(val)>80?'var(--danger)':parseFloat(val)>60?'var(--accent3)':'var(--accent2)'}"></div></div>
+      <span class="cv">${val}%</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// USER MANAGEMENT
+// ══════════════════════════════════════════
+function createUser(){
+  const name = val('um_name').trim();
+  const user = val('um_user').trim().toLowerCase();
+  const pass = val('um_pass');
+  const role = val('um_role');
+  const errEl = $$('um_err');
+  if(errEl) errEl.textContent='';
+  if(!name){ if(errEl) errEl.textContent='Please enter a full name.'; return; }
+  if(!user){ if(errEl) errEl.textContent='Please enter a username.'; return; }
+  if(!pass||pass.length<3){ if(errEl) errEl.textContent='Password must be at least 3 characters.'; return; }
+  if(loginAccounts.find(a=>a.username.toLowerCase()===user)){ if(errEl) errEl.textContent='Username already taken.'; return; }
+  const d = new Date();
+  const created = d.toLocaleString('default',{month:'short'})+' '+d.getDate()+', '+d.getFullYear();
+  loginAccounts.push({id:acctId++,name,username:user,password:pass,role,created});
+  renderAccounts(); flash('um_ok'); clearUM();
+}
+function delUser(id){
+  const a = loginAccounts.find(x=>x.id===id);
+  if(!a||a.id===0) return;
+  if(!confirm(`Delete login for "${a.name}"?`)) return;
+  loginAccounts = loginAccounts.filter(x=>x.id!==id);
+  renderAccounts();
+}
+function clearUM(){ ['um_name','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
+function showPass(btn,pass){ const s=btn.previousElementSibling; if(btn.textContent==='show'){s.textContent=pass;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(pass.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
+function renderAccounts(){
+  const tb = $$('um_tb'); if(!tb) return;
+  tb.innerHTML = loginAccounts.map(a=>`<tr>
+    <td><strong>${a.name}</strong></td>
+    <td style="font-family:'DM Mono',monospace;font-size:13px;">${a.username}</td>
+    <td><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min(a.password.length,8))}</span>
+        <button onclick="showPass(this,'${a.password}')" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button></td>
+    <td><span class="pill ${a.role==='Admin'?'pb':a.role==='Editor'?'pg':'po'}">${a.role}</span></td>
+    <td style="color:var(--text2);font-size:12px;">${a.created}</td>
+    <td>${a.id===0?'<span style="color:var(--text3);font-size:11px;">Protected</span>':`<button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button>`}</td>
+  </tr>`).join('');
+}
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// ASSET SHEET
+// ══════════════════════════════════════════
+let assignedLogs = [];  // {id,assetId,serial,brand,proc,warranty,purchaseDate,userName}
+let supportLogs  = [];  // {id,assetId,serial,brand,headset,ups,keyboard,mouse,warranty,purchaseDate,userName,custom}
+let backupLogs   = [];  // {id,fromType,assetId,serial,brand,proc/headset,warranty,purchaseDate,prevUser,collectedDate,reason,notes}
+let aId=1, sId=1, bId=1;
+let curEditId=null, curEditType=null;
+let curMoveId=null, curMoveType=null;
+let curAssignId=null, curAssignType=null;
+let curAssetCat='assigned';
+
+// close any open dropdown on outside click
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.act-wrap')) document.querySelectorAll('.act-menu').forEach(m=>m.classList.remove('open'));
+});
+
+// ── TABS ──
+function switchTab(t){
+  ['assigned','supporting','backup','entry'].forEach(k=>{
+    const b=$$('tab-'+k), p=$$('tabp-'+k);
+    if(b) b.classList.toggle('on',k===t);
+    if(p) p.style.display=k===t?'block':'none';
+  });
+  if(t==='assigned')   renderAssigned();
+  if(t==='supporting') renderSupporting();
+  if(t==='backup')     renderBackup();
+  if(t==='entry')      renderAllAssets();
+}
+
+// ── RENDER HELPERS ──
+const TDM = v=>`<td style="padding:10px 12px;font-family:'DM Mono',monospace;font-size:12px;">${v||'—'}</td>`;
+const TD  = v=>`<td style="padding:10px 12px;font-size:13px;">${v||'—'}</td>`;
+const TROW = inner=>`<tr style="border-bottom:1px solid rgba(37,42,56,.5);">${inner}</tr>`;
+
+function actMenu(id, type, opts){
+  const menuId=`menu_${type}_${id}`;
+  return `<td style="padding:8px 12px;">
+    <div class="act-wrap">
+      <button class="act-btn" onclick="toggleMenu('${menuId}')">Actions ▾</button>
+      <div class="act-menu" id="${menuId}">
+        ${opts.edit?`<button class="act-item" onclick="closeMenu('${menuId}');openEdit(${id},'${type}')">✏️ Edit</button>`:''}
+        ${opts.assign?`<button class="act-item" onclick="closeMenu('${menuId}');openAssign(${id},'${type}')">👤 Assign User</button>`:''}
+        ${opts.move?`<button class="act-item" onclick="closeMenu('${menuId}');openMove(${id},'${type}')">📦 Move to Backup</button>`:''}
+        ${opts.restore?`<button class="act-item" onclick="closeMenu('${menuId}');restoreFromBackup(${id})">↩️ Restore to Assigned</button>`:''}
+        <button class="act-item danger" onclick="closeMenu('${menuId}');delAsset(${id},'${type}')">🗑 Delete</button>
+      </div>
+    </div>
+  </td>`;
+}
+function toggleMenu(id){
+  document.querySelectorAll('.act-menu').forEach(m=>{ if(m.id!==id) m.classList.remove('open'); });
+  const m=$$( id); if(m) m.classList.toggle('open');
+}
+function closeMenu(id){ const m=$$(id); if(m) m.classList.remove('open'); }
+
+// ── ASSIGNED ──
+function renderAssigned(){
+  const tb=$$('av_assignedTb'); if(!tb) return;
+  setText('av_assignedCount', assignedLogs.length+' asset'+(assignedLogs.length!==1?'s':''));
+  if(!assignedLogs.length){ tb.innerHTML=`<tr><td colspan="8" class="td-empty">No assigned assets yet — add via Asset Entry tab</td></tr>`; return; }
+  tb.innerHTML=[...assignedLogs].reverse().map(a=>TROW(
+    TDM(a.assetId)+
+    `<td style="padding:10px 12px;">
+      <span style="color:var(--accent2);font-size:12px;font-weight:600;">${a.userName||'Unassigned'}</span>
+      <button onclick="openAssign(${a.id},'assigned')" title="Edit user" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;margin-left:5px;padding:1px 4px;border-radius:4px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">✏️</button>
+    </td>`+
+    TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.warranty)+TD(a.purchaseDate)+
+    `<td style="padding:8px 12px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:4px;">Edit</button>
+      <button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);">→ Backup</button>
+    </td>`
+  )).join('');
+}
+
+// ── SUPPORTING ──
+function renderSupporting(){
+  const tb=$$('av_supportTb'); if(!tb) return;
+  setText('av_supportCount', supportLogs.length+' asset'+(supportLogs.length!==1?'s':''));
+  if(!supportLogs.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">No supporting assets yet — add via Asset Entry tab</td></tr>`; return; }
+  tb.innerHTML=[...supportLogs].reverse().map(s=>TROW(
+    TDM(s.assetId)+
+    `<td style="padding:10px 12px;">
+      <span style="color:var(--accent2);font-size:12px;font-weight:600;">${s.userName||'Unassigned'}</span>
+      <button onclick="openAssign(${s.id},'supporting')" title="Edit user" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;margin-left:5px;padding:1px 4px;border-radius:4px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">✏️</button>
+    </td>`+
+    TDM(s.serial)+TD(s.brand)+TD(s.headset)+TD(s.ups)+TD(s.keyboard)+TD(s.mouse)+TD(s.warranty)+TD(s.purchaseDate)+
+    `<td style="padding:8px 12px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:4px;">Edit</button>
+      <button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);">→ Backup</button>
+    </td>`
+  )).join('');
+}
+
+// ── BACKUP ──
+function renderBackup(){
+  const tb=$$('av_backupTb'); if(!tb) return;
+  setText('av_backupCount', backupLogs.length+' asset'+(backupLogs.length!==1?'s':''));
+  if(!backupLogs.length){ tb.innerHTML=`<tr><td colspan="12" class="td-empty">No backup assets yet</td></tr>`; return; }
+  const typeLabel={assigned:'📋 Assigned',supporting:'🔧 Supporting',backup:'💾 Backup'};
+  tb.innerHTML=[...backupLogs].reverse().map(b=>TROW(
+    `<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:600;color:var(--accent3);">${typeLabel[b.fromType]||'—'}</span></td>`+
+    TDM(b.assetId)+
+    `<td style="padding:10px 12px;color:var(--accent2);font-size:12px;font-weight:600;">${b.prevUser||'—'}</td>`+
+    TDM(b.serial)+TD(b.brand)+
+    TD(b.headset||'—')+TD(b.mouse||'—')+TD(b.keyboard||'—')+
+    TD(b.collectedDate)+TD(b.reason)+TD(b.warranty)+TD(b.purchaseDate)+
+    `<td style="padding:8px 12px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:4px;">Edit</button>
+      <button class="act-btn" onclick="restoreFromBackup(${b.id})" style="color:var(--accent2);border-color:var(--accent2);">↩ Restore</button>
+    </td>`
+  )).join('');
+}
+
+// ── ALL ASSETS (Entry tab) ──
+function renderAllAssets(){
+  const tb=$$('av_allTb'); if(!tb) return;
+  const total=assignedLogs.length+supportLogs.length+backupLogs.length;
+  setText('av_allCount', total+' entr'+(total!==1?'ies':'y'));
+  if(!total){ tb.innerHTML=`<tr><td colspan="9" class="td-empty">No entries yet</td></tr>`; return; }
+  const rows=[
+    ...assignedLogs.map(a=>({...a,_type:'assigned',_label:'📋 Assigned',_color:'var(--accent)',_detail:a.proc||'—'})),
+    ...supportLogs.map(s=>({...s,_type:'supporting',_label:'🔧 Supporting',_color:'var(--accent2)',_detail:[s.headset,s.ups,s.keyboard,s.mouse].filter(Boolean).join(', ')||'—'})),
+    ...backupLogs.map(b=>({...b,_type:'backup',_label:'💾 Backup',_color:'var(--accent3)',_detail:b.reason||'Backup'}))
+  ].reverse();
+  tb.innerHTML=rows.map(r=>TROW(
+    `<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:600;color:${r._color};">${r._label}</span></td>`+
+    TDM(r.assetId)+TDM(r.serial)+TD(r.brand)+
+    `<td style="padding:10px 12px;font-size:12px;color:var(--text2);">${r._detail}</td>`+
+    TD(r.warranty)+TD(r.purchaseDate)+
+    `<td style="padding:10px 12px;font-size:12px;color:var(--accent2);">${r.userName||r.prevUser||'—'}</td>`+
+    `<td style="padding:10px 12px;"><button class="btn d" style="padding:2px 8px;font-size:11px;" onclick="delAsset(${r.id},'${r._type}')">✕</button></td>`
+  )).join('');
+}
+
+// ── DELETE ──
+function delAsset(id,type){
+  if(!confirm('Delete this asset?')) return;
+  if(type==='assigned')   assignedLogs=assignedLogs.filter(a=>a.id!==id);
+  if(type==='supporting') supportLogs=supportLogs.filter(s=>s.id!==id);
+  if(type==='backup')     backupLogs=backupLogs.filter(b=>b.id!==id);
+  renderAssigned(); renderSupporting(); renderBackup(); renderAllAssets();
+}
+
+// ── CATEGORY PICKER ──
+function openCatPicker(){
+  const cp=$$('catPicker'),af=$$('aeForm');
+  if(cp) cp.style.display='block';
+  if(af) af.style.display='none';
+}
+function closeCatPicker(){ const cp=$$('catPicker'); if(cp) cp.style.display='none'; }
+function backToPicker(){
+  const cp=$$('catPicker'),af=$$('aeForm');
+  if(cp) cp.style.display='block';
+  if(af) af.style.display='none';
+}
+function closeAEForm(){
+  const cp=$$('catPicker'),af=$$('aeForm');
+  if(cp) cp.style.display='none';
+  if(af) af.style.display='none';
+}
+function selectCat(cat){
+  curAssetCat=cat;
+  const cp=$$('catPicker'),af=$$('aeForm');
+  if(cp) cp.style.display='none';
+  if(af) af.style.display='block';
+  const labels={assigned:'📋 Assigned Asset',supporting:'🔧 Supporting Asset',backup:'💾 Backup Asset'};
+  const bgcols={assigned:'rgba(79,142,247,.15)',supporting:'rgba(56,217,169,.15)',backup:'rgba(247,131,79,.15)'};
+  const txcols={assigned:'var(--accent)',supporting:'var(--accent2)',backup:'var(--accent3)'};
+  const lbl=$$('ae_catLabel');
+  if(lbl){lbl.textContent=labels[cat];lbl.style.background=bgcols[cat];lbl.style.color=txcols[cat];}
+  ['ae_fAssigned','ae_fSupporting','ae_fBackup'].forEach(id=>{const e=$$(id);if(e)e.style.display='none';});
+  const map={assigned:'ae_fAssigned',supporting:'ae_fSupporting',backup:'ae_fBackup'};
+  const fd=$$(map[cat]); if(fd) fd.style.display='grid';
+  // clear all
+  ['ae_id','ae_serial','ae_brand','ae_proc','ae_warranty','ae_purchaseDate','ae_user',
+   'ae_sid','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
+   'ae_bid','ae_bserial','ae_bbrand','ae_bheadset','ae_bmouse','ae_bkeyboard','ae_bwarranty','ae_bpurchaseDate','ae_bnotes']
+    .forEach(id=>{const e=$$(id);if(e)e.value='';});
+  const er=$$('ae_err');if(er)er.textContent='';
+}
+function submitAssetEntry(){
+  const errEl=$$('ae_err');if(errEl)errEl.textContent='';
+  if(curAssetCat==='assigned'){
+    const assetId=val('ae_id').trim();
+    if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
+    assignedLogs.push({id:aId++,assetId,serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),warranty:val('ae_warranty'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user')});
+  } else if(curAssetCat==='supporting'){
+    const assetId=val('ae_sid').trim();
+    if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
+    supportLogs.push({id:sId++,assetId,serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:{}});
+  } else {
+    const assetId=val('ae_bid').trim();
+    if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
+    backupLogs.push({id:bId++,fromType:'backup',assetId,serial:val('ae_bserial'),brand:val('ae_bbrand'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),prevUser:'',collectedDate:'',reason:val('ae_bnotes')||''});
+  }
+  renderAssigned();renderSupporting();renderBackup();renderAllAssets();
+  flash('ae_ok');closeAEForm();
+}
+
+// ── EDIT ──
+function openEdit(id,type){
+  curEditId=id;curEditType=type;
+  let a;
+  if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') a=supportLogs.find(x=>x.id===id);
+  if(type==='backup')     a=backupLogs.find(x=>x.id===id);
+  if(!a) return;
+  setText('editModalTitle','Edit '+(type==='assigned'?'Assigned':type==='supporting'?'Supporting':'Backup')+' Asset');
+  const fi=(label,iid,v,itype='text')=>`<div class="fi" style="margin-bottom:10px;"><label>${label}</label><input type="${itype}" id="em_${iid}" value="${v||''}" ${itype==='date'?'style="color-scheme:dark;"':''}/></div>`;
+  const fsel=(label,iid,v,opts)=>`<div class="fi" style="margin-bottom:10px;"><label>${label}</label><select id="em_${iid}" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">${opts.map(o=>`<option${o===(v||'— None —')?' selected':''}>${o}</option>`).join('')}</select></div>`;
+  const headsetOpts=['— None —','Logitech H390','Logitech H540','Jabra Evolve 20','Jabra Evolve 40','Plantronics Blackwire','Sony WH-1000XM5','Bose QC45','Sennheiser HD 450','Other'];
+  const mouseOpts  =['— None —','Logitech M100','Logitech M185','Logitech MX Master 3','Dell MS116','HP X1000','Microsoft Sculpt','Razer DeathAdder','Other'];
+  const kbOpts     =['— None —','Dell KB216','Dell KB522','Logitech K120','Logitech MK270','HP K1500','Microsoft Wired 600','Keychron K2','Other'];
+  let body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  if(type==='assigned'){
+    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+='</div>'+fi('Assigned User','user',a.userName);
+  } else if(type==='supporting'){
+    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Headset','headset',a.headset)+fi('UPS','ups',a.ups)+fi('Keyboard','keyboard',a.keyboard)+fi('Mouse','mouse',a.mouse)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+='</div>'+fi('Assigned User','user',a.userName);
+  } else {
+    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand);
+    body+=fsel('Headset','headset',a.headset,headsetOpts)+fsel('Mouse','mouse',a.mouse,mouseOpts)+fsel('Keyboard','keyboard',a.keyboard,kbOpts);
+    body+=fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+='</div>'+fi('Notes','notes',a.notes);
+  }
+  setHTML('editModalBody',body);
+  const m=$$('editModal'); if(m) m.style.display='flex';
+}
+function closeEditModal(){ const m=$$('editModal');if(m)m.style.display='none'; }
+function saveEdit(){
+  const g=id=>{ const e=$$('em_'+id); return e?e.value.trim():''; };
+  if(curEditType==='assigned'){
+    const a=assignedLogs.find(x=>x.id===curEditId);
+    if(a){Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),proc:g('proc'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});}
+  } else if(curEditType==='supporting'){
+    const a=supportLogs.find(x=>x.id===curEditId);
+    if(a){Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),headset:g('headset'),ups:g('ups'),keyboard:g('keyboard'),mouse:g('mouse'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});}
+  } else {
+    const a=backupLogs.find(x=>x.id===curEditId);
+    if(a){Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),headset:g('headset'),mouse:g('mouse'),keyboard:g('keyboard'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),notes:g('notes')});}
+  }
+  renderAssigned();renderSupporting();renderBackup();renderAllAssets();
+  flash('edit_ok');
+  setTimeout(closeEditModal,1200);
+}
+
+// ── ASSIGN USER ──
+function openAssign(id,type){
+  curAssignId=id;curAssignType=type;
+  let a;
+  if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') a=supportLogs.find(x=>x.id===id);
+  const inp=$$('assign_user'); if(inp) inp.value=a?a.userName||'':'';
+  const m=$$('assignModal'); if(m) m.style.display='flex';
+}
+function closeAssignModal(){ const m=$$('assignModal');if(m)m.style.display='none'; }
+function confirmAssignUser(){
+  const u=val('assign_user').trim();
+  if(curAssignType==='assigned'){const a=assignedLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
+  if(curAssignType==='supporting'){const a=supportLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
+  renderAssigned();renderSupporting();renderAllAssets();
+  closeAssignModal();
+}
+
+// ── MOVE TO BACKUP ──
+function openMove(id,type){
+  curMoveId=id;curMoveType=type;
+  let a;
+  if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') a=supportLogs.find(x=>x.id===id);
+  const inp=$$('mb_prevUser'); if(inp) inp.value=a?a.userName||'':'';
+  const dt=$$('mb_date'); if(dt){ const d=new Date(); dt.value=d.toISOString().split('T')[0]; }
+  const rs=$$('mb_reason'); if(rs) rs.value='';
+  const m=$$('moveBackupModal'); if(m) m.style.display='flex';
+}
+function closeMoveModal(){ const m=$$('moveBackupModal');if(m)m.style.display='none'; }
+function confirmMoveToBackup(){
+  const prevUser=val('mb_prevUser').trim();
+  const collectedDate=val('mb_date');
+  const reason=val('mb_reason').trim();
+  let a;
+  if(curMoveType==='assigned')   a=assignedLogs.find(x=>x.id===curMoveId);
+  if(curMoveType==='supporting') a=supportLogs.find(x=>x.id===curMoveId);
+  if(!a){closeMoveModal();return;}
+  backupLogs.push({
+    id:bId++,fromType:curMoveType,
+    assetId:a.assetId,serial:a.serial,brand:a.brand,
+    proc:a.proc||[a.headset,a.ups,a.keyboard,a.mouse].filter(Boolean).join(', ')||'',
+    warranty:a.warranty,purchaseDate:a.purchaseDate,
+    prevUser,collectedDate,reason,notes:''
+  });
+  if(curMoveType==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==curMoveId);
+  if(curMoveType==='supporting') supportLogs=supportLogs.filter(x=>x.id!==curMoveId);
+  renderAssigned();renderSupporting();renderBackup();renderAllAssets();
+  closeMoveModal();
+}
+
+// ── RESTORE FROM BACKUP ──
+function restoreFromBackup(id){
+  const b=backupLogs.find(x=>x.id===id); if(!b) return;
+  if(!confirm(`Restore "${b.assetId}" back to Assigned Assets?`)) return;
+  assignedLogs.push({id:aId++,assetId:b.assetId,serial:b.serial,brand:b.brand,proc:b.proc,warranty:b.warranty,purchaseDate:b.purchaseDate,userName:''});
+  backupLogs=backupLogs.filter(x=>x.id!==id);
+  renderAssigned();renderBackup();renderAllAssets();
+}
+
+</script>
+</body>
+</html>
