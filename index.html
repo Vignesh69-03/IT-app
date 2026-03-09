@@ -36,6 +36,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .lhint{margin-top:20px;text-align:center;font-size:12px;color:var(--text3);}
 .lhint span{color:var(--accent);}
 
+
 /* APP */
 #appScreen{flex-direction:column;}
 .topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
@@ -199,9 +200,9 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 </style>
 <!-- Firebase SDK -->
 <script type="module">
-import { initializeApp }                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp }                                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, enableIndexedDbPersistence }
-                                                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+                                                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyAK2KzThY4PfVAILTAom_jRbRevmoROLYg",
@@ -212,16 +213,16 @@ const firebaseConfig = {
   appId:             "1:595348983835:web:5896d488e9471b631828be"
 };
 
-const _app = initializeApp(firebaseConfig);
-const _db  = getFirestore(_app);
+const _app      = initializeApp(firebaseConfig);
+const _db       = getFirestore(_app);
 
-// Enable offline persistence so data survives even without internet
+// Enable offline persistence
 enableIndexedDbPersistence(_db).catch(e => {
   if(e.code === 'failed-precondition') console.warn('Firestore persistence: multiple tabs open');
   else if(e.code === 'unimplemented')  console.warn('Firestore persistence not supported');
 });
 
-// Expose to main script
+// Expose everything to main script
 window.__db          = _db;
 window.__fsCollection = collection;
 window.__fsDoc        = doc;
@@ -243,11 +244,11 @@ document.dispatchEvent(new Event('firebase-ready'));
     <div class="ll"><div class="lm">O</div><div class="lt">Opti<span>Core</span></div></div>
     <div class="lh1">Welcome back</div>
     <div class="lh2">Sign in to access the management system</div>
-    <div class="fi"><label>Username</label><input type="text" id="loginUser" placeholder="admin"/></div>
+    <div class="fi"><label>Email / Username</label><input type="email" id="loginUser" placeholder="your@gmail.com or admin"/></div>
     <div class="fi"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
     <div class="lerr" id="loginErr"></div>
     <button class="btn-login" onclick="handleLogin()">Sign In</button>
-    <div class="lhint">Admin: <span>admin</span> / <span>vignesh</span> &nbsp;·&nbsp; Created by <span>Vignesh</span></div>
+    <div class="lhint">Admin: <span>admin</span> / <span>vignesh</span> &nbsp;·&nbsp; Others use their <span>Gmail</span> &amp; password</div>
   </div>
 </div>
 
@@ -402,7 +403,8 @@ document.dispatchEvent(new Event('firebase-ready'));
       <div class="fc">
         <h3 style="font-size:15px;font-weight:600;margin-bottom:18px;">Create New Login</h3>
         <div class="fi"><label>Full Name</label><input type="text" id="um_name" placeholder="e.g. John Smith"/></div>
-        <div class="fi"><label>Username</label><input type="text" id="um_user" placeholder="e.g. jsmith" autocomplete="off"/></div>
+        <div class="fi"><label>Gmail Address <span style="color:var(--text3);font-weight:400;">(used as login username)</span></label><input type="email" id="um_email" placeholder="e.g. john@gmail.com" autocomplete="off"/></div>
+        <div class="fi"><label>Username <span style="color:var(--text3);font-weight:400;">(short alias — optional)</span></label><input type="text" id="um_user" placeholder="e.g. jsmith (or leave blank)" autocomplete="off"/></div>
         <div class="fi"><label>Password</label><input type="password" id="um_pass" placeholder="Min 3 characters" autocomplete="new-password"/></div>
         <div class="fi"><label>Role</label>
           <select id="um_role"><option>Viewer</option><option>Editor</option><option>Admin</option></select>
@@ -416,7 +418,7 @@ document.dispatchEvent(new Event('firebase-ready'));
       </div>
       <div class="tw">
         <div class="th"><h3>Login Accounts</h3><span style="font-size:11px;color:var(--text3);">Admin account is protected</span></div>
-        <table><thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Role</th><th>Created</th><th></th></tr></thead>
+        <table><thead><tr><th>Name</th><th>Gmail</th><th>Username</th><th>Password</th><th>Role</th><th>Created</th><th></th></tr></thead>
         <tbody id="um_tb"></tbody></table>
       </div>
     </div>
@@ -861,6 +863,14 @@ function doLogout(){
   $$('loginPass').value='';
 }
 
+
+// ══════════════════════════════════════════
+// ROLE HELPERS
+// ══════════════════════════════════════════
+function isAdmin()  { return currentUser && currentUser.role === 'Admin'; }
+function isEditor() { return currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Editor'); }
+function denyAccess(msg){ alert('\u26d4 Access Denied\n\n' + (msg || 'You do not have permission.')); }
+
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
@@ -974,6 +984,7 @@ function getPerfMonth(){ const e=$$('perfMonth'); return e?e.value:'March 2026';
 function getDashMonth(){ const e=$$('dashMonth'); return e?e.value:'March 2026'; }
 
 function addPerfUser(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can add performance users."); return; }
   const inp = $$('newUN'); if(!inp) return;
   const name = inp.value.trim();
   if(!name){ inp.focus(); return; }
@@ -984,6 +995,7 @@ function addPerfUser(){
   renderUGrid();
 }
 function delPerfUser(id,ev){
+  if(!isAdmin()){ denyAccess("Only Admin can delete performance users."); return; }
   ev.stopPropagation();
   const u = perfUsers.find(x=>x.id===id);
   if(!confirm(`Delete "${u?u.name:'this user'}"? Their logs will also be removed.`)) return;
@@ -1119,23 +1131,29 @@ function refreshPerfDash(){
 // USER MANAGEMENT
 // ══════════════════════════════════════════
 function createUser(){
-  const name = val('um_name').trim();
-  const user = val('um_user').trim().toLowerCase();
-  const pass = val('um_pass');
-  const role = val('um_role');
+  if(!isAdmin()){ denyAccess("Only Admin can create user accounts."); return; }
+  const name  = val('um_name').trim();
+  const email = val('um_email').trim().toLowerCase();
+  const user  = val('um_user').trim().toLowerCase() || (email ? email.split('@')[0] : '');
+  const pass  = val('um_pass');
+  const role  = val('um_role');
   const errEl = $$('um_err');
   if(errEl) errEl.textContent='';
   if(!name){ if(errEl) errEl.textContent='Please enter a full name.'; return; }
-  if(!user){ if(errEl) errEl.textContent='Please enter a username.'; return; }
+  if(!email && !user){ if(errEl) errEl.textContent='Please enter a Gmail address.'; return; }
+  if(email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)){ if(errEl) errEl.textContent='Please enter a valid Gmail address.'; return; }
   if(!pass||pass.length<3){ if(errEl) errEl.textContent='Password must be at least 3 characters.'; return; }
-  if(loginAccounts.find(a=>a.username.toLowerCase()===user)){ if(errEl) errEl.textContent='Username already taken.'; return; }
+  // username = email if provided, else manual username
+  const loginKey = email || user;
+  if(loginAccounts.find(a=>(a.email||a.username).toLowerCase()===loginKey)){ if(errEl) errEl.textContent='That Gmail/username is already registered.'; return; }
   const d = new Date();
   const created = d.toLocaleString('default',{month:'short'})+' '+d.getDate()+', '+d.getFullYear();
-  loginAccounts.push({id:acctId++,name,username:user,password:pass,role,created});
+  loginAccounts.push({id:acctId++,name,email:email||'',username:email||user,password:pass,role,created});
   fbSave(COL.accounts, loginAccounts[loginAccounts.length-1]);
   renderAccounts(); flash('um_ok'); clearUM();
 }
 function delUser(id){
+  if(!isAdmin()){ denyAccess("Only Admin can delete user accounts."); return; }
   const a = loginAccounts.find(x=>x.id===id);
   if(!a||a.id===0) return;
   if(!confirm(`Delete login for "${a.name}"?`)) return;
@@ -1143,15 +1161,16 @@ function delUser(id){
   fbDelete(COL.accounts, id);
   renderAccounts();
 }
-function clearUM(){ ['um_name','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
+function clearUM(){ ['um_name','um_email','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
 function showPass(btn,pass){ const s=btn.previousElementSibling; if(btn.textContent==='show'){s.textContent=pass;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(pass.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
 function renderAccounts(){
   const tb = $$('um_tb'); if(!tb) return;
   tb.innerHTML = loginAccounts.map(a=>`<tr>
     <td><strong>${a.name}</strong></td>
+    <td style="font-size:12px;color:var(--accent2);">${a.email?'<span title="'+a.email+'">'+a.email+'</span>':'<span style="color:var(--text3);">—</span>'}</td>
     <td style="font-family:'DM Mono',monospace;font-size:13px;">${a.username}</td>
-    <td><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min(a.password.length,8))}</span>
-        <button onclick="showPass(this,'${a.password}')" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button></td>
+    <td><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min((a.password||'').length,8))}</span>
+        <button onclick="showPass(this,'${a.password||''}')" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button></td>
     <td><span class="pill ${a.role==='Admin'?'pb':a.role==='Editor'?'pg':'po'}">${a.role}</span></td>
     <td style="color:var(--text2);font-size:12px;">${a.created}</td>
     <td>${a.id===0?'<span style="color:var(--text3);font-size:11px;">Protected</span>':`<button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button>`}</td>
@@ -1297,10 +1316,11 @@ function renderAssigned(){
     TD(a.model)+TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.ram)+TD(a.warranty)+TD(a.purchaseDate)+
     svcBadge(a.services,a.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
-      <button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:3px;">Edit</button>
-      <button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
-      <button class="act-btn" onclick="moveToDeadDirect(${a.id},'assigned')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>
-      <button class="act-btn" onclick="delAsset(${a.id},'assigned')" style="color:var(--danger);">✕</button>
+      ${isEditor()?`<button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:3px;">Edit</button>`:''}
+      ${isEditor()?`<button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>`:''}
+      ${isEditor()?`<button class="act-btn" onclick="moveToDeadDirect(${a.id},'assigned')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>`:''}
+      ${isAdmin()?`<button class="act-btn" onclick="delAsset(${a.id},'assigned')" style="color:var(--danger);">✕</button>`:''}
+      ${!isEditor()?'<span style="color:var(--text3);font-size:11px;">View only</span>':''}
     </td>`
   )).join('');
 }
@@ -1317,10 +1337,11 @@ function renderSupporting(){
     TDM(s.serial)+TD(s.brand)+TD(s.headset)+TD(s.ups)+TD(s.keyboard)+TD(s.mouse)+TD(s.warranty)+TD(s.purchaseDate)+
     svcBadge(s.services,s.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
-      <button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:3px;">Edit</button>
-      <button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
-      <button class="act-btn" onclick="moveToDeadDirect(${s.id},'supporting')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>
-      <button class="act-btn" onclick="delAsset(${s.id},'supporting')" style="color:var(--danger);">✕</button>
+      ${isEditor()?`<button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:3px;">Edit</button>`:''}
+      ${isEditor()?`<button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>`:''}
+      ${isEditor()?`<button class="act-btn" onclick="moveToDeadDirect(${s.id},'supporting')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>`:''}
+      ${isAdmin()?`<button class="act-btn" onclick="delAsset(${s.id},'supporting')" style="color:var(--danger);">✕</button>`:''}
+      ${!isEditor()?'<span style="color:var(--text3);font-size:11px;">View only</span>':''}
     </td>`
   )).join('');
 }
@@ -1340,9 +1361,10 @@ function renderBackup(){
     TD(b.collectedDate)+TD(b.reason)+TD(b.warranty)+TD(b.purchaseDate)+
     svcBadge(b.services,b.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
-      <button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:3px;">Edit</button>
-      <button class="act-btn" onclick="openRestore(${b.id})" style="color:var(--accent2);border-color:var(--accent2);margin-right:3px;">↩ Restore</button>
-      <button class="act-btn" onclick="delAsset(${b.id},'backup')" style="color:var(--danger);">✕</button>
+      ${isEditor()?`<button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:3px;">Edit</button>`:''}
+      ${isEditor()?`<button class="act-btn" onclick="openRestore(${b.id})" style="color:var(--accent2);border-color:var(--accent2);margin-right:3px;">↩ Restore</button>`:''}
+      ${isAdmin()?`<button class="act-btn" onclick="delAsset(${b.id},'backup')" style="color:var(--danger);">✕</button>`:''}
+      ${!isEditor()?'<span style="color:var(--text3);font-size:11px;">View only</span>':''}
     </td>`
   )).join('');
 }
@@ -1358,8 +1380,9 @@ function renderDead(){
     TDM(d.serial)+TD(d.brand)+`<td style="padding:9px 11px;color:var(--danger);font-size:12px;">${d.reason||'—'}</td>`+
     TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+svcBadge(d.services,d.assetId)+TD(d.notes)+
     `<td style="padding:7px 11px;white-space:nowrap;">
-      <button class="act-btn" onclick="openEdit(${d.id},'dead')" style="margin-right:3px;">Edit</button>
-      <button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>
+      ${isEditor()?`<button class="act-btn" onclick="openEdit(${d.id},'dead')" style="margin-right:3px;">Edit</button>`:''}
+      ${isAdmin()?`<button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>`:''}
+      ${!isEditor()?'<span style="color:var(--text3);font-size:11px;">View only</span>':''}
     </td>`
   )).join('');
 }
@@ -1386,10 +1409,38 @@ function renderAllAssets(){
   )).join('');
 }
 
-function refreshAll(){ renderAssigned();renderSupporting();renderBackup();renderDead();renderAllAssets();updateSummary(); }
+function refreshAll(){
+  renderAssigned();renderSupporting();renderBackup();renderDead();renderAllAssets();updateSummary();
+  applyRoleUI();
+}
+
+function applyRoleUI(){
+  if(!currentUser) return;
+  const editor = isEditor();
+  const admin  = isAdmin();
+  // Asset Entry tab — hide for Viewer
+  const entryTab = $$('tab-entry');
+  if(entryTab) entryTab.style.display = editor ? '' : 'none';
+  // User Management card — Admin only
+  const cardUM = $$('cardUM');
+  if(cardUM) cardUM.style.display = admin ? 'block' : 'none';
+  // Role badge next to user name in topbar
+  let badge = $$('roleBadge');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'roleBadge';
+    badge.style.cssText = 'font-size:10px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;letter-spacing:.5px;vertical-align:middle;';
+    const tbName = $$('tbName');
+    if(tbName && tbName.parentNode) tbName.parentNode.insertBefore(badge, tbName.nextSibling);
+  }
+  const roleStyle = {Admin:'background:#4e6ef2;color:#fff',Editor:'background:#27ae60;color:#fff',Viewer:'background:#e67e22;color:#fff'};
+  badge.textContent = currentUser.role.toUpperCase();
+  badge.style.cssText = 'font-size:10px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;letter-spacing:.5px;vertical-align:middle;' + (roleStyle[currentUser.role]||'background:#555;color:#fff');
+}
 
 // ── DELETE ──
 function delAsset(id,type){
+  if(!isAdmin()){ denyAccess("Only Admin can delete assets."); return; }
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
@@ -1407,6 +1458,7 @@ function delAsset(id,type){
 
 // ── MOVE TO DEAD ──
 function moveToDeadDirect(id,type){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can retire assets."); return; }
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
@@ -1422,7 +1474,8 @@ function moveToDeadDirect(id,type){
 }
 
 // ── CATEGORY PICKER ──
-function openCatPicker(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
+function openCatPicker(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can add assets."); return; } const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
 function closeCatPicker(){ const cp=$$('catPicker'); if(cp)cp.style.display='none'; }
 function backToPicker(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
 function closeAEForm(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='none'; if(af)af.style.display='none'; }
@@ -1447,6 +1500,7 @@ function selectCat(cat){
 }
 
 function submitAssetEntry(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can add assets."); return; }
   const errEl=$$('ae_err');if(errEl)errEl.textContent='';
   const chkDup=(id)=>{
     if(getAllAssetIds().includes(id.toLowerCase())){ triggerAlert('duplicate',id); if(errEl)errEl.textContent=`Asset ID "${id}" already exists!`; return true; } return false;
@@ -1496,6 +1550,7 @@ function addSACustomField(){
 
 // ── EDIT ──
 function openEdit(id,type){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can edit assets."); return; }
   curEditId=id;curEditType=type;
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
@@ -1533,6 +1588,7 @@ function openEdit(id,type){
 }
 function closeEditModal(){ const m=$$('editModal');if(m)m.style.display='none'; }
 function saveEdit(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can save changes."); return; }
   const g=id=>{const e=$$('em_'+id);return e?e.value.trim():'';};
   if(curEditType==='assigned'){
     const a=assignedLogs.find(x=>x.id===curEditId);
@@ -1583,6 +1639,7 @@ function openMove(id,type){
 }
 function closeMoveModal(){ const m=$$('moveBackupModal');if(m)m.style.display='none'; }
 function confirmMoveToBackup(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can move assets to backup."); return; }
   const prevUser=val('mb_prevUser').trim();
   if(!prevUser){alert('Please enter the user name.');return;}
   const collectedDate=val('mb_date'), reason=val('mb_reason').trim(), notes=val('mb_notes').trim();
@@ -1608,6 +1665,7 @@ function openRestore(id){
 }
 function closeRestoreModal(){ const m=$$('restoreModal');if(m)m.style.display='none'; }
 function confirmRestore(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can restore assets."); return; }
   const target=val('restore_target'), user=val('restore_user').trim();
   const b=backupLogs.find(x=>x.id===curRestoreId);if(!b){closeRestoreModal();return;}
   const restoredBkpId=curRestoreId;
@@ -1901,7 +1959,6 @@ async function fbBootstrap(){
   }
   hideFbLoading();
 }
-
 // ── Login ──
 document.addEventListener('DOMContentLoaded', ()=>{
   const lp = $$('loginPass');
@@ -1923,9 +1980,12 @@ async function handleLogin(){
     const builtIn = {id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'};
     loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
 
-    // Validate — trim stored password too in case it was saved with spaces
+    // Match by email OR username (so Gmail login works)
     const acct = loginAccounts.find(a =>
-      a.username.trim().toLowerCase() === u &&
+      (
+        (a.email && a.email.trim().toLowerCase() === u) ||
+        (a.username && a.username.trim().toLowerCase() === u)
+      ) &&
       String(a.password).trim() === p
     );
 
