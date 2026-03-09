@@ -387,103 +387,109 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 
   <!-- ASSET SHEET -->
   <div class="view" id="v-assetDetail">
-    <div class="ph">
-      <h1>Asset Sheet</h1>
-      <p>Manage all assets — entry, assignment, peripherals and backup</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div class="ph" style="margin-bottom:0;"><h1>Asset Sheet</h1><p>Manage laptops, peripherals, backup, dead assets and service records</p></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" onclick="openAlertSettings()" style="font-size:12px;">⚙️ Alert Settings</button>
+        <button class="btn p" onclick="downloadExcel()" style="font-size:12px;white-space:nowrap;">⬇ Download Excel</button>
+      </div>
     </div>
 
     <!-- SUMMARY CARDS -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;" id="assetSummary">
-      <div class="sc c1" style="cursor:default;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total Assets</div><div style="font-size:26px;font-weight:700;" id="sum_total">0</div></div>
-      <div class="sc c2" style="cursor:default;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Assigned</div><div style="font-size:26px;font-weight:700;color:var(--accent);" id="sum_assigned">0</div></div>
-      <div class="sc c3" style="cursor:default;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Supporting</div><div style="font-size:26px;font-weight:700;color:var(--accent2);" id="sum_supporting">0</div></div>
-      <div class="sc c4" style="cursor:default;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Backup</div><div style="font-size:26px;font-weight:700;color:var(--accent3);" id="sum_backup">0</div></div>
-      <div class="sc" style="cursor:default;background:rgba(242,92,92,.08);border-color:rgba(242,92,92,.2);"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Dead Assets</div><div style="font-size:26px;font-weight:700;color:var(--danger);" id="sum_dead">0</div></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;">
+      <div class="sc c1" style="cursor:default;padding:14px 16px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total</div><div style="font-size:24px;font-weight:700;" id="sum_total">0</div></div>
+      <div class="sc c2" style="cursor:default;padding:14px 16px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Laptops</div><div style="font-size:24px;font-weight:700;color:var(--accent);" id="sum_assigned">0</div></div>
+      <div class="sc c3" style="cursor:default;padding:14px 16px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Supporting</div><div style="font-size:24px;font-weight:700;color:var(--accent2);" id="sum_supporting">0</div></div>
+      <div class="sc c4" style="cursor:default;padding:14px 16px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Backup</div><div style="font-size:24px;font-weight:700;color:var(--accent3);" id="sum_backup">0</div></div>
+      <div class="sc" style="cursor:default;padding:14px 16px;background:rgba(242,92,92,.08);border-color:rgba(242,92,92,.2);"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Dead</div><div style="font-size:24px;font-weight:700;color:var(--danger);" id="sum_dead">0</div></div>
     </div>
 
-    <!-- SEARCH + DOWNLOAD ROW -->
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:200px;position:relative;">
-        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;">🔍</span>
-        <input id="assetSearch" placeholder="Search by Asset ID…" oninput="searchAssets()" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 12px 9px 34px;color:var(--text);font-family:inherit;font-size:13px;outline:none;"/>
-      </div>
-      <button class="btn p" onclick="downloadExcel()" style="white-space:nowrap;">⬇ Download Excel</button>
+    <!-- SEARCH -->
+    <div style="position:relative;margin-bottom:18px;">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);">🔍</span>
+      <input id="assetSearch" placeholder="Search by Asset ID…" oninput="searchAssets()" style="width:100%;max-width:380px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 12px 9px 34px;color:var(--text);font-family:inherit;font-size:13px;outline:none;"/>
     </div>
 
     <!-- TABS -->
     <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);overflow-x:auto;">
-      <button class="ltab on" id="tab-assigned"  onclick="switchTab('assigned')">📋 Assigned</button>
+      <button class="ltab on" id="tab-assigned"  onclick="switchTab('assigned')">💻 Laptop Details</button>
       <button class="ltab"    id="tab-supporting" onclick="switchTab('supporting')">🔧 Supporting</button>
       <button class="ltab"    id="tab-backup"     onclick="switchTab('backup')">💾 Backup</button>
       <button class="ltab"    id="tab-dead"       onclick="switchTab('dead')" style="color:var(--danger);">💀 Dead Assets</button>
       <button class="ltab"    id="tab-entry"      onclick="switchTab('entry')">＋ Asset Entry</button>
     </div>
 
-    <!-- TAB: ASSIGNED -->
+    <!-- TAB 1: LAPTOP DETAILS -->
     <div id="tabp-assigned">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="font-size:13px;color:var(--text2);" id="av_assignedCount">0 assets</span>
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;color:var(--text2);" id="av_assignedCount">0 laptops</span>
       </div>
-      <table style="width:100%;border-collapse:collapse;" id="assignedTable">
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:900px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
-          <th class="th-s">Asset ID</th><th class="th-s">User Name</th><th class="th-s">Serial No</th>
-          <th class="th-s">Brand</th><th class="th-s">Processor</th><th class="th-s">Warranty</th>
-          <th class="th-s">Purchase Date</th><th class="th-s" style="min-width:140px;"></th>
+          <th class="th-s">Asset ID</th><th class="th-s">Laptop User</th><th class="th-s">Model</th>
+          <th class="th-s">Serial No</th><th class="th-s">Brand</th><th class="th-s">Processor</th>
+          <th class="th-s">RAM</th><th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Service</th><th class="th-s" style="min-width:160px;"></th>
         </tr></thead>
-        <tbody id="av_assignedTb"><tr><td colspan="8" class="td-empty">No assigned assets yet — add via Asset Entry tab</td></tr></tbody>
+        <tbody id="av_assignedTb"><tr><td colspan="11" class="td-empty">No laptop assets yet — add via Asset Entry tab</td></tr></tbody>
       </table>
+      </div>
     </div>
 
-    <!-- TAB: SUPPORTING -->
+    <!-- TAB 2: SUPPORTING -->
     <div id="tabp-supporting" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="font-size:13px;color:var(--text2);" id="av_supportCount">0 assets</span>
-      </div>
-      <table style="width:100%;border-collapse:collapse;">
+      <div style="margin-bottom:12px;"><span style="font-size:13px;color:var(--text2);" id="av_supportCount">0 assets</span></div>
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:900px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
-          <th class="th-s">Asset ID</th><th class="th-s">User Name</th><th class="th-s">Serial No</th>
-          <th class="th-s">Brand</th><th class="th-s">Headset</th><th class="th-s">UPS</th>
-          <th class="th-s">Keyboard</th><th class="th-s">Mouse</th><th class="th-s">Warranty</th>
-          <th class="th-s">Purchase Date</th><th class="th-s"></th>
+          <th class="th-s">Asset ID</th><th class="th-s">Assigned User</th><th class="th-s">Laptop</th>
+          <th class="th-s">Serial No</th><th class="th-s">Brand</th><th class="th-s">Headset</th><th class="th-s">UPS</th>
+          <th class="th-s">Keyboard</th><th class="th-s">Mouse</th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Service</th><th class="th-s" style="min-width:160px;"></th>
         </tr></thead>
-        <tbody id="av_supportTb"><tr><td colspan="11" class="td-empty">No supporting assets yet — add via Asset Entry tab</td></tr></tbody>
+        <tbody id="av_supportTb"><tr><td colspan="13" class="td-empty">No supporting assets yet</td></tr></tbody>
       </table>
+      </div>
     </div>
 
-    <!-- TAB: BACKUP -->
+    <!-- TAB 3: BACKUP -->
     <div id="tabp-backup" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="font-size:13px;color:var(--text2);" id="av_backupCount">0 assets</span>
-      </div>
-      <table style="width:100%;border-collapse:collapse;">
+      <div style="margin-bottom:12px;"><span style="font-size:13px;color:var(--text2);" id="av_backupCount">0 assets</span></div>
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:1100px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
-          <th class="th-s">Type</th><th class="th-s">Asset ID</th><th class="th-s">Prev User</th>
-          <th class="th-s">Serial No</th><th class="th-s">Brand</th>
+          <th class="th-s">From</th><th class="th-s">Asset ID</th><th class="th-s">Prev User</th>
+          <th class="th-s">Model</th><th class="th-s">Serial No</th><th class="th-s">Brand</th>
+          <th class="th-s">Processor</th><th class="th-s">RAM</th>
           <th class="th-s">Headset</th><th class="th-s">Mouse</th><th class="th-s">Keyboard</th>
           <th class="th-s">Collected</th><th class="th-s">Reason</th>
-          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s"></th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Service</th><th class="th-s" style="min-width:130px;"></th>
         </tr></thead>
-        <tbody id="av_backupTb"><tr><td colspan="13" class="td-empty">No backup assets yet</td></tr></tbody>
+        <tbody id="av_backupTb"><tr><td colspan="17" class="td-empty">No backup assets yet</td></tr></tbody>
       </table>
+      </div>
     </div>
 
-
-    <!-- TAB: DEAD ASSETS -->
+    <!-- TAB 4: DEAD ASSETS -->
     <div id="tabp-dead" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="font-size:13px;color:var(--text2);" id="av_deadCount">0 assets</span>
-      </div>
-      <table style="width:100%;border-collapse:collapse;">
+      <div style="margin-bottom:12px;"><span style="font-size:13px;color:var(--text2);" id="av_deadCount">0 assets</span></div>
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:900px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
           <th class="th-s">Asset ID</th><th class="th-s">Prev User</th><th class="th-s">Serial No</th>
           <th class="th-s">Brand</th><th class="th-s">Reason</th><th class="th-s">Date</th>
-          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s">Notes</th><th class="th-s"></th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Service</th><th class="th-s">Notes</th><th class="th-s" style="min-width:80px;"></th>
         </tr></thead>
-        <tbody id="av_deadTb"><tr><td colspan="10" class="td-empty">No dead assets</td></tr></tbody>
+        <tbody id="av_deadTb"><tr><td colspan="11" class="td-empty">No dead assets</td></tr></tbody>
       </table>
+      </div>
     </div>
 
-    <!-- TAB: ASSET ENTRY -->
+    <!-- TAB 5: ASSET ENTRY -->
     <div id="tabp-entry" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <span style="font-size:13px;color:var(--text2);" id="av_allCount">0 entries</span>
@@ -491,95 +497,112 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       </div>
 
       <!-- Category picker -->
-      <div id="catPicker" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;max-width:520px;">
+      <div id="catPicker" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;max-width:540px;">
         <p style="font-size:14px;font-weight:600;margin-bottom:6px;">What type of asset?</p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">Choose a category to continue</p>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button onclick="selectCat('assigned')"   class="cat-btn" onmouseover="this.style.borderColor='var(--accent)'"   onmouseout="this.style.borderColor='var(--border)'"><strong>📋 Assigned Asset</strong><span>Laptop, desktop — assigned directly to a user</span></button>
+          <button onclick="selectCat('assigned')"   class="cat-btn" onmouseover="this.style.borderColor='var(--accent)'"   onmouseout="this.style.borderColor='var(--border)'"><strong>💻 Laptop Asset</strong><span>Laptop/device assigned directly to a user</span></button>
           <button onclick="selectCat('supporting')" class="cat-btn" onmouseover="this.style.borderColor='var(--accent2)'"  onmouseout="this.style.borderColor='var(--border)'"><strong>🔧 Supporting Asset</strong><span>Headset, UPS, keyboard, mouse and peripherals</span></button>
-          <button onclick="selectCat('backup')"     class="cat-btn" onmouseover="this.style.borderColor='var(--accent3)'"  onmouseout="this.style.borderColor='var(--border)'"><strong>💾 Backup Asset</strong><span>Spare / reserve asset not currently assigned</span></button>
-          <button onclick="selectCat('dead')"       class="cat-btn" onmouseover="this.style.borderColor='var(--danger)'"    onmouseout="this.style.borderColor='var(--border)'"><strong>💀 Dead Asset</strong><span>Broken, damaged or disposed asset</span></button>
+          <button onclick="selectCat('backup')"     class="cat-btn" onmouseover="this.style.borderColor='var(--accent3)'"  onmouseout="this.style.borderColor='var(--border)'"><strong>💾 Backup Asset</strong><span>Spare / reserve — includes all laptop + supporting fields</span></button>
+          <button onclick="selectCat('dead')"       class="cat-btn" onmouseover="this.style.borderColor='var(--danger)'"   onmouseout="this.style.borderColor='var(--border)'"><strong>💀 Dead Asset</strong><span>Broken, damaged or disposed asset</span></button>
         </div>
         <button class="btn" style="margin-top:14px;" onclick="closeCatPicker()">Cancel</button>
       </div>
 
-      <!-- Entry form (assigned / supporting / backup) -->
+      <!-- Entry form -->
       <div id="aeForm" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:20px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-          <span id="ae_catLabel" style="font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(79,142,247,.15);color:var(--accent);">Assigned Asset</span>
+          <span id="ae_catLabel" style="font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(79,142,247,.15);color:var(--accent);">Laptop Asset</span>
           <button onclick="backToPicker()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;">Change type</button>
         </div>
 
-        <!-- ASSIGNED fields -->
-        <div id="ae_fAssigned" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
-          <div class="fi"><label>Asset ID *</label><input id="ae_id" placeholder="e.g. AST-001"/></div>
-          <div class="fi"><label>Serial Number</label><input id="ae_serial" placeholder="e.g. SN-12345"/></div>
-          <div class="fi"><label>Brand</label><input id="ae_brand" placeholder="e.g. Dell"/></div>
-          <div class="fi"><label>Processor</label><input id="ae_proc" placeholder="e.g. Intel i7"/></div>
-          <div class="fi"><label>Warranty</label><input id="ae_warranty" placeholder="e.g. 3 years"/></div>
-          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_purchaseDate" style="color-scheme:dark;"/></div>
-          <div class="fi" style="grid-column:span 3;"><label>Assigned User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
+        <!-- LAPTOP fields -->
+        <div id="ae_fAssigned" style="display:none;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">💻 Laptop Details</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+            <div class="fi"><label>Asset ID *</label><input id="ae_id" placeholder="e.g. LPT-001"/></div>
+            <div class="fi"><label>Model</label><input id="ae_model" placeholder="e.g. ThinkPad X1 Carbon"/></div>
+            <div class="fi"><label>Serial Number</label><input id="ae_serial" placeholder="e.g. SN-12345"/></div>
+            <div class="fi"><label>Brand</label><input id="ae_brand" placeholder="e.g. Dell"/></div>
+            <div class="fi"><label>Processor</label><input id="ae_proc" placeholder="e.g. Intel i7-1265U"/></div>
+            <div class="fi"><label>RAM</label><input id="ae_ram" placeholder="e.g. 16GB DDR5"/></div>
+            <div class="fi"><label>Warranty</label><input id="ae_warranty" placeholder="e.g. 3 years"/></div>
+            <div class="fi"><label>Purchase Date</label><input type="date" id="ae_purchaseDate" style="color-scheme:dark;"/></div>
+            <div class="fi"><label>Laptop User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
+          </div>
         </div>
 
         <!-- SUPPORTING fields -->
-        <div id="ae_fSupporting" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
-          <div class="fi"><label>Asset ID *</label><input id="ae_sid" placeholder="e.g. SUP-001"/></div>
-          <div class="fi"><label>Serial Number</label><input id="ae_sserial" placeholder="e.g. SN-99999"/></div>
-          <div class="fi"><label>Brand</label><input id="ae_sbrand" placeholder="e.g. Logitech"/></div>
-          <div class="fi"><label>Headset</label><input id="ae_sheadset" placeholder="e.g. Logitech H390"/></div>
-          <div class="fi"><label>UPS</label><input id="ae_sups" placeholder="e.g. APC 600VA"/></div>
-          <div class="fi"><label>Keyboard</label><input id="ae_skeyboard" placeholder="e.g. Dell KB216"/></div>
-          <div class="fi"><label>Mouse</label><input id="ae_smouse" placeholder="e.g. Logitech M100"/></div>
-          <div class="fi"><label>Warranty</label><input id="ae_swarranty" placeholder="e.g. 1 year"/></div>
-          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_spurchaseDate" style="color-scheme:dark;"/></div>
-          <div class="fi" style="grid-column:span 3;"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
+        <div id="ae_fSupporting" style="display:none;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">🔧 Supporting Asset Details</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+            <div class="fi"><label>Asset ID *</label><input id="ae_sid" placeholder="e.g. SUP-001"/></div>
+            <div class="fi"><label>Serial Number</label><input id="ae_sserial" placeholder="e.g. SN-99999"/></div>
+            <div class="fi"><label>Brand</label><input id="ae_sbrand" placeholder="e.g. Logitech"/></div>
+            <div class="fi"><label>Laptop (Linked Asset ID)</label><input id="ae_slaptop" placeholder="e.g. LPT-001"/></div>
+            <div class="fi"><label>Headset</label><input id="ae_sheadset" placeholder="e.g. Logitech H390"/></div>
+            <div class="fi"><label>UPS</label><input id="ae_sups" placeholder="e.g. APC 600VA"/></div>
+            <div class="fi"><label>Keyboard</label><input id="ae_skeyboard" placeholder="e.g. Dell KB216"/></div>
+            <div class="fi"><label>Mouse</label><input id="ae_smouse" placeholder="e.g. Logitech M100"/></div>
+            <div class="fi"><label>Warranty</label><input id="ae_swarranty" placeholder="e.g. 1 year"/></div>
+            <div class="fi"><label>Purchase Date</label><input type="date" id="ae_spurchaseDate" style="color-scheme:dark;"/></div>
+            <div class="fi"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
+            <div class="fi" style="grid-column:span 3;">
+              <label style="display:flex;align-items:center;gap:8px;">Customize <button onclick="toggleSACustom()" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;text-decoration:underline;">+ Add Custom Field</button></label>
+              <div id="saCustomFields" style="display:none;margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+              <button id="saAddCustomBtn" onclick="addSACustomField()" style="display:none;margin-top:6px;font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;">+ Add another field</button>
+            </div>
+          </div>
         </div>
 
-        <!-- BACKUP fields -->
-        <div id="ae_fBackup" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
-          <div class="fi"><label>Asset ID *</label><input id="ae_bid" placeholder="e.g. BKP-001"/></div>
-          <div class="fi"><label>Serial Number</label><input id="ae_bserial" placeholder="e.g. SN-77777"/></div>
-          <div class="fi"><label>Brand</label><input id="ae_bbrand" placeholder="e.g. Lenovo"/></div>
-          <div class="fi"><label>Headset</label>
-            <select id="ae_bheadset" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
-              <option value="">— None —</option>
-              <option>Logitech H390</option><option>Logitech H540</option><option>Jabra Evolve 20</option>
-              <option>Jabra Evolve 40</option><option>Plantronics Blackwire</option><option>Sony WH-1000XM5</option>
-              <option>Bose QC45</option><option>Sennheiser HD 450</option><option>Other</option>
-            </select>
+        <!-- BACKUP fields (laptop + supporting combined) -->
+        <div id="ae_fBackup" style="display:none;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">💻 Laptop Details</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div class="fi"><label>Asset ID *</label><input id="ae_bid" placeholder="e.g. BKP-001"/></div>
+            <div class="fi"><label>Model</label><input id="ae_bmodel" placeholder="e.g. HP EliteBook 840"/></div>
+            <div class="fi"><label>Serial Number</label><input id="ae_bserial" placeholder="e.g. SN-77777"/></div>
+            <div class="fi"><label>Brand</label><input id="ae_bbrand" placeholder="e.g. Lenovo"/></div>
+            <div class="fi"><label>Processor</label><input id="ae_bproc" placeholder="e.g. AMD Ryzen 5"/></div>
+            <div class="fi"><label>RAM</label><input id="ae_bram" placeholder="e.g. 8GB DDR4"/></div>
+            <div class="fi"><label>Warranty</label><input id="ae_bwarranty" placeholder="e.g. 1 year"/></div>
+            <div class="fi"><label>Purchase Date</label><input type="date" id="ae_bpurchaseDate" style="color-scheme:dark;"/></div>
           </div>
-          <div class="fi"><label>Mouse</label>
-            <select id="ae_bmouse" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
-              <option value="">— None —</option>
-              <option>Logitech M100</option><option>Logitech M185</option><option>Logitech MX Master 3</option>
-              <option>Dell MS116</option><option>HP X1000</option><option>Microsoft Sculpt</option>
-              <option>Razer DeathAdder</option><option>Other</option>
-            </select>
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">🔧 Supporting Peripherals</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+            <div class="fi"><label>Headset</label>
+              <select id="ae_bheadset" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">— None —</option><option>Logitech H390</option><option>Logitech H540</option><option>Jabra Evolve 20</option><option>Jabra Evolve 40</option><option>Plantronics Blackwire</option><option>Sony WH-1000XM5</option><option>Bose QC45</option><option>Sennheiser HD 450</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fi"><label>Mouse</label>
+              <select id="ae_bmouse" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">— None —</option><option>Logitech M100</option><option>Logitech M185</option><option>Logitech MX Master 3</option><option>Dell MS116</option><option>HP X1000</option><option>Microsoft Sculpt</option><option>Razer DeathAdder</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fi"><label>Keyboard</label>
+              <select id="ae_bkeyboard" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">— None —</option><option>Dell KB216</option><option>Dell KB522</option><option>Logitech K120</option><option>Logitech MK270</option><option>HP K1500</option><option>Microsoft Wired 600</option><option>Keychron K2</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_bnotes" placeholder="Any notes about this backup asset"/></div>
           </div>
-          <div class="fi"><label>Keyboard</label>
-            <select id="ae_bkeyboard" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
-              <option value="">— None —</option>
-              <option>Dell KB216</option><option>Dell KB522</option><option>Logitech K120</option>
-              <option>Logitech MK270</option><option>HP K1500</option><option>Microsoft Wired 600</option>
-              <option>Keychron K2</option><option>Other</option>
-            </select>
-          </div>
-          <div class="fi"><label>Warranty</label><input id="ae_bwarranty" placeholder="e.g. 1 year"/></div>
-          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_bpurchaseDate" style="color-scheme:dark;"/></div>
-          <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_bnotes" placeholder="Any notes about this backup asset"/></div>
         </div>
 
         <!-- DEAD fields -->
-        <div id="ae_fDead" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
-          <div class="fi"><label>Asset ID *</label><input id="ae_did" placeholder="e.g. AST-001"/></div>
-          <div class="fi"><label>Serial Number</label><input id="ae_dserial" placeholder="e.g. SN-12345"/></div>
-          <div class="fi"><label>Brand</label><input id="ae_dbrand" placeholder="e.g. Dell"/></div>
-          <div class="fi"><label>Previous User</label><input id="ae_duser" placeholder="Last person who used it"/></div>
-          <div class="fi"><label>Reason</label><input id="ae_dreason" placeholder="e.g. Screen broken, HDD failure"/></div>
-          <div class="fi"><label>Date</label><input type="date" id="ae_ddate" style="color-scheme:dark;"/></div>
-          <div class="fi"><label>Warranty</label><input id="ae_dwarranty" placeholder="e.g. Expired"/></div>
-          <div class="fi"><label>Purchase Date</label><input type="date" id="ae_dpurchaseDate" style="color-scheme:dark;"/></div>
-          <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
+        <div id="ae_fDead" style="display:none;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">💀 Dead Asset Details</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+            <div class="fi"><label>Asset ID *</label><input id="ae_did" placeholder="e.g. AST-001"/></div>
+            <div class="fi"><label>Serial Number</label><input id="ae_dserial" placeholder="e.g. SN-12345"/></div>
+            <div class="fi"><label>Brand</label><input id="ae_dbrand" placeholder="e.g. Dell"/></div>
+            <div class="fi"><label>Previous User</label><input id="ae_duser" placeholder="Last person who used it"/></div>
+            <div class="fi"><label>Reason</label><input id="ae_dreason" placeholder="e.g. Screen broken, HDD failure"/></div>
+            <div class="fi"><label>Date</label><input type="date" id="ae_ddate" style="color-scheme:dark;"/></div>
+            <div class="fi"><label>Warranty</label><input id="ae_dwarranty" placeholder="e.g. Expired"/></div>
+            <div class="fi"><label>Purchase Date</label><input type="date" id="ae_dpurchaseDate" style="color-scheme:dark;"/></div>
+            <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
+          </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:9px;">
@@ -591,25 +614,53 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       </div>
 
       <!-- All entries list -->
-      <table style="width:100%;border-collapse:collapse;">
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:800px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
-          <th class="th-s">Type</th><th class="th-s">Asset ID</th><th class="th-s">Serial No</th>
-          <th class="th-s">Brand</th><th class="th-s">Details</th>
-          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s">User</th><th class="th-s"></th>
+          <th class="th-s">Type</th><th class="th-s">Asset ID</th><th class="th-s">User</th>
+          <th class="th-s">Model/Brand</th><th class="th-s">Details</th>
+          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th><th class="th-s"></th>
         </tr></thead>
-        <tbody id="av_allTb"><tr><td colspan="9" class="td-empty">No entries yet</td></tr></tbody>
+        <tbody id="av_allTb"><tr><td colspan="8" class="td-empty">No entries yet</td></tr></tbody>
       </table>
+      </div>
     </div>
   </div>
 
   <!-- EDIT MODAL -->
-  <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:560px;max-width:95vw;max-height:85vh;overflow-y:auto;">
+  <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:600px;max-width:96vw;max-height:88vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
         <h3 style="font-size:15px;font-weight:600;" id="editModalTitle">Edit Asset</h3>
         <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
       </div>
       <div id="editModalBody"></div>
+      <!-- SERVICE SECTION -->
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;">🔧 Service Records</div>
+          <button onclick="addServiceRecord()" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;text-decoration:underline;">+ Add Service Record</button>
+        </div>
+        <div id="em_svcList" style="margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="em_svcForm" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">New Service Entry</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="fi" style="margin-bottom:0;"><label>Service Provider</label><input id="em_svcProvider" placeholder="e.g. Dell Support"/></div>
+            <div class="fi" style="margin-bottom:0;"><label>Service Date</label><input type="date" id="em_svcDate" style="color-scheme:dark;"/></div>
+            <div class="fi" style="margin-bottom:0;"><label>Cost</label><input id="em_svcCost" placeholder="e.g. RM 250"/></div>
+            <div class="fi" style="margin-bottom:0;"><label>Status</label>
+              <select id="em_svcStatus" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">— None —</option><option>OK</option><option>In Service</option><option>Pending</option><option>Completed</option>
+              </select>
+            </div>
+            <div class="fi" style="margin-bottom:0;grid-column:span 2;"><label>Service Notes</label><input id="em_svcNotes" placeholder="Description of service work"/></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn p" onclick="confirmAddServiceRecord()" style="padding:6px 14px;font-size:12px;">Save Record</button>
+            <button class="btn" onclick="cancelServiceRecord()" style="padding:6px 14px;font-size:12px;">Cancel</button>
+          </div>
+        </div>
+      </div>
       <div style="display:flex;align-items:center;gap:9px;margin-top:16px;">
         <button class="btn p" onclick="saveEdit()">Save Changes</button>
         <button class="btn" onclick="closeEditModal()">Cancel</button>
@@ -665,7 +716,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <div class="fi" style="margin-bottom:12px;"><label>Assign To (User Name)</label><input id="restore_user" placeholder="Name of user to assign"/></div>
       <div class="fi" style="margin-bottom:16px;"><label>Restore To</label>
         <select id="restore_target" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
-          <option value="assigned">📋 Assigned Assets</option>
+          <option value="assigned">💻 Laptop Details</option>
           <option value="supporting">🔧 Supporting Assets</option>
           <option value="dead">💀 Dead Assets</option>
         </select>
@@ -673,6 +724,36 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
       <div style="display:flex;gap:9px;">
         <button class="btn p" onclick="confirmRestore()" style="background:var(--accent2);border-color:var(--accent2);">Restore</button>
         <button class="btn" onclick="closeRestoreModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERT SETTINGS MODAL -->
+  <div id="alertModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:480px;max-width:95vw;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h3 style="font-size:15px;font-weight:600;">⚙️ Alert Settings</h3>
+        <button onclick="closeAlertSettings()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">Configure email alerts for duplicate Asset IDs and new asset entries</p>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Alert Email Addresses</div>
+        <div id="alertEmailList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input id="newAlertEmail" placeholder="Enter email address" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')addAlertEmail()"/>
+          <button class="btn p" onclick="addAlertEmail()" style="padding:8px 14px;">Add</button>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;">Alert Triggers</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="alertOnDuplicate" checked style="accent-color:var(--accent);"/> Alert on duplicate Asset ID entry</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="alertOnNew" checked style="accent-color:var(--accent);"/> Alert on new asset added</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;"><input type="checkbox" id="alertOnDelete" checked style="accent-color:var(--accent);"/> Alert on asset deleted</label>
+      </div>
+      <div style="display:flex;gap:9px;">
+        <button class="btn p" onclick="saveAlertSettings()">Save Settings</button>
+        <button class="btn" onclick="closeAlertSettings()">Close</button>
+        <span class="ok" id="alert_ok">✓ Saved</span>
       </div>
     </div>
   </div>
@@ -1027,19 +1108,64 @@ function renderAccounts(){
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
 // ASSET SHEET
 // ══════════════════════════════════════════
-let assignedLogs = [];  // {id,assetId,serial,brand,proc,warranty,purchaseDate,userName}
-let supportLogs  = [];  // {id,assetId,serial,brand,headset,ups,keyboard,mouse,warranty,purchaseDate,userName}
-let backupLogs   = [];  // {id,fromType,assetId,serial,brand,headset,mouse,keyboard,warranty,purchaseDate,prevUser,collectedDate,reason,notes}
-let deadLogs     = [];  // {id,assetId,serial,brand,prevUser,reason,date,warranty,purchaseDate,notes}
+// Data: service = {provider, date, cost, status, notes}
+let assignedLogs = []; // laptop: {id,assetId,model,serial,brand,proc,ram,warranty,purchaseDate,userName,services:[]}
+let supportLogs  = []; // supporting: {id,assetId,laptop,serial,brand,headset,ups,keyboard,mouse,warranty,purchaseDate,userName,services:[],custom:{}}
+let backupLogs   = []; // backup: {id,fromType,assetId,model,serial,brand,proc,ram,headset,mouse,keyboard,warranty,purchaseDate,prevUser,collectedDate,reason,notes,services:[]}
+let deadLogs     = []; // dead: {id,assetId,serial,brand,prevUser,reason,date,warranty,purchaseDate,notes,services:[]}
 let aId=1, sId=1, bId=1, dId=1;
+let saCustomCount=0;
 let curEditId=null, curEditType=null;
 let curMoveId=null, curMoveType=null;
 let curAssignId=null, curAssignType=null;
 let curRestoreId=null;
 let curAssetCat='assigned';
 let assetSearchQ='';
+let alertEmails=[];
+
+// ── ALL ASSET IDs for duplicate check ──
+function getAllAssetIds(){ return [...assignedLogs,...supportLogs,...backupLogs,...deadLogs].map(x=>x.assetId.toLowerCase()); }
+function isDuplicate(id,excludeId,excludeType){ return getAllAssetIds().some(x=>x===id.toLowerCase()); }
+
+// ── ALERT SETTINGS ──
+function openAlertSettings(){
+  renderAlertEmails();
+  const m=$$('alertModal'); if(m) m.style.display='flex';
+}
+function closeAlertSettings(){ const m=$$('alertModal'); if(m) m.style.display='none'; }
+function renderAlertEmails(){
+  const el=$$('alertEmailList'); if(!el) return;
+  if(!alertEmails.length){ el.innerHTML=`<span style="font-size:12px;color:var(--text3);">No email addresses added yet</span>`; return; }
+  el.innerHTML=alertEmails.map((e,i)=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;">
+    <span style="flex:1;font-size:13px;font-family:'DM Mono',monospace;">${e}</span>
+    <button onclick="removeAlertEmail(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;">✕</button>
+  </div>`).join('');
+}
+function addAlertEmail(){
+  const inp=$$('newAlertEmail'); if(!inp) return;
+  const email=inp.value.trim();
+  if(!email||!email.includes('@')){ alert('Please enter a valid email address.'); return; }
+  if(alertEmails.includes(email)){ alert('This email is already added.'); return; }
+  alertEmails.push(email); inp.value=''; renderAlertEmails();
+}
+function removeAlertEmail(i){ alertEmails.splice(i,1); renderAlertEmails(); }
+function saveAlertSettings(){ flash('alert_ok'); }
+function triggerAlert(type,assetId){
+  const onDup=$$(  'alertOnDuplicate'), onNew=$$('alertOnNew'), onDel=$$('alertOnDelete');
+  if(type==='duplicate' && onDup && !onDup.checked) return;
+  if(type==='new'       && onNew && !onNew.checked) return;
+  if(type==='delete'    && onDel && !onDel.checked) return;
+  const msgs={duplicate:`⚠️ Duplicate Asset ID "${assetId}" entered!`,new:`✅ New asset "${assetId}" added.`,delete:`🗑 Asset "${assetId}" deleted.`};
+  if(type==='duplicate') { alert(msgs[type]); return; }
+  if(alertEmails.length){
+    const body=encodeURIComponent(`Asset Management Alert\n\n${msgs[type]}\n\nTime: ${new Date().toLocaleString()}`);
+    const subj=encodeURIComponent(`OptiCore Asset Alert: ${assetId}`);
+    window.open(`mailto:${alertEmails.join(',')}?subject=${subj}&body=${body}`);
+  }
+}
 
 // ── SEARCH ──
 function searchAssets(){
@@ -1047,156 +1173,172 @@ function searchAssets(){
   const t=document.querySelector('.ltab.on');
   const tab=t?t.id.replace('tab-',''):'assigned';
   if(tab==='assigned')   renderAssigned();
-  if(tab==='supporting') renderSupporting();
-  if(tab==='backup')     renderBackup();
-  if(tab==='dead')       renderDead();
-  if(tab==='entry')      renderAllAssets();
+  else if(tab==='supporting') renderSupporting();
+  else if(tab==='backup')     renderBackup();
+  else if(tab==='dead')       renderDead();
+  else                        renderAllAssets();
 }
 function matchSearch(assetId){ return !assetSearchQ||String(assetId||'').toLowerCase().includes(assetSearchQ); }
 
 // ── SUMMARY ──
 function updateSummary(){
   const t=assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length;
-  setText('sum_total',t);
-  setText('sum_assigned',assignedLogs.length);
-  setText('sum_supporting',supportLogs.length);
-  setText('sum_backup',backupLogs.length);
-  setText('sum_dead',deadLogs.length);
+  setText('sum_total',t); setText('sum_assigned',assignedLogs.length);
+  setText('sum_supporting',supportLogs.length); setText('sum_backup',backupLogs.length); setText('sum_dead',deadLogs.length);
 }
 
 // ── TABS ──
 function switchTab(t){
   ['assigned','supporting','backup','dead','entry'].forEach(k=>{
-    const b=$$('tab-'+k), p=$$('tabp-'+k);
+    const b=$$('tab-'+k),p=$$('tabp-'+k);
     if(b) b.classList.toggle('on',k===t);
     if(p) p.style.display=k===t?'block':'none';
   });
   if(t==='assigned')   renderAssigned();
-  if(t==='supporting') renderSupporting();
-  if(t==='backup')     renderBackup();
-  if(t==='dead')       renderDead();
-  if(t==='entry')      renderAllAssets();
+  else if(t==='supporting') renderSupporting();
+  else if(t==='backup')     renderBackup();
+  else if(t==='dead')       renderDead();
+  else                      renderAllAssets();
 }
 
 // ── RENDER HELPERS ──
-const TDM = v=>`<td style="padding:10px 12px;font-family:'DM Mono',monospace;font-size:12px;">${v||'—'}</td>`;
-const TD  = v=>`<td style="padding:10px 12px;font-size:13px;">${v||'—'}</td>`;
-const TROW = inner=>`<tr style="border-bottom:1px solid rgba(37,42,56,.5);">${inner}</tr>`;
-const userCell = (name,id,type)=>`<td style="padding:10px 12px;">
+const TDM = v=>`<td style="padding:9px 11px;font-family:'DM Mono',monospace;font-size:12px;">${v||'—'}</td>`;
+const TD  = v=>`<td style="padding:9px 11px;font-size:13px;">${v||'—'}</td>`;
+const TROW= inner=>`<tr style="border-bottom:1px solid rgba(37,42,56,.5);">${inner}</tr>`;
+const svcBadge = services=>{
+  const arr=Array.isArray(services)?services:[];
+  if(!arr.length) return `<td style="padding:9px 11px;"><span style="font-size:11px;color:var(--text3);">0</span></td>`;
+  const last=arr[arr.length-1];
+  const col={OK:'var(--accent2)','In Service':'var(--accent3)',Pending:'var(--accent)',Completed:'var(--accent2)'}[last.status]||'var(--text3)';
+  return `<td style="padding:9px 11px;"><span style="font-size:12px;font-weight:700;color:${col};">${arr.length}</span><div style="font-size:10px;color:var(--text3);margin-top:1px;">${last.status||''}</div></td>`;
+};
+const userCell=(name,id,type)=>`<td style="padding:9px 11px;">
   <span style="color:var(--accent2);font-size:12px;font-weight:600;">${name||'Unassigned'}</span>
-  <button onclick="openAssign(${id},'${type}')" title="Edit user" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;margin-left:4px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">✏️</button>
+  <button onclick="openAssign(${id},'${type}')" title="Edit user" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;margin-left:3px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">✏️</button>
 </td>`;
-const actBtns = (editFn, extraBtns)=>`<td style="padding:8px 12px;white-space:nowrap;">
-  <button class="act-btn" onclick="${editFn}" style="margin-right:4px;">Edit</button>
-  ${extraBtns}
+const actBtns=(editFn,extra)=>`<td style="padding:7px 11px;white-space:nowrap;display:flex;flex-wrap:wrap;gap:4px;">
+  <button class="act-btn" onclick="${editFn}">Edit</button>${extra}
 </td>`;
 
-// ── ASSIGNED ──
+// ── LAPTOP DETAILS (Tab 1) ──
 function renderAssigned(){
   const tb=$$('av_assignedTb'); if(!tb) return;
   const list=assignedLogs.filter(a=>matchSearch(a.assetId));
-  setText('av_assignedCount', list.length+' asset'+(list.length!==1?'s':'')+(assetSearchQ?' (filtered)':''));
-  if(!list.length){ tb.innerHTML=`<tr><td colspan="8" class="td-empty">${assetSearchQ?'No results for "'+assetSearchQ+'"':'No assigned assets yet — add via Asset Entry tab'}</td></tr>`; return; }
+  setText('av_assignedCount', list.length+' laptop'+(list.length!==1?'s':'')+(assetSearchQ?' (filtered)':''));
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">${assetSearchQ?'No results':'No laptops yet — add via Asset Entry tab'}</td></tr>`; return; }
   tb.innerHTML=[...list].reverse().map(a=>TROW(
     TDM(a.assetId)+userCell(a.userName,a.id,'assigned')+
-    TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.warranty)+TD(a.purchaseDate)+
-    actBtns(`openEdit(${a.id},'assigned')`,
-      `<button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);margin-right:4px;">→ Backup</button>
-       <button class="act-btn" onclick="moveToDeadDirect(${a.id},'assigned')" style="color:var(--danger);border-color:var(--danger);margin-right:4px;">💀 Dead</button>
-       <button class="act-btn" onclick="delAsset(${a.id},'assigned')" style="color:var(--danger);">✕</button>`)
+    TD(a.model)+TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.ram)+TD(a.warranty)+TD(a.purchaseDate)+
+    svcBadge(a.services)+
+    `<td style="padding:7px 11px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:3px;">Edit</button>
+      <button class="act-btn" onclick="openMove(${a.id},'assigned')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
+      <button class="act-btn" onclick="moveToDeadDirect(${a.id},'assigned')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>
+      <button class="act-btn" onclick="delAsset(${a.id},'assigned')" style="color:var(--danger);">✕</button>
+    </td>`
   )).join('');
 }
 
-// ── SUPPORTING ──
+// ── SUPPORTING (Tab 2) ──
 function renderSupporting(){
   const tb=$$('av_supportTb'); if(!tb) return;
   const list=supportLogs.filter(s=>matchSearch(s.assetId));
   setText('av_supportCount', list.length+' asset'+(list.length!==1?'s':'')+(assetSearchQ?' (filtered)':''));
-  if(!list.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">${assetSearchQ?'No results for "'+assetSearchQ+'"':'No supporting assets yet — add via Asset Entry tab'}</td></tr>`; return; }
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="12" class="td-empty">${assetSearchQ?'No results':'No supporting assets yet'}</td></tr>`; return; }
   tb.innerHTML=[...list].reverse().map(s=>TROW(
     TDM(s.assetId)+userCell(s.userName,s.id,'supporting')+
+    `<td style="padding:9px 11px;font-size:12px;color:var(--accent);font-weight:600;">${s.laptop||'—'}</td>`+
     TDM(s.serial)+TD(s.brand)+TD(s.headset)+TD(s.ups)+TD(s.keyboard)+TD(s.mouse)+TD(s.warranty)+TD(s.purchaseDate)+
-    actBtns(`openEdit(${s.id},'supporting')`,
-      `<button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);margin-right:4px;">→ Backup</button>
-       <button class="act-btn" onclick="moveToDeadDirect(${s.id},'supporting')" style="color:var(--danger);border-color:var(--danger);margin-right:4px;">💀 Dead</button>
-       <button class="act-btn" onclick="delAsset(${s.id},'supporting')" style="color:var(--danger);">✕</button>`)
+    svcBadge(s.services)+
+    `<td style="padding:7px 11px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:3px;">Edit</button>
+      <button class="act-btn" onclick="openMove(${s.id},'supporting')" style="color:var(--accent3);border-color:var(--accent3);margin-right:3px;">→ Backup</button>
+      <button class="act-btn" onclick="moveToDeadDirect(${s.id},'supporting')" style="color:var(--danger);border-color:var(--danger);margin-right:3px;">💀</button>
+      <button class="act-btn" onclick="delAsset(${s.id},'supporting')" style="color:var(--danger);">✕</button>
+    </td>`
   )).join('');
 }
 
-// ── BACKUP ──
+// ── BACKUP (Tab 3) ──
 function renderBackup(){
   const tb=$$('av_backupTb'); if(!tb) return;
   const list=backupLogs.filter(b=>matchSearch(b.assetId));
   setText('av_backupCount', list.length+' asset'+(list.length!==1?'s':'')+(assetSearchQ?' (filtered)':''));
-  if(!list.length){ tb.innerHTML=`<tr><td colspan="13" class="td-empty">${assetSearchQ?'No results for "'+assetSearchQ+'"':'No backup assets yet'}</td></tr>`; return; }
-  const typeLabel={assigned:'📋 Assigned',supporting:'🔧 Supporting',backup:'💾 Backup',dead:'💀 Dead'};
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="17" class="td-empty">${assetSearchQ?'No results':'No backup assets yet'}</td></tr>`; return; }
+  const lbl={assigned:'💻 Laptop',supporting:'🔧 Supporting',backup:'💾 Backup'};
   tb.innerHTML=[...list].reverse().map(b=>TROW(
-    `<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:600;color:var(--accent3);">${typeLabel[b.fromType]||'—'}</span></td>`+
-    TDM(b.assetId)+
-    `<td style="padding:10px 12px;color:var(--accent2);font-size:12px;font-weight:600;">${b.prevUser||'—'}</td>`+
-    TDM(b.serial)+TD(b.brand)+
+    `<td style="padding:9px 11px;"><span style="font-size:11px;font-weight:600;color:var(--accent3);">${lbl[b.fromType]||'—'}</span></td>`+
+    TDM(b.assetId)+`<td style="padding:9px 11px;color:var(--accent2);font-size:12px;font-weight:600;">${b.prevUser||'—'}</td>`+
+    TD(b.model||'—')+TDM(b.serial)+TD(b.brand)+TD(b.proc||'—')+TD(b.ram||'—')+
     TD(b.headset||'—')+TD(b.mouse||'—')+TD(b.keyboard||'—')+
     TD(b.collectedDate)+TD(b.reason)+TD(b.warranty)+TD(b.purchaseDate)+
-    actBtns(`openEdit(${b.id},'backup')`,
-      `<button class="act-btn" onclick="openRestore(${b.id})" style="color:var(--accent2);border-color:var(--accent2);margin-right:4px;">↩ Restore</button>
-       <button class="act-btn" onclick="delAsset(${b.id},'backup')" style="color:var(--danger);">✕</button>`)
+    svcBadge(b.services)+
+    `<td style="padding:7px 11px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:3px;">Edit</button>
+      <button class="act-btn" onclick="openRestore(${b.id})" style="color:var(--accent2);border-color:var(--accent2);margin-right:3px;">↩ Restore</button>
+      <button class="act-btn" onclick="delAsset(${b.id},'backup')" style="color:var(--danger);">✕</button>
+    </td>`
   )).join('');
 }
 
-// ── DEAD ──
+// ── DEAD (Tab 4) ──
 function renderDead(){
   const tb=$$('av_deadTb'); if(!tb) return;
   const list=deadLogs.filter(d=>matchSearch(d.assetId));
   setText('av_deadCount', list.length+' asset'+(list.length!==1?'s':'')+(assetSearchQ?' (filtered)':''));
-  if(!list.length){ tb.innerHTML=`<tr><td colspan="10" class="td-empty">${assetSearchQ?'No results for "'+assetSearchQ+'"':'No dead assets'}</td></tr>`; return; }
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">${assetSearchQ?'No results':'No dead assets'}</td></tr>`; return; }
   tb.innerHTML=[...list].reverse().map(d=>TROW(
-    TDM(d.assetId)+
-    `<td style="padding:10px 12px;color:var(--text2);font-size:12px;">${d.prevUser||'—'}</td>`+
-    TDM(d.serial)+TD(d.brand)+
-    `<td style="padding:10px 12px;color:var(--danger);font-size:12px;">${d.reason||'—'}</td>`+
-    TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+TD(d.notes)+
-    actBtns(`openEdit(${d.id},'dead')`,
-      `<button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>`)
+    TDM(d.assetId)+`<td style="padding:9px 11px;color:var(--text2);font-size:12px;">${d.prevUser||'—'}</td>`+
+    TDM(d.serial)+TD(d.brand)+`<td style="padding:9px 11px;color:var(--danger);font-size:12px;">${d.reason||'—'}</td>`+
+    TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+svcBadge(d.services)+TD(d.notes)+
+    `<td style="padding:7px 11px;white-space:nowrap;">
+      <button class="act-btn" onclick="openEdit(${d.id},'dead')" style="margin-right:3px;">Edit</button>
+      <button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>
+    </td>`
   )).join('');
 }
 
-// ── ALL ASSETS (Entry tab) ──
+// ── ASSET ENTRY (Tab 5) ──
 function renderAllAssets(){
   const tb=$$('av_allTb'); if(!tb) return;
   const total=assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length;
   setText('av_allCount', total+' entr'+(total!==1?'ies':'y'));
-  if(!total){ tb.innerHTML=`<tr><td colspan="9" class="td-empty">No entries yet</td></tr>`; return; }
+  if(!total){ tb.innerHTML=`<tr><td colspan="8" class="td-empty">No entries yet</td></tr>`; return; }
   const rows=[
-    ...assignedLogs.map(a=>({...a,_type:'assigned',_label:'📋 Assigned',_color:'var(--accent)',_detail:a.proc||'—'})),
-    ...supportLogs.map(s=>({...s,_type:'supporting',_label:'🔧 Supporting',_color:'var(--accent2)',_detail:[s.headset,s.ups,s.keyboard,s.mouse].filter(Boolean).join(', ')||'—'})),
-    ...backupLogs.map(b=>({...b,_type:'backup',_label:'💾 Backup',_color:'var(--accent3)',_detail:b.reason||'—',userName:b.prevUser})),
-    ...deadLogs.map(d=>({...d,_type:'dead',_label:'💀 Dead',_color:'var(--danger)',_detail:d.reason||'—',userName:d.prevUser}))
+    ...assignedLogs.map(a=>({...a,_t:'assigned',_l:'💻 Laptop',_c:'var(--accent)',_d:a.model||a.proc||'—',_u:a.userName})),
+    ...supportLogs.map(s=>({...s,_t:'supporting',_l:'🔧 Supporting',_c:'var(--accent2)',_d:[s.headset,s.ups,s.keyboard,s.mouse].filter(Boolean).join(', ')||'—',_u:s.userName})),
+    ...backupLogs.map(b=>({...b,_t:'backup',_l:'💾 Backup',_c:'var(--accent3)',_d:b.model||b.reason||'—',_u:b.prevUser})),
+    ...deadLogs.map(d=>({...d,_t:'dead',_l:'💀 Dead',_c:'var(--danger)',_d:d.reason||'—',_u:d.prevUser}))
   ].filter(r=>matchSearch(r.assetId)).reverse();
   tb.innerHTML=rows.map(r=>TROW(
-    `<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:600;color:${r._color};">${r._label}</span></td>`+
-    TDM(r.assetId)+TDM(r.serial)+TD(r.brand)+
-    `<td style="padding:10px 12px;font-size:12px;color:var(--text2);">${r._detail}</td>`+
+    `<td style="padding:9px 11px;"><span style="font-size:11px;font-weight:600;color:${r._c};">${r._l}</span></td>`+
+    TDM(r.assetId)+`<td style="padding:9px 11px;color:var(--accent2);font-size:12px;">${r._u||'—'}</td>`+
+    `<td style="padding:9px 11px;font-size:13px;">${r.brand||'—'}</td>`+
+    `<td style="padding:9px 11px;font-size:12px;color:var(--text2);">${r._d}</td>`+
     TD(r.warranty)+TD(r.purchaseDate)+
-    `<td style="padding:10px 12px;font-size:12px;color:var(--accent2);">${r.userName||'—'}</td>`+
-    `<td style="padding:10px 12px;"><button class="act-btn" onclick="delAsset(${r.id},'${r._type}')" style="color:var(--danger);border-color:var(--danger);">✕</button></td>`
+    `<td style="padding:7px 11px;"><button class="act-btn" onclick="delAsset(${r.id},'${r._t}')" style="color:var(--danger);border-color:var(--danger);">✕</button></td>`
   )).join('');
 }
 
-function refreshAll(){
-  renderAssigned();renderSupporting();renderBackup();renderDead();renderAllAssets();updateSummary();
-}
+function refreshAll(){ renderAssigned();renderSupporting();renderBackup();renderDead();renderAllAssets();updateSummary(); }
 
 // ── DELETE ──
 function delAsset(id,type){
-  if(!confirm('Delete this asset?')) return;
-  if(type==='assigned')   assignedLogs=assignedLogs.filter(a=>a.id!==id);
-  if(type==='supporting') supportLogs=supportLogs.filter(s=>s.id!==id);
-  if(type==='backup')     backupLogs=backupLogs.filter(b=>b.id!==id);
-  if(type==='dead')       deadLogs=deadLogs.filter(d=>d.id!==id);
+  let a;
+  if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') a=supportLogs.find(x=>x.id===id);
+  if(type==='backup')     a=backupLogs.find(x=>x.id===id);
+  if(type==='dead')       a=deadLogs.find(x=>x.id===id);
+  if(!confirm(`Delete asset "${a?a.assetId:'this asset'}"?`)) return;
+  if(type==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==id);
+  if(type==='supporting') supportLogs=supportLogs.filter(x=>x.id!==id);
+  if(type==='backup')     backupLogs=backupLogs.filter(x=>x.id!==id);
+  if(type==='dead')       deadLogs=deadLogs.filter(x=>x.id!==id);
+  triggerAlert('delete',a?a.assetId:'');
   refreshAll();
 }
 
-// ── MOVE TO DEAD (quick) ──
+// ── MOVE TO DEAD ──
 function moveToDeadDirect(id,type){
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
@@ -1204,69 +1346,82 @@ function moveToDeadDirect(id,type){
   if(!a) return;
   const reason=prompt(`Reason for marking "${a.assetId}" as dead?`,'');
   if(reason===null) return;
-  deadLogs.push({id:dId++,assetId:a.assetId,serial:a.serial,brand:a.brand,prevUser:a.userName||'',reason,date:new Date().toISOString().split('T')[0],warranty:a.warranty,purchaseDate:a.purchaseDate,notes:''});
+  deadLogs.push({id:dId++,assetId:a.assetId,serial:a.serial,brand:a.brand,prevUser:a.userName||'',reason,date:new Date().toISOString().split('T')[0],warranty:a.warranty,purchaseDate:a.purchaseDate,notes:'',services:[]});
   if(type==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==id);
   if(type==='supporting') supportLogs=supportLogs.filter(x=>x.id!==id);
   refreshAll();
 }
 
 // ── CATEGORY PICKER ──
-function openCatPicker(){
-  const cp=$$('catPicker'),af=$$('aeForm');
-  if(cp) cp.style.display='block';
-  if(af) af.style.display='none';
-}
-function closeCatPicker(){ const cp=$$('catPicker'); if(cp) cp.style.display='none'; }
-function backToPicker(){
-  const cp=$$('catPicker'),af=$$('aeForm');
-  if(cp) cp.style.display='block';
-  if(af) af.style.display='none';
-}
-function closeAEForm(){
-  const cp=$$('catPicker'),af=$$('aeForm');
-  if(cp) cp.style.display='none';
-  if(af) af.style.display='none';
-}
+function openCatPicker(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
+function closeCatPicker(){ const cp=$$('catPicker'); if(cp)cp.style.display='none'; }
+function backToPicker(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
+function closeAEForm(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='none'; if(af)af.style.display='none'; }
 function selectCat(cat){
   curAssetCat=cat;
   const cp=$$('catPicker'),af=$$('aeForm');
-  if(cp) cp.style.display='none';
-  if(af) af.style.display='block';
-  const labels={assigned:'📋 Assigned Asset',supporting:'🔧 Supporting Asset',backup:'💾 Backup Asset',dead:'💀 Dead Asset'};
+  if(cp)cp.style.display='none'; if(af)af.style.display='block';
+  const labels={assigned:'💻 Laptop Asset',supporting:'🔧 Supporting Asset',backup:'💾 Backup Asset',dead:'💀 Dead Asset'};
   const bgcols={assigned:'rgba(79,142,247,.15)',supporting:'rgba(56,217,169,.15)',backup:'rgba(247,131,79,.15)',dead:'rgba(242,92,92,.15)'};
   const txcols={assigned:'var(--accent)',supporting:'var(--accent2)',backup:'var(--accent3)',dead:'var(--danger)'};
   const lbl=$$('ae_catLabel');
   if(lbl){lbl.textContent=labels[cat];lbl.style.background=bgcols[cat];lbl.style.color=txcols[cat];}
   ['ae_fAssigned','ae_fSupporting','ae_fBackup','ae_fDead'].forEach(id=>{const e=$$(id);if(e)e.style.display='none';});
   const map={assigned:'ae_fAssigned',supporting:'ae_fSupporting',backup:'ae_fBackup',dead:'ae_fDead'};
-  const fd=$$(map[cat]); if(fd) fd.style.display='grid';
-  ['ae_id','ae_serial','ae_brand','ae_proc','ae_warranty','ae_purchaseDate','ae_user',
-   'ae_sid','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
-   'ae_bid','ae_bserial','ae_bbrand','ae_bheadset','ae_bmouse','ae_bkeyboard','ae_bwarranty','ae_bpurchaseDate','ae_bnotes',
+  const fd=$$(map[cat]); if(fd)fd.style.display='block';
+  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user',
+   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
+   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes',
    'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes']
-    .forEach(id=>{const e=$$(id);if(e)e.value='';});
+   .forEach(id=>{const e=$$(id);if(e)e.value='';});
   const er=$$('ae_err');if(er)er.textContent='';
 }
+
 function submitAssetEntry(){
   const errEl=$$('ae_err');if(errEl)errEl.textContent='';
+  const chkDup=(id)=>{
+    if(getAllAssetIds().includes(id.toLowerCase())){ triggerAlert('duplicate',id); if(errEl)errEl.textContent=`Asset ID "${id}" already exists!`; return true; } return false;
+  };
   if(curAssetCat==='assigned'){
     const assetId=val('ae_id').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
-    assignedLogs.push({id:aId++,assetId,serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),warranty:val('ae_warranty'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user')});
+    if(chkDup(assetId))return;
+    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),services:[]});
   } else if(curAssetCat==='supporting'){
     const assetId=val('ae_sid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
-    supportLogs.push({id:sId++,assetId,serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:{}});
+    if(chkDup(assetId))return;
+    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),services:[],custom:{}});
   } else if(curAssetCat==='backup'){
     const assetId=val('ae_bid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
-    backupLogs.push({id:bId++,fromType:'backup',assetId,serial:val('ae_bserial'),brand:val('ae_bbrand'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),prevUser:'',collectedDate:'',reason:''});
+    if(chkDup(assetId))return;
+    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),prevUser:'',collectedDate:'',reason:'',services:[]});
   } else {
     const assetId=val('ae_did').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
-    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes')});
+    if(chkDup(assetId))return;
+    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),services:[]});
   }
+  triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
   refreshAll(); flash('ae_ok'); closeAEForm();
+}
+
+// ── CUSTOM FIELDS (Supporting) ──
+function toggleSACustom(){
+  const f=$$('saCustomFields'),b=$$('saAddCustomBtn');
+  if(!f)return;
+  const showing=f.style.display!=='none'&&f.style.display!=='';
+  if(showing){f.style.display='none';if(b)b.style.display='none';}
+  else{f.style.display='grid';if(b)b.style.display='block';if(!f.children.length)addSACustomField();}
+}
+function addSACustomField(){
+  const f=$$('saCustomFields'); if(!f)return;
+  saCustomCount++;
+  const n=saCustomCount;
+  const row=document.createElement('div');row.style.cssText='display:contents;';
+  row.innerHTML=`<div class="fi" style="margin-bottom:0;"><label>Label</label><input id="sa_cLabel${n}" placeholder="Field name"/></div><div class="fi" style="margin-bottom:0;"><label>Value</label><input id="sa_cVal${n}" placeholder="Value"/></div>`;
+  f.appendChild(row);
 }
 
 // ── EDIT ──
@@ -1278,47 +1433,49 @@ function openEdit(id,type){
   if(type==='backup')     a=backupLogs.find(x=>x.id===id);
   if(type==='dead')       a=deadLogs.find(x=>x.id===id);
   if(!a) return;
-  const labels={assigned:'Assigned',supporting:'Supporting',backup:'Backup',dead:'Dead'};
-  setText('editModalTitle','Edit '+labels[type]+' Asset');
-  const fi=(label,iid,v,itype='text')=>`<div class="fi" style="margin-bottom:10px;"><label>${label}</label><input type="${itype}" id="em_${iid}" value="${v||''}" ${itype==='date'?'style="color-scheme:dark;"':''}/></div>`;
+  const lbl={assigned:'💻 Laptop',supporting:'🔧 Supporting',backup:'💾 Backup',dead:'💀 Dead'};
+  setText('editModalTitle','Edit '+lbl[type]+' Asset');
+  const fi=(label,iid,v,itype='text',locked=false)=>`<div class="fi" style="margin-bottom:10px;"><label>${label}</label><input type="${itype}" id="em_${iid}" value="${v||''}" ${locked?'readonly style="opacity:.55;cursor:not-allowed;'+(itype==='date'?'color-scheme:dark;':'') +'"':itype==='date'?'style="color-scheme:dark;"':''}/></div>`;
   const fsel=(label,iid,v,opts)=>`<div class="fi" style="margin-bottom:10px;"><label>${label}</label><select id="em_${iid}" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">${opts.map(o=>`<option${o===(v||'— None —')?' selected':''}>${o}</option>`).join('')}</select></div>`;
-  const headsetOpts=['— None —','Logitech H390','Logitech H540','Jabra Evolve 20','Jabra Evolve 40','Plantronics Blackwire','Sony WH-1000XM5','Bose QC45','Sennheiser HD 450','Other'];
-  const mouseOpts  =['— None —','Logitech M100','Logitech M185','Logitech MX Master 3','Dell MS116','HP X1000','Microsoft Sculpt','Razer DeathAdder','Other'];
-  const kbOpts     =['— None —','Dell KB216','Dell KB522','Logitech K120','Logitech MK270','HP K1500','Microsoft Wired 600','Keychron K2','Other'];
+  const hOpts=['— None —','Logitech H390','Logitech H540','Jabra Evolve 20','Jabra Evolve 40','Plantronics Blackwire','Sony WH-1000XM5','Bose QC45','Sennheiser HD 450','Other'];
+  const mOpts=['— None —','Logitech M100','Logitech M185','Logitech MX Master 3','Dell MS116','HP X1000','Microsoft Sculpt','Razer DeathAdder','Other'];
+  const kOpts=['— None —','Dell KB216','Dell KB522','Logitech K120','Logitech MK270','HP K1500','Microsoft Wired 600','Keychron K2','Other'];
   let body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   if(type==='assigned'){
-    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
-    body+='</div>'+fi('Assigned User','user',a.userName);
+    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Model','model',a.model)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('RAM','ram',a.ram)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+='</div>'+fi('Laptop User','user',a.userName);
   } else if(type==='supporting'){
-    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Headset','headset',a.headset)+fi('UPS','ups',a.ups)+fi('Keyboard','keyboard',a.keyboard)+fi('Mouse','mouse',a.mouse)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Laptop (Linked)','laptop',a.laptop)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Headset','headset',a.headset)+fi('UPS','ups',a.ups)+fi('Keyboard','keyboard',a.keyboard)+fi('Mouse','mouse',a.mouse)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Assigned User','user',a.userName);
   } else if(type==='backup'){
-    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand);
-    body+=fsel('Headset','headset',a.headset,headsetOpts)+fsel('Mouse','mouse',a.mouse,mouseOpts)+fsel('Keyboard','keyboard',a.keyboard,kbOpts);
+    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Model','model',a.model)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('RAM','ram',a.ram);
+    body+=fsel('Headset','headset',a.headset,hOpts)+fsel('Mouse','mouse',a.mouse,mOpts)+fsel('Keyboard','keyboard',a.keyboard,kOpts);
     body+=fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Prev User','prevUser',a.prevUser)+fi('Reason','reason',a.reason)+fi('Notes','notes',a.notes);
   } else {
-    body+=fi('Asset ID','id',a.assetId)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Prev User','prevUser',a.prevUser)+fi('Reason','reason',a.reason)+fi('Date','date',a.date,'date')+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Prev User','prevUser',a.prevUser)+fi('Reason','reason',a.reason)+fi('Date','date',a.date,'date')+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Notes','notes',a.notes);
   }
   setHTML('editModalBody',body);
-  const m=$$('editModal'); if(m) m.style.display='flex';
+  renderSvcList(a.services||[]);
+  const sf=$$('em_svcForm');if(sf)sf.style.display='none';
+  const m=$$('editModal'); if(m)m.style.display='flex';
 }
 function closeEditModal(){ const m=$$('editModal');if(m)m.style.display='none'; }
 function saveEdit(){
-  const g=id=>{ const e=$$('em_'+id); return e?e.value.trim():''; };
+  const g=id=>{const e=$$('em_'+id);return e?e.value.trim():'';};
   if(curEditType==='assigned'){
     const a=assignedLogs.find(x=>x.id===curEditId);
-    if(a) Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),proc:g('proc'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
+    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
   } else if(curEditType==='supporting'){
     const a=supportLogs.find(x=>x.id===curEditId);
-    if(a) Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),headset:g('headset'),ups:g('ups'),keyboard:g('keyboard'),mouse:g('mouse'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
+    if(a)Object.assign(a,{laptop:g('laptop'),serial:g('serial'),brand:g('brand'),headset:g('headset'),ups:g('ups'),keyboard:g('keyboard'),mouse:g('mouse'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
   } else if(curEditType==='backup'){
     const a=backupLogs.find(x=>x.id===curEditId);
-    if(a) Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),headset:g('headset'),mouse:g('mouse'),keyboard:g('keyboard'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),prevUser:g('prevUser'),reason:g('reason'),notes:g('notes')});
+    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),headset:g('headset'),mouse:g('mouse'),keyboard:g('keyboard'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),prevUser:g('prevUser'),reason:g('reason'),notes:g('notes')});
   } else {
     const a=deadLogs.find(x=>x.id===curEditId);
-    if(a) Object.assign(a,{assetId:g('id'),serial:g('serial'),brand:g('brand'),prevUser:g('prevUser'),reason:g('reason'),date:g('date'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),notes:g('notes')});
+    if(a)Object.assign(a,{serial:g('serial'),brand:g('brand'),prevUser:g('prevUser'),reason:g('reason'),date:g('date'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),notes:g('notes')});
   }
   refreshAll(); flash('edit_ok'); setTimeout(closeEditModal,1200);
 }
@@ -1329,8 +1486,8 @@ function openAssign(id,type){
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
-  const inp=$$('assign_user'); if(inp) inp.value=a?a.userName||'':'';
-  const m=$$('assignModal'); if(m) m.style.display='flex';
+  const inp=$$('assign_user');if(inp)inp.value=a?a.userName||'':'';
+  const m=$$('assignModal');if(m)m.style.display='flex';
 }
 function closeAssignModal(){ const m=$$('assignModal');if(m)m.style.display='none'; }
 function confirmAssignUser(){
@@ -1346,30 +1503,22 @@ function openMove(id,type){
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
-  const inp=$$('mb_prevUser'); if(inp) inp.value=a?a.userName||'':'';
-  const dt=$$('mb_date'); if(dt) dt.value=new Date().toISOString().split('T')[0];
-  const rs=$$('mb_reason'); if(rs) rs.value='';
-  const nt=$$('mb_notes'); if(nt) nt.value='';
-  const m=$$('moveBackupModal'); if(m) m.style.display='flex';
+  const inp=$$('mb_prevUser');if(inp)inp.value=a?a.userName||'':'';
+  const dt=$$('mb_date');if(dt)dt.value=new Date().toISOString().split('T')[0];
+  const rs=$$('mb_reason');if(rs)rs.value='';
+  const nt=$$('mb_notes');if(nt)nt.value='';
+  const m=$$('moveBackupModal');if(m)m.style.display='flex';
 }
 function closeMoveModal(){ const m=$$('moveBackupModal');if(m)m.style.display='none'; }
 function confirmMoveToBackup(){
   const prevUser=val('mb_prevUser').trim();
-  const collectedDate=val('mb_date');
-  const reason=val('mb_reason').trim();
-  const notes=val('mb_notes').trim();
-  if(!prevUser){ alert('Please enter the user name.'); return; }
+  if(!prevUser){alert('Please enter the user name.');return;}
+  const collectedDate=val('mb_date'), reason=val('mb_reason').trim(), notes=val('mb_notes').trim();
   let a;
   if(curMoveType==='assigned')   a=assignedLogs.find(x=>x.id===curMoveId);
   if(curMoveType==='supporting') a=supportLogs.find(x=>x.id===curMoveId);
   if(!a){closeMoveModal();return;}
-  backupLogs.push({
-    id:bId++,fromType:curMoveType,
-    assetId:a.assetId,serial:a.serial,brand:a.brand,
-    headset:a.headset||'',mouse:a.mouse||'',keyboard:a.keyboard||'',
-    warranty:a.warranty,purchaseDate:a.purchaseDate,
-    prevUser,collectedDate,reason,notes
-  });
+  backupLogs.push({id:bId++,fromType:curMoveType,assetId:a.assetId,model:a.model||'',serial:a.serial,brand:a.brand,proc:a.proc||'',ram:a.ram||'',headset:a.headset||'',mouse:a.mouse||'',keyboard:a.keyboard||'',warranty:a.warranty,purchaseDate:a.purchaseDate,prevUser,collectedDate,reason,notes,services:[]});
   if(curMoveType==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==curMoveId);
   if(curMoveType==='supporting') supportLogs=supportLogs.filter(x=>x.id!==curMoveId);
   refreshAll(); closeMoveModal();
@@ -1379,58 +1528,99 @@ function confirmMoveToBackup(){
 function openRestore(id){
   curRestoreId=id;
   const b=backupLogs.find(x=>x.id===id);
-  const inp=$$('restore_user'); if(inp) inp.value=b?b.prevUser||'':'';
-  const m=$$('restoreModal'); if(m) m.style.display='flex';
+  const inp=$$('restore_user');if(inp)inp.value=b?b.prevUser||'':'';
+  const m=$$('restoreModal');if(m)m.style.display='flex';
 }
 function closeRestoreModal(){ const m=$$('restoreModal');if(m)m.style.display='none'; }
 function confirmRestore(){
-  const target=val('restore_target');
-  const user=val('restore_user').trim();
-  const b=backupLogs.find(x=>x.id===curRestoreId); if(!b){closeRestoreModal();return;}
+  const target=val('restore_target'), user=val('restore_user').trim();
+  const b=backupLogs.find(x=>x.id===curRestoreId);if(!b){closeRestoreModal();return;}
   if(target==='assigned'){
-    assignedLogs.push({id:aId++,assetId:b.assetId,serial:b.serial,brand:b.brand,proc:'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user});
+    assignedLogs.push({id:aId++,assetId:b.assetId,model:b.model||'',serial:b.serial,brand:b.brand,proc:b.proc||'',ram:b.ram||'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user,services:[]});
   } else if(target==='supporting'){
-    supportLogs.push({id:sId++,assetId:b.assetId,serial:b.serial,brand:b.brand,headset:b.headset||'',ups:'',keyboard:b.keyboard||'',mouse:b.mouse||'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user});
+    supportLogs.push({id:sId++,assetId:b.assetId,laptop:'',serial:b.serial,brand:b.brand,headset:b.headset||'',ups:'',keyboard:b.keyboard||'',mouse:b.mouse||'',warranty:b.warranty,purchaseDate:b.purchaseDate,userName:user,services:[],custom:{}});
   } else {
-    deadLogs.push({id:dId++,assetId:b.assetId,serial:b.serial,brand:b.brand,prevUser:user,reason:'Restored from backup — marked dead',date:new Date().toISOString().split('T')[0],warranty:b.warranty,purchaseDate:b.purchaseDate,notes:''});
+    deadLogs.push({id:dId++,assetId:b.assetId,serial:b.serial,brand:b.brand,prevUser:user,reason:'Restored from backup — marked dead',date:new Date().toISOString().split('T')[0],warranty:b.warranty,purchaseDate:b.purchaseDate,notes:'',services:[]});
   }
   backupLogs=backupLogs.filter(x=>x.id!==curRestoreId);
   refreshAll(); closeRestoreModal();
 }
 
+
+// ── SERVICE RECORD HELPERS ──
+function renderSvcList(services){
+  const el=$$('em_svcList'); if(!el) return;
+  if(!services||!services.length){
+    el.innerHTML=`<div style="font-size:12px;color:var(--text3);padding:8px 0;">No service records yet</div>`; return;
+  }
+  const cols={OK:'var(--accent2)','In Service':'var(--accent3)',Pending:'var(--accent)',Completed:'var(--accent2)'};
+  el.innerHTML=services.map((s,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        ${s.status?`<span style="font-size:11px;font-weight:700;color:${cols[s.status]||'var(--text3)'};">${s.status}</span>`:''}
+        ${s.date?`<span style="font-size:11px;color:var(--text3);">${s.date}</span>`:''}
+        ${s.cost?`<span style="font-size:11px;color:var(--text2);">${s.cost}</span>`:''}
+      </div>
+      ${s.provider?`<div style="font-size:12px;color:var(--text2);">${s.provider}</div>`:''}
+      ${s.notes?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">${s.notes}</div>`:''}
+    </div>
+    <button onclick="deleteServiceRecord(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;padding:0 2px;">✕</button>
+  </div>`).join('');
+}
+function addServiceRecord(){
+  const sf=$$('em_svcForm'); if(sf)sf.style.display='block';
+  ['em_svcProvider','em_svcDate','em_svcCost','em_svcNotes'].forEach(id=>{const e=$$(id);if(e)e.value='';});
+  const ss=$$('em_svcStatus');if(ss)ss.value='';
+}
+function cancelServiceRecord(){ const sf=$$('em_svcForm');if(sf)sf.style.display='none'; }
+function confirmAddServiceRecord(){
+  const g=id=>{const e=$$('em_'+id);return e?e.value.trim():'';};
+  const rec={provider:g('svcProvider'),date:g('svcDate'),cost:g('svcCost'),status:g('svcStatus'),notes:g('svcNotes')};
+  if(!rec.provider&&!rec.date&&!rec.status){alert('Please enter at least a provider, date, or status.');return;}
+  let a;
+  if(curEditType==='assigned')   a=assignedLogs.find(x=>x.id===curEditId);
+  if(curEditType==='supporting') a=supportLogs.find(x=>x.id===curEditId);
+  if(curEditType==='backup')     a=backupLogs.find(x=>x.id===curEditId);
+  if(curEditType==='dead')       a=deadLogs.find(x=>x.id===curEditId);
+  if(!a) return;
+  if(!Array.isArray(a.services)) a.services=[];
+  a.services.push(rec);
+  renderSvcList(a.services);
+  cancelServiceRecord();
+  updateSummary(); refreshAll();
+}
+function deleteServiceRecord(i){
+  if(!confirm('Remove this service record?')) return;
+  let a;
+  if(curEditType==='assigned')   a=assignedLogs.find(x=>x.id===curEditId);
+  if(curEditType==='supporting') a=supportLogs.find(x=>x.id===curEditId);
+  if(curEditType==='backup')     a=backupLogs.find(x=>x.id===curEditId);
+  if(curEditType==='dead')       a=deadLogs.find(x=>x.id===curEditId);
+  if(!a||!Array.isArray(a.services)) return;
+  a.services.splice(i,1);
+  renderSvcList(a.services);
+  refreshAll();
+}
+
 // ── DOWNLOAD EXCEL ──
 function downloadExcel(){
   let csv='';
-  // Assigned
-  csv+='ASSIGNED ASSETS\n';
-  csv+='Asset ID,User Name,Serial No,Brand,Processor,Warranty,Purchase Date\n';
-  assignedLogs.forEach(a=>{ csv+=`"${a.assetId}","${a.userName||''}","${a.serial||''}","${a.brand||''}","${a.proc||''}","${a.warranty||''}","${a.purchaseDate||''}"\n`; });
-  csv+='\n';
-  // Supporting
-  csv+='SUPPORTING ASSETS\n';
-  csv+='Asset ID,User Name,Serial No,Brand,Headset,UPS,Keyboard,Mouse,Warranty,Purchase Date\n';
-  supportLogs.forEach(s=>{ csv+=`"${s.assetId}","${s.userName||''}","${s.serial||''}","${s.brand||''}","${s.headset||''}","${s.ups||''}","${s.keyboard||''}","${s.mouse||''}","${s.warranty||''}","${s.purchaseDate||''}"\n`; });
-  csv+='\n';
-  // Backup
-  csv+='BACKUP ASSETS\n';
-  csv+='Type,Asset ID,Prev User,Serial No,Brand,Headset,Mouse,Keyboard,Collected Date,Reason,Warranty,Purchase Date,Notes\n';
-  backupLogs.forEach(b=>{ csv+=`"${b.fromType}","${b.assetId}","${b.prevUser||''}","${b.serial||''}","${b.brand||''}","${b.headset||''}","${b.mouse||''}","${b.keyboard||''}","${b.collectedDate||''}","${b.reason||''}","${b.warranty||''}","${b.purchaseDate||''}","${b.notes||''}"\n`; });
-  csv+='\n';
-  // Dead
-  csv+='DEAD ASSETS\n';
-  csv+='Asset ID,Prev User,Serial No,Brand,Reason,Date,Warranty,Purchase Date,Notes\n';
-  deadLogs.forEach(d=>{ csv+=`"${d.assetId}","${d.prevUser||''}","${d.serial||''}","${d.brand||''}","${d.reason||''}","${d.date||''}","${d.warranty||''}","${d.purchaseDate||''}","${d.notes||''}"\n`; });
-  csv+='\n';
-  // Summary
-  csv+='SUMMARY\n';
-  csv+='Category,Count\n';
-  csv+=`Assigned,${assignedLogs.length}\nSupporting,${supportLogs.length}\nBackup,${backupLogs.length}\nDead,${deadLogs.length}\nTotal,${assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length}\n`;
-
+  const svcSummary=arr=>{if(!arr||!arr.length)return',,,' ; const l=arr[arr.length-1]; return `"${l.status||''}","${l.date||''}","${l.provider||''}","${l.cost||''}"`; };
+  const svcCount=arr=>arr&&arr.length?arr.length:0;
+  csv+='LAPTOP ASSETS\nAsset ID,Laptop User,Model,Serial No,Brand,Processor,RAM,Warranty,Purchase Date,# Service Records,Latest Status,Latest Date,Latest Provider,Latest Cost\n';
+  assignedLogs.forEach(a=>{csv+=`"${a.assetId}","${a.userName||''}","${a.model||''}","${a.serial||''}","${a.brand||''}","${a.proc||''}","${a.ram||''}","${a.warranty||''}","${a.purchaseDate||''}",${svcCount(a.services)},${svcSummary(a.services)}\n`;});
+  csv+='\nSUPPORTING ASSETS\nAsset ID,Assigned User,Laptop,Serial No,Brand,Headset,UPS,Keyboard,Mouse,Warranty,Purchase Date,# Service Records,Latest Status\n';
+  supportLogs.forEach(s=>{csv+=`"${s.assetId}","${s.userName||''}","${s.laptop||''}","${s.serial||''}","${s.brand||''}","${s.headset||''}","${s.ups||''}","${s.keyboard||''}","${s.mouse||''}","${s.warranty||''}","${s.purchaseDate||''}",${svcCount(s.services)},${svcSummary(s.services)}\n`;});
+  csv+='\nBACKUP ASSETS\nType,Asset ID,Prev User,Model,Serial No,Brand,Processor,RAM,Headset,Mouse,Keyboard,Collected,Reason,Warranty,Purchase Date,# Service Records\n';
+  backupLogs.forEach(b=>{csv+=`"${b.fromType}","${b.assetId}","${b.prevUser||''}","${b.model||''}","${b.serial||''}","${b.brand||''}","${b.proc||''}","${b.ram||''}","${b.headset||''}","${b.mouse||''}","${b.keyboard||''}","${b.collectedDate||''}","${b.reason||''}","${b.warranty||''}","${b.purchaseDate||''}",${svcCount(b.services)}\n`;});
+  csv+='\nDEAD ASSETS\nAsset ID,Prev User,Serial No,Brand,Reason,Date,Warranty,Purchase Date,Notes,# Service Records\n';
+  deadLogs.forEach(d=>{csv+=`"${d.assetId}","${d.prevUser||''}","${d.serial||''}","${d.brand||''}","${d.reason||''}","${d.date||''}","${d.warranty||''}","${d.purchaseDate||''}","${d.notes||''}",${svcCount(d.services)}\n`;});
+  csv+=`\nSUMMARY\nCategory,Count\nLaptop Assets,${assignedLogs.length}\nSupporting Assets,${supportLogs.length}\nBackup Assets,${backupLogs.length}\nDead Assets,${deadLogs.length}\nTotal,${assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length}\n`;
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download='OptiCore_Assets_'+new Date().toISOString().split('T')[0]+'.csv';
-  a.click(); URL.revokeObjectURL(url);
+  a.href=url;a.download='OptiCore_Assets_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();URL.revokeObjectURL(url);
 }
 
 
