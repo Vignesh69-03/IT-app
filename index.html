@@ -1909,9 +1909,43 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 
 async function handleLogin(){
-  doLogin();                          // sets currentUser if credentials match
-  if(!currentUser) return;            // wrong password — doLogin already showed error
-  await fbBootstrap();                // load all Firestore data after login
+  const u = val('loginUser').trim().toLowerCase();
+  const p = val('loginPass');
+  if(!u || !p){ setText('loginErr','Please enter username and password.'); return; }
+
+  setText('loginErr','');
+  showFbLoading('Signing in…');
+
+  try {
+    // Always load accounts from Firestore first so created users work
+    await waitForFb();
+    const accts = await fbLoadAll(COL.accounts);
+    const builtIn = {id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'};
+    loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
+
+    // Now validate credentials against fresh list
+    const acct = loginAccounts.find(a => a.username.toLowerCase()===u && a.password===p);
+    if(!acct){
+      hideFbLoading();
+      setText('loginErr','Invalid username or password.');
+      return;
+    }
+
+    // Login success — set user and load all data
+    currentUser = acct;
+    $$('loginScreen').classList.remove('active');
+    $$('appScreen').classList.add('active');
+    setText('tbAv',   acct.name[0].toUpperCase());
+    setText('tbName', acct.name);
+    $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none';
+
+    await fbBootstrap();
+    goHome();
+  } catch(e){
+    hideFbLoading();
+    setText('loginErr','Connection error. Check your internet.');
+    console.error('Login error:', e);
+  }
 }
 
 // ── Auto-load on every page refresh ──
