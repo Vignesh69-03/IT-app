@@ -197,39 +197,43 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .act-item.danger{color:var(--danger);}
 .act-item.danger:hover{background:rgba(255,89,89,.08);}
 </style>
-<!-- Firebase -->
+<!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { initializeApp }                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, enableIndexedDbPersistence }
+                                                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAK2KzThY4PfVAILTAom_jRbRevmoROLYg",
-  authDomain: "my-app-5455a.firebaseapp.com",
-  projectId: "my-app-5455a",
-  storageBucket: "my-app-5455a.firebasestorage.app",
+  apiKey:            "AIzaSyAK2KzThY4PfVAILTAom_jRbRevmoROLYg",
+  authDomain:        "my-app-5455a.firebaseapp.com",
+  projectId:         "my-app-5455a",
+  storageBucket:     "my-app-5455a.firebasestorage.app",
   messagingSenderId: "595348983835",
-  appId: "1:595348983835:web:5896d488e9471b631828be",
-  measurementId: "G-9QNWD9DJDF"
+  appId:             "1:595348983835:web:5896d488e9471b631828be"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const _app = initializeApp(firebaseConfig);
+const _db  = getFirestore(_app);
 
-// ── Expose db + Firestore helpers to global scope ──
-window._db = db;
-window._fsCollection  = collection;
-window._fsDoc         = doc;
-window._fsSetDoc      = setDoc;
-window._fsGetDocs     = getDocs;
-window._fsDeleteDoc   = deleteDoc;
-window._fsOnSnapshot  = onSnapshot;
-
-// ── Start real-time listeners once DOM is ready ──
-document.addEventListener('DOMContentLoaded', ()=>{
-  window._fsListenReady = true;
-  if(window._startFirebaseListeners) window._startFirebaseListeners();
+// Enable offline persistence so data survives even without internet
+enableIndexedDbPersistence(_db).catch(e => {
+  if(e.code === 'failed-precondition') console.warn('Firestore persistence: multiple tabs open');
+  else if(e.code === 'unimplemented')  console.warn('Firestore persistence not supported');
 });
+
+// Expose to main script
+window.__db          = _db;
+window.__fsCollection = collection;
+window.__fsDoc        = doc;
+window.__fsSetDoc     = setDoc;
+window.__fsGetDocs    = getDocs;
+window.__fsDeleteDoc  = deleteDoc;
+window.__fbReady      = true;
+
+// Signal readiness
+document.dispatchEvent(new Event('firebase-ready'));
 </script>
+
 </head>
 <body>
 
@@ -1738,7 +1742,7 @@ function downloadExcel(){
 
 
 // ══════════════════════════════════════════
-// FIREBASE PERSISTENCE
+// FIREBASE DIRECT — Firestore persistence
 // ══════════════════════════════════════════
 
 // ── Loading overlay ──
@@ -1747,7 +1751,7 @@ function showFbLoading(msg){
   if(!el){
     el=document.createElement('div');
     el.id='fbLoadOverlay';
-    el.style.cssText='position:fixed;inset:0;background:rgba(10,12,16,.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+    el.style.cssText='position:fixed;inset:0;background:rgba(10,12,16,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
     el.innerHTML=`<div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;"></div><div id="fbLoadMsg" style="color:var(--text2);font-size:14px;">${msg||'Connecting…'}</div>`;
     document.body.appendChild(el);
     if(!document.getElementById('spinStyle')){
@@ -1760,77 +1764,123 @@ function showFbLoading(msg){
 }
 function hideFbLoading(){ const el=$$('fbLoadOverlay');if(el)el.style.display='none'; }
 
-// ── Collection names ──
-const COL = { assigned:'assets_assigned', supporting:'assets_supporting', backup:'assets_backup', dead:'assets_dead', accounts:'login_accounts', perf:'perf_users', perfLogs:'perf_logs', alertCfg:'alert_config' };
+// ── Backend status dot ──
+function showFbStatus(ok){
+  let el=$$('fbStatusDot');
+  if(!el){
+    el=document.createElement('div'); el.id='fbStatusDot';
+    el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;box-shadow:0 0 0 2px rgba(0,0,0,.4);';
+    document.body.appendChild(el);
+  }
+  el.style.background = ok ? 'var(--accent2)' : 'var(--danger)';
+  el.title = ok ? '🟢 Backend: Connected' : '🔴 Backend: Offline — check server';
+}
 
-// ── Save single doc ──
+// ── Firestore collection names ──
+const COL = {
+  assigned:   'assets_assigned',
+  supporting: 'assets_supporting',
+  backup:     'assets_backup',
+  dead:       'assets_dead',
+  accounts:   'login_accounts',
+  perf:       'perf_users',
+  perfLogs:   'perf_logs',
+  alertCfg:   'alert_config'
+};
+function fbColFor(type){ return COL[type] || COL.dead; }
+
+// ── Wait for Firebase module to be ready ──
+function waitForFb(){
+  return new Promise(resolve => {
+    if(window.__fbReady && window.__db){ resolve(); return; }
+    document.addEventListener('firebase-ready', resolve, { once: true });
+  });
+}
+
+// ── Save one doc to Firestore ──
 async function fbSave(colName, obj){
-  if(!window._db) return;
-  try { await window._fsSetDoc(window._fsDoc(window._db, colName, String(obj.id)), JSON.parse(JSON.stringify(obj))); }
-  catch(e){ console.error('fbSave error',colName,e); }
+  try {
+    await waitForFb();
+    const clean = JSON.parse(JSON.stringify(obj)); // strip non-serialisable values
+    await window.__fsSetDoc(window.__fsDoc(window.__db, colName, String(obj.id)), clean);
+  } catch(e){ console.error('fbSave error', colName, e); }
 }
 
-// ── Delete single doc ──
+// ── Delete one doc from Firestore ──
 async function fbDelete(colName, id){
-  if(!window._db) return;
-  try { await window._fsDeleteDoc(window._fsDoc(window._db, colName, String(id))); }
-  catch(e){ console.error('fbDelete error',colName,e); }
+  try {
+    await waitForFb();
+    await window.__fsDeleteDoc(window.__fsDoc(window.__db, colName, String(id)));
+  } catch(e){ console.error('fbDelete error', colName, e); }
 }
 
-// ── Load all docs from a collection ──
+// ── Load all docs from a Firestore collection ──
 async function fbLoadAll(colName){
-  if(!window._db) return [];
   try {
-    const snap = await window._fsGetDocs(window._fsCollection(window._db, colName));
-    return snap.docs.map(d=>d.data());
-  } catch(e){ console.error('fbLoadAll error',colName,e); return []; }
+    await waitForFb();
+    const snap = await window.__fsGetDocs(window.__fsCollection(window.__db, colName));
+    return snap.docs.map(d => d.data());
+  } catch(e){ console.error('fbLoadAll error', colName, e); return []; }
 }
 
-// ── Bootstrap: load all data from Firestore on login ──
+// ── Asset helpers ──
+function fbGetAsset(type,id){
+  if(type==='assigned')   return assignedLogs.find(x=>x.id===id);
+  if(type==='supporting') return supportLogs.find(x=>x.id===id);
+  if(type==='backup')     return backupLogs.find(x=>x.id===id);
+  if(type==='dead')       return deadLogs.find(x=>x.id===id);
+}
+async function fbAfterAdd(type){
+  const arr=type==='assigned'?assignedLogs:type==='supporting'?supportLogs:type==='backup'?backupLogs:deadLogs;
+  const n=arr[arr.length-1]; if(n) await fbSave(fbColFor(type),n);
+}
+async function fbAfterEdit(){
+  const a=fbGetAsset(curEditType,curEditId);
+  if(a) await fbSave(fbColFor(curEditType),a);
+}
+async function fbAfterSvc(){
+  const a=fbGetAsset(curEditType,curEditId);
+  if(a) await fbSave(fbColFor(curEditType),a);
+}
+async function fbAfterAssign(type,id){
+  const a=fbGetAsset(type,id);
+  if(a) await fbSave(fbColFor(type),a);
+}
+
+// ── Bootstrap: load ALL data from Firestore ──
 async function fbBootstrap(){
-  showFbLoading('Loading data from Firebase…');
+  showFbLoading('Loading your data…');
   try {
+    await waitForFb();
     const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs] = await Promise.all([
-      fbLoadAll(COL.assigned), fbLoadAll(COL.supporting), fbLoadAll(COL.backup),
-      fbLoadAll(COL.dead),     fbLoadAll(COL.accounts),   fbLoadAll(COL.perf),
-      fbLoadAll(COL.perfLogs), fbLoadAll(COL.alertCfg)
+      fbLoadAll(COL.assigned),   fbLoadAll(COL.supporting),
+      fbLoadAll(COL.backup),     fbLoadAll(COL.dead),
+      fbLoadAll(COL.accounts),   fbLoadAll(COL.perf),
+      fbLoadAll(COL.perfLogs),   fbLoadAll(COL.alertCfg)
     ]);
 
-    // Helper: Firestore Timestamps → plain string to avoid serialisation issues
-    const fixDate = x => ({ ...x,
-      services: Array.isArray(x.services) ? x.services : [],
-      dateObj: x.dateObj ? (x.dateObj.toDate ? x.dateObj.toDate().toISOString() : x.dateObj) : null
-    });
+    const fixRow = x => ({...x, services: Array.isArray(x.services) ? x.services : []});
+    const maxId  = arr => arr.length ? Math.max(...arr.map(x => Number(x.id)||0)) + 1 : 1;
 
-    // Restore asset logs
-    assignedLogs = asgn.map(fixDate);
-    supportLogs  = supp.map(fixDate);
-    backupLogs   = bkup.map(fixDate);
-    deadLogs     = dead.map(fixDate);
+    assignedLogs = asgn.map(fixRow);
+    supportLogs  = supp.map(fixRow);
+    backupLogs   = bkup.map(fixRow);
+    deadLogs     = dead.map(fixRow);
 
-    // Restore ID counters — always recalculate from data
-    const maxId = arr => arr.length ? Math.max(...arr.map(x => Number(x.id)||0)) + 1 : 1;
     aId = maxId(assignedLogs);
     sId = maxId(supportLogs);
     bId = maxId(backupLogs);
     dId = maxId(deadLogs);
 
-    // Restore accounts (keep built-in admin id=0, merge rest from Firestore)
     const builtIn = {id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'};
-    if(accts.length){
-      loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
-    } else {
-      loginAccounts = [builtIn];
-    }
+    loginAccounts = [builtIn, ...accts.filter(a => Number(a.id) !== 0)];
     acctId = maxId(loginAccounts);
 
-    // Restore perf users & logs — fix Timestamp dateObj
-    perfUsers = pUsers.length ? pUsers : [];
-    perfLogs  = pLogs.length  ? pLogs.map(l=>({...l, dateObj: l.dateObj ? (l.dateObj.toDate ? l.dateObj.toDate().toISOString() : l.dateObj) : null})) : [];
+    perfUsers = pUsers;
+    perfLogs  = pLogs;
     uId = maxId(perfUsers);
     pId = maxId(perfLogs);
 
-    // Restore alert config
     if(alertCfgDocs.length){
       const cfg = alertCfgDocs[0];
       alertEmails = Array.isArray(cfg.emails) ? cfg.emails : [];
@@ -1840,99 +1890,36 @@ async function fbBootstrap(){
       setChk('alertOnDelete',    cfg.onDelete);
     }
 
-    // Refresh all UI
     refreshAll();
-    if(typeof renderUGrid   ==='function') renderUGrid();
-    if(typeof renderAccounts==='function') renderAccounts();
+    if(typeof renderUGrid    ==='function') renderUGrid();
+    if(typeof renderAccounts ==='function') renderAccounts();
     if(typeof refreshPerfDash==='function') refreshPerfDash();
+    showFbStatus(true);
   } catch(e){
-    console.error('fbBootstrap error', e);
-    alert('Firebase sync error: ' + e.message);
+    console.error('fbBootstrap error:', e);
+    showFbStatus(false);
   }
   hideFbLoading();
 }
 
-// ══════════════════════════════════════════
-// FIREBASE — SAVE HELPERS (called directly, no monkey-patching)
-// ══════════════════════════════════════════
-
-function fbGetAsset(type,id){
-  if(type==='assigned')   return assignedLogs.find(x=>x.id===id);
-  if(type==='supporting') return supportLogs.find(x=>x.id===id);
-  if(type==='backup')     return backupLogs.find(x=>x.id===id);
-  if(type==='dead')       return deadLogs.find(x=>x.id===id);
-}
-function fbColFor(type){ return COL[type]||COL.dead; }
-
-// Called after submitAssetEntry adds to array
-async function fbAfterAdd(type){
-  const arr = type==='assigned'?assignedLogs:type==='supporting'?supportLogs:type==='backup'?backupLogs:deadLogs;
-  const newest = arr[arr.length-1];
-  if(newest) await fbSave(fbColFor(type), newest);
-}
-
-// Called after saveEdit
-async function fbAfterEdit(){
-  const a = fbGetAsset(curEditType, curEditId);
-  if(a) await fbSave(fbColFor(curEditType), a);
-}
-
-// Called after service record added
-async function fbAfterSvc(){
-  const a = fbGetAsset(curEditType, curEditId);
-  if(a) await fbSave(fbColFor(curEditType), a);
-}
-
-// Called after assign user
-async function fbAfterAssign(type, id){
-  const a = fbGetAsset(type, id);
-  if(a) await fbSave(fbColFor(type), a);
-}
-
-// ── Firebase status indicator ──
-function showFbStatus(ok){
-  let el=$$('fbStatusDot');
-  if(!el){
-    el=document.createElement('div'); el.id='fbStatusDot';
-    el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;box-shadow:0 0 0 2px rgba(0,0,0,.4);';
-    document.body.appendChild(el);
-  }
-  el.style.background = ok ? 'var(--accent2)' : 'var(--danger)';
-  el.title = ok ? '🟢 Firebase: Connected' : '🔴 Firebase: Offline';
-}
-
-// ── Test connection on page load ──
-
-// ── Bootstrap called after successful login ──
+// ── Login ──
 document.addEventListener('DOMContentLoaded', ()=>{
   const lp = $$('loginPass');
   if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
 });
 
 async function handleLogin(){
-  doLogin();
-  if(!currentUser) return;
-  if(!window._db){ showFbStatus(false); return; }
-  // Data already loaded on page load — just refresh UI
-  refreshAll();
-  renderUGrid && renderUGrid();
-  renderAccounts && renderAccounts();
-  showFbStatus(true);
+  doLogin();                          // sets currentUser if credentials match
+  if(!currentUser) return;            // wrong password — doLogin already showed error
+  await fbBootstrap();                // load all Firestore data after login
 }
 
-// ── Auto-load data on every page load (so refresh never loses data) ──
-// Waits for Firebase module to expose window._db, then loads immediately
-async function waitForDbThenLoad(){
-  let tries = 0;
-  while(!window._db && tries < 40){ await new Promise(r=>setTimeout(r,100)); tries++; }
-  if(!window._db){ showFbStatus(false); return; }
+// ── Auto-load on every page refresh ──
+window.addEventListener('load', async ()=>{
   try {
     await fbBootstrap();
-    showFbStatus(true);
-  } catch(e){ console.error('Auto-load error', e); showFbStatus(false); }
-}
-window.addEventListener('load', waitForDbThenLoad);
+  } catch(e){ showFbStatus(false); }
+});
 
 </script>
 </body>
-</html>
