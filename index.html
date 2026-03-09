@@ -247,7 +247,7 @@ document.dispatchEvent(new Event('firebase-ready'));
     <div class="fi"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
     <div class="lerr" id="loginErr"></div>
     <button class="btn-login" onclick="handleLogin()">Sign In</button>
-    <div class="lhint">Demo: <span>admin</span> / <span>1234</span></div>
+    <div class="lhint">Admin: <span>admin</span> / <span>vignesh</span> &nbsp;·&nbsp; Created by <span>Vignesh</span></div>
   </div>
 </div>
 
@@ -816,7 +816,7 @@ document.dispatchEvent(new Event('firebase-ready'));
 
 let perfUsers   = [];
 let perfLogs    = [];
-let loginAccounts = [{id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'}];
+let loginAccounts = [{id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'}];
 let pId=1, uId=1, acctId=1;
 let curUserId = null;
 let currentUser = null;
@@ -1872,7 +1872,7 @@ async function fbBootstrap(){
     bId = maxId(backupLogs);
     dId = maxId(deadLogs);
 
-    const builtIn = {id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'};
+    const builtIn = {id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'};
     loginAccounts = [builtIn, ...accts.filter(a => Number(a.id) !== 0)];
     acctId = maxId(loginAccounts);
 
@@ -1910,28 +1910,34 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 async function handleLogin(){
   const u = val('loginUser').trim().toLowerCase();
-  const p = val('loginPass');
+  const p = val('loginPass').trim();  // trim spaces from password too
   if(!u || !p){ setText('loginErr','Please enter username and password.'); return; }
 
   setText('loginErr','');
   showFbLoading('Signing in…');
 
   try {
-    // Always load accounts from Firestore first so created users work
+    // Always load accounts fresh from Firestore so created users work
     await waitForFb();
     const accts = await fbLoadAll(COL.accounts);
-    const builtIn = {id:0,name:'Administrator',username:'admin',password:'1234',role:'Admin',created:'Built-in'};
+    const builtIn = {id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'};
     loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
 
-    // Now validate credentials against fresh list
-    const acct = loginAccounts.find(a => a.username.toLowerCase()===u && a.password===p);
+    // Validate — trim stored password too in case it was saved with spaces
+    const acct = loginAccounts.find(a =>
+      a.username.trim().toLowerCase() === u &&
+      String(a.password).trim() === p
+    );
+
     if(!acct){
       hideFbLoading();
+      // Show what accounts exist to help debug (remove in production)
+      console.log('Available accounts:', loginAccounts.map(a=>a.username));
       setText('loginErr','Invalid username or password.');
       return;
     }
 
-    // Login success — set user and load all data
+    // Login success
     currentUser = acct;
     $$('loginScreen').classList.remove('active');
     $$('appScreen').classList.add('active');
