@@ -345,7 +345,23 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Date</label><input type="date" id="pf_date"/></div>
         <div class="fi"><label>Asset ID</label><input type="text" id="pf_assetId" placeholder="e.g. AST-001"/></div>
         <div class="fi"><label>Month</label><input type="text" id="pf_month2" readonly style="background:var(--surface);"/></div>
-        <div class="fi"><label>Team</label><input type="text" id="pf_team" placeholder="e.g. Support"/></div>
+        <div class="fi"><label>Team</label>
+          <select id="pf_team" onchange="onTeamChange()">
+            <option value="">Select Team</option>
+            <optgroup label="☀️ Day Team">
+              <option value="Day - SEO">SEO</option>
+              <option value="Day - Content">Content</option>
+              <option value="Day - Tech">Tech</option>
+              <option value="Day - Admin">Admin</option>
+              <option value="Day - Accountants">Accountants</option>
+            </optgroup>
+            <optgroup label="🌙 Night Team">
+              <option value="Night - Sales">Sales</option>
+              <option value="Night - Execution">Execution</option>
+              <option value="Night - Downloading">Downloading</option>
+            </optgroup>
+          </select>
+        </div>
       </div>
 
       <!-- ROW 2: Scores & Status -->
@@ -362,12 +378,10 @@ document.dispatchEvent(new Event('firebase-ready'));
       <!-- ROW 3: Network -->
       <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">🌐 Internet & Network</h3>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-        <div class="fi"><label>Internet</label>
-          <select id="pf_internet"><option value="">Select</option><option>Connected</option><option>Disconnected</option><option>Intermittent</option></select>
-        </div>
+        <div class="fi"><label>Internet Provider</label><input type="text" id="pf_internet" placeholder="e.g. Jio, Airtel, BSNL..."/></div>
         <div class="fi"><label>Download Speed (Mbps)</label><input type="number" id="pf_dlSpeed" placeholder="e.g. 50.5" step="0.1" min="0"/></div>
         <div class="fi"><label>Upload Speed (Mbps)</label><input type="number" id="pf_ulSpeed" placeholder="e.g. 20.3" step="0.1" min="0"/></div>
-        <div class="fi"><label>Dialpad Call Landing Time (s)</label><input type="number" id="pf_dialpad" placeholder="e.g. 3" step="0.1" min="0"/></div>
+        <div class="fi" id="pf_dialpadRow" style="display:none;"><label>Dialpad Call Landing Time (s) <span style="color:var(--accent3);font-size:10px;">Sales Only</span></label><input type="number" id="pf_dialpad" placeholder="e.g. 3" step="0.1" min="0"/></div>
       </div>
 
       <!-- ROW 4: Performance Timings -->
@@ -399,11 +413,12 @@ document.dispatchEvent(new Event('firebase-ready'));
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
         <div class="fi"><label>Mouse / Trackpad Status</label>
-          <select id="pf_mouse"><option value="">Select</option><option>Working</option><option>Issue</option><option>Not Present</option></select>
+          <select id="pf_mouse"><option value="">Select</option><option>Laptop Trackpad</option><option>External Mouse</option><option>Both (Trackpad + Mouse)</option><option>Trackpad Not Working</option><option>Mouse Not Working</option></select>
         </div>
         <div class="fi"><label>Dual Monitor</label>
-          <select id="pf_dualMonitor"><option value="">Select</option><option>Yes</option><option>No</option></select>
+          <select id="pf_dualMonitor" onchange="onDualMonChange()"><option value="">Select</option><option>Yes - Working</option><option>No</option></select>
         </div>
+        <div class="fi" id="pf_dualReasonRow" style="display:none;"><label>Dual Monitor Not Used — Reason</label><input type="text" id="pf_dualReason" placeholder="e.g. No second monitor available, port issue..."/></div>
         <div class="fi"><label>Any Physical Damage</label>
           <select id="pf_physDamage"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
         </div>
@@ -464,7 +479,7 @@ document.dispatchEvent(new Event('firebase-ready'));
           <th>Proc/RAM</th><th>Battery%</th><th>Bat Design</th><th>Bat Full</th>
           <th>HDD Health</th><th>HDD Temp</th><th>Storage</th><th>Restore Pt</th>
           <th>SFC/Disk</th><th>App Update</th><th>Data Cross</th><th>OneDrive</th>
-          <th>Bitlocker</th><th>Dual Mon</th><th>Reason</th><th>BIOS Time</th>
+          <th>Bitlocker</th><th>Dual Mon</th><th>Dual Reason</th><th>Reason</th><th>BIOS Time</th>
           <th>Chrome(s)</th><th>Excel(s)</th><th>Web(s)</th><th>Multitab(s)</th>
           <th>Call Quality</th><th>Dialpad(s)</th><th>Work Env</th><th>Env Img</th>
           <th>Mouse</th>
@@ -1195,12 +1210,25 @@ function renderULog(id){
     ${td(l.procRam)}${td(l.battery?l.battery+'%':'—')}${td(l.batDesign)}${td(l.batFull)}
     ${td(l.hddHealth)}${td(l.hddTemp?l.hddTemp+'°C':'—')}${td(chk(l.storage))}${td(chk(l.restorePoint))}
     ${td(chk(l.sfc))}${td(chk(l.appUpdate))}${td(chk(l.dataCross))}${td(chk(l.onedrive))}
-    ${td(chk(l.bitlocker))}${td(l.dualMonitor)}${td(l.reason)}${td(l.bios?l.bios+'s':'—')}
+    ${td(chk(l.bitlocker))}${td(l.dualMonitor)}${td(l.dualReason)}${td(l.reason)}${td(l.bios?l.bios+'s':'—')}
     ${td(l.chrome?l.chrome+'s':'—')}${td(l.excel?l.excel+'s':'—')}${td(l.webpage?l.webpage+'s':'—')}${td(l.multitab?l.multitab+'s':'—')}
     ${td(l.callQuality)}${td(l.dialpad?l.dialpad+'s':'—')}${td(l.workEnv)}
     <td style="padding:6px 10px;">${l.envImg?`<a href="${l.envImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
     ${td(l.mouse)}
   </tr>`).join('');
+}
+
+function onTeamChange(){
+  const team = val('pf_team');
+  const dialRow = $$('pf_dialpadRow');
+  // Show Dialpad only for Night - Sales
+  if(dialRow) dialRow.style.display = team === 'Night - Sales' ? '' : 'none';
+}
+function onDualMonChange(){
+  const v = val('pf_dualMonitor');
+  const row = $$('pf_dualReasonRow');
+  if(row) row.style.display = v === 'No' ? '' : 'none';
+  if(v !== 'No'){ const e=$$('pf_dualReason'); if(e) e.value=''; }
 }
 function chkVal(id){ const e=$$(id); return e?e.checked:false; }
 function submitPerf(){
@@ -1224,7 +1252,7 @@ function submitPerf(){
     // Hardware
     procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
     batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddTemp: val('pf_hddTemp'),
-    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), physDamage: val('pf_physDamage'),
+    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'),
     workEnv: val('pf_workEnv'),
     // Checklist
     clearCache: chkVal('pf_clearCache'), unwantedApp: chkVal('pf_unwantedApp'),
@@ -1250,13 +1278,16 @@ function clearPF(){
   const ids = ['pf_date','pf_assetId','pf_team','pf_sysScore','pf_teamScore','pf_appScore',
     'pf_dlSpeed','pf_ulSpeed','pf_dialpad','pf_bios','pf_chrome','pf_excel','pf_webpage',
     'pf_multitab','pf_procRam','pf_battery','pf_batDesign','pf_batFull','pf_hddTemp',
-    'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg'];
+    'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg','pf_dualReason'];
   ids.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
   const sels = ['pf_status','pf_internet','pf_callQuality','pf_hddHealth','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
   sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
   const chks = ['pf_clearCache','pf_unwantedApp','pf_driverUpdate','pf_storage','pf_restorePoint',
     'pf_sfc','pf_appUpdate','pf_dataCross','pf_onedrive','pf_bitlocker','pf_sysPerfRestart'];
   chks.forEach(id=>{ const e=$$(id); if(e) e.checked=false; });
+  // Reset conditional rows
+  const dr=$$('pf_dialpadRow'); if(dr) dr.style.display='none';
+  const dmr=$$('pf_dualReasonRow'); if(dmr) dmr.style.display='none';
 }
 
 // ══════════════════════════════════════════
