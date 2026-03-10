@@ -7,6 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0c10;--surface:#12151c;--surface2:#1a1e28;--border:#252a38;--accent:#4f8ef7;--accent2:#38d9a9;--accent3:#f7834f;--accent4:#c77dff;--text:#e8ecf4;--text2:#8b93a7;--text3:#555e75;--danger:#f25c5c;--success:#38d9a9;}
+body.light-mode{--bg:#f0f2f7;--surface:#ffffff;--surface2:#f5f7fb;--border:#dde1ec;--text:#1a1e2e;--text2:#5a6078;--text3:#9ba3bc;--danger:#e53e3e;--success:#38a169;}
+body.light-mode .topbar,body.light-mode .lc{box-shadow:0 2px 16px rgba(0,0,0,.08);}
+body.light-mode #loginScreen{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(79,142,247,.1),transparent 70%),var(--bg);}
+body.light-mode .fi input,body.light-mode .fi select,body.light-mode .fi textarea{color-scheme:light;}
+body.light-mode #gfCustom input[type=date]{color-scheme:light;}
+.theme-toggle{background:none;border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s;}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -281,7 +288,7 @@ document.dispatchEvent(new Event('firebase-ready'));
       <span id="gfResult"></span>
     </div>
 
-    <div class="tb-right">
+    <div class="tb-right"><button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙 Dark</button>
       <div class="av" id="tbAv">A</div>
       <span class="tb-name" id="tbName">Admin</span>
       <button class="btn-out" onclick="doLogout()">Sign Out</button>
@@ -420,8 +427,9 @@ document.dispatchEvent(new Event('firebase-ready'));
         </div>
         <div class="fi" id="pf_dualReasonRow" style="display:none;"><label>Dual Monitor Not Used — Reason</label><input type="text" id="pf_dualReason" placeholder="e.g. No second monitor available, port issue..."/></div>
         <div class="fi"><label>Any Physical Damage</label>
-          <select id="pf_physDamage"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
+          <select id="pf_physDamage" onchange="onPhysDamageChange()"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
         </div>
+        <div class="fi" id="pf_physDamageNoteRow" style="display:none;"><label>Damage Description <span style="color:var(--danger);font-size:10px;">Required</span></label><textarea id="pf_physDamageNote" placeholder="Describe the physical damage (e.g. cracked screen, broken hinge, dented chassis...)"></textarea></div>
         <div class="fi"><label>Work Environment</label>
           <select id="pf_workEnv"><option value="">Select</option><option>Separate Room</option><option>Shared Space</option><option>Open Area</option></select>
         </div>
@@ -495,9 +503,11 @@ document.dispatchEvent(new Event('firebase-ready'));
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
         <h1>Performance Summary Dashboard</h1><span class="badge bp" id="pd_badge">March 2026</span>
       </div>
-      <p>Aggregated data — use month selector and date filter above to slice the data</p>
+      <p>Aggregated performance data filtered by month and team</p>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;">
+
+    <!-- Filters -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;">
       <span style="font-size:12px;font-weight:600;color:var(--text2);">📅 Month:</span>
       <select class="msel" id="dashMonth" onchange="refreshPerfDash()">
         <option>January 2026</option><option>February 2026</option><option selected>March 2026</option>
@@ -505,22 +515,113 @@ document.dispatchEvent(new Event('firebase-ready'));
         <option>July 2026</option><option>August 2026</option><option>September 2026</option>
         <option>October 2026</option><option>November 2026</option><option>December 2026</option>
       </select>
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">📆 From:</span>
+      <input type="date" id="dashFrom" onchange="refreshPerfDash()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;color-scheme:dark;"/>
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">→</span>
+      <input type="date" id="dashTo" onchange="refreshPerfDash()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;color-scheme:dark;"/>
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">👥 Team:</span>
+      <select class="msel" id="dashTeam" onchange="onDashTeamChange()">
+        <option value="">All Teams</option>
+        <option value="DAY">☀️ All Day Team</option>
+        <option value="NIGHT">🌙 All Night Team</option>
+        <optgroup label="☀️ Day Team">
+          <option value="Day - SEO">SEO</option>
+          <option value="Day - Content">Content</option>
+          <option value="Day - Tech">Tech</option>
+          <option value="Day - Admin">Admin</option>
+          <option value="Day - Accountants">Accountants</option>
+        </optgroup>
+        <optgroup label="🌙 Night Team">
+          <option value="Night - Sales">Sales</option>
+          <option value="Night - Execution">Execution</option>
+          <option value="Night - Downloading">Downloading</option>
+        </optgroup>
+      </select>
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">👤 User:</span>
+      <select class="msel" id="dashUser" onchange="refreshPerfDash()">
+        <option value="">All Users</option>
+      </select>
+      <button onclick="clearDashFilters()" style="background:none;border:1px solid var(--border);color:var(--text3);padding:5px 10px;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;">✕ Clear</button>
     </div>
-    <div class="sg">
-      <div class="sc c3"><div class="sl">Avg CPU</div><div class="sv" id="pd_cpu">—</div><div class="ss" id="pd_cpuS">No data</div></div>
-      <div class="sc c1"><div class="sl">Avg Memory</div><div class="sv" id="pd_mem">—</div><div class="ss" id="pd_memS">No data</div></div>
-      <div class="sc c2"><div class="sl">Avg Uptime</div><div class="sv" id="pd_up">—</div><div class="ss" id="pd_upS">No data</div></div>
-      <div class="sc c4"><div class="sl">Total Logs</div><div class="sv" id="pd_cnt">0</div><div class="ss" id="pd_cntS">0 users</div></div>
+
+    <!-- Score Cards -->
+    <div class="sg" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+      <div class="sc c1"><div class="sl">Avg System Score</div><div class="sv" id="pd_sysScore">—</div><div class="ss" id="pd_sysScoreS">No data</div></div>
+      <div class="sc c2"><div class="sl">Avg Team Score</div><div class="sv" id="pd_teamScore">—</div><div class="ss" id="pd_teamScoreS">No data</div></div>
+      <div class="sc c3"><div class="sl">Avg App Score</div><div class="sv" id="pd_appScore">—</div><div class="ss" id="pd_appScoreS">No data</div></div>
+      <div class="sc c4"><div class="sl">Total Entries</div><div class="sv" id="pd_cnt">0</div><div class="ss" id="pd_cntS">0 users</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="tw">
-        <div class="th"><h3>All Performance Logs</h3></div>
-        <table><thead><tr><th>User</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Response</th><th>Time</th></tr></thead>
-        <tbody id="pd_logs"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody></table>
+
+    <!-- Issues Overview -->
+    <div class="sg" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+      <div class="sc" style="border-color:var(--danger);"><div class="sl">⚠️ Poor / Critical</div><div class="sv" style="color:var(--danger);" id="pd_poorCnt">0</div><div class="ss" id="pd_poorS">No issues</div></div>
+      <div class="sc" style="border-color:var(--accent3);"><div class="sl">🔧 Physical Damage</div><div class="sv" style="color:var(--accent3);" id="pd_dmgCnt">0</div><div class="ss" id="pd_dmgS">Reports</div></div>
+      <div class="sc" style="border-color:var(--accent3);"><div class="sl">📋 Action Needed</div><div class="sv" style="color:var(--accent3);" id="pd_actionCnt">0</div><div class="ss" id="pd_actionS">Entries</div></div>
+      <div class="sc" style="border-color:var(--accent2);"><div class="sl">✅ Good Status</div><div class="sv" style="color:var(--accent2);" id="pd_goodCnt">0</div><div class="ss" id="pd_goodS">Entries</div></div>
+    </div>
+
+    <!-- Speed + Checklist + Leaderboard -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+
+      <!-- Speed Overview -->
+      <div class="tw" style="padding:18px;">
+        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">⏱ Speed Overview</h3>
+        <div id="pd_speeds"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
-      <div class="tw" style="padding:20px;">
-        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">CPU Usage by User</h3>
-        <div id="pd_bars"><div style="text-align:center;color:var(--text3);font-size:13px;padding:20px 0;">No data yet</div></div>
+
+      <!-- Checklist Completion -->
+      <div class="tw" style="padding:18px;">
+        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">✅ Checklist Rate</h3>
+        <div id="pd_checklist"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      </div>
+
+      <!-- Team Leaderboard -->
+      <div class="tw" style="padding:18px;">
+        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🏆 Team Leaderboard</h3>
+        <div id="pd_leaderboard"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      </div>
+    </div>
+
+    <!-- SSD + Battery Health -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <!-- SSD/HDD Health -->
+      <div class="tw" style="padding:18px;">
+        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">💾 SSD / HDD Condition</h3>
+        <div id="pd_ssdSummary" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;"></div>
+        <div id="pd_ssdList"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      </div>
+      <!-- Battery Health -->
+      <div class="tw" style="padding:18px;">
+        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🔋 Battery Condition</h3>
+        <div id="pd_batSummary" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;"></div>
+        <div id="pd_batList"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      </div>
+    </div>
+
+    <!-- Per-User Score Table -->
+    <div class="tw" style="margin-bottom:16px;">
+      <div class="th"><h3>👤 Per-User Scores</h3><span style="font-size:11px;color:var(--text3);">Latest entry per user</span></div>
+      <div style="overflow-x:auto;">
+        <table><thead><tr>
+          <th>User</th><th>Team</th><th>Asset ID</th><th>Date</th>
+          <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
+          <th>Internet</th><th>DL Speed</th><th>UL Speed</th><th>Physical Damage</th>
+        </tr></thead>
+        <tbody id="pd_userTable"><tr><td colspan="12" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All Logs Table -->
+    <div class="tw">
+      <div class="th"><h3>📋 All Performance Logs</h3></div>
+      <div style="overflow-x:auto;">
+        <table style="min-width:900px;"><thead><tr>
+          <th>User</th><th>Team</th><th>Date</th><th>Asset ID</th>
+          <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
+          <th>Internet</th><th>DL</th><th>UL</th><th>Action</th><th>Damage</th>
+        </tr></thead>
+        <tbody id="pd_logs"><tr><td colspan="13" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody></table>
       </div>
     </div>
   </div>
@@ -1218,6 +1319,54 @@ function renderULog(id){
   </tr>`).join('');
 }
 
+
+// ── Theme Toggle ──
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light-mode');
+  const btn = $$('themeToggleBtn');
+  if(btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('optiTheme', isLight ? 'light' : 'dark');
+}
+function applyTheme(){
+  const saved = localStorage.getItem('optiTheme');
+  if(saved==='light'){
+    document.body.classList.add('light-mode');
+    const btn=$$('themeToggleBtn'); if(btn) btn.textContent='🌙 Dark';
+  }
+}
+
+// ── Dashboard team change — auto dark/light ──
+function onDashTeamChange(){
+  const team = ($$('dashTeam')||{}).value||'';
+  // Auto switch theme: Night = dark, Day = light
+  const isNight = team==='NIGHT' || team.startsWith('Night');
+  const isDay   = team==='DAY'   || team.startsWith('Day');
+  if(isNight){
+    document.body.classList.remove('light-mode');
+    const btn=$$('themeToggleBtn'); if(btn) btn.textContent='☀️ Light';
+    localStorage.setItem('optiTheme','dark');
+  } else if(isDay){
+    document.body.classList.add('light-mode');
+    const btn=$$('themeToggleBtn'); if(btn) btn.textContent='🌙 Dark';
+    localStorage.setItem('optiTheme','light');
+  }
+  refreshPerfDash();
+}
+
+// ── Clear dashboard filters ──
+function clearDashFilters(){
+  const ids=['dashFrom','dashTo'];
+  ids.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
+  const team=$$('dashTeam'); if(team) team.value='';
+  const user=$$('dashUser'); if(user) user.value='';
+  refreshPerfDash();
+}
+function onPhysDamageChange(){
+  const v = val('pf_physDamage');
+  const row = $$('pf_physDamageNoteRow');
+  if(row) row.style.display = (v==='Minor'||v==='Major') ? '' : 'none';
+  if(v===''||v==='None'){ const e=$$('pf_physDamageNote'); if(e) e.value=''; }
+}
 function onTeamChange(){
   const team = val('pf_team');
   const dialRow = $$('pf_dialpadRow');
@@ -1278,7 +1427,7 @@ function clearPF(){
   const ids = ['pf_date','pf_assetId','pf_team','pf_sysScore','pf_teamScore','pf_appScore',
     'pf_dlSpeed','pf_ulSpeed','pf_dialpad','pf_bios','pf_chrome','pf_excel','pf_webpage',
     'pf_multitab','pf_procRam','pf_battery','pf_batDesign','pf_batFull','pf_hddTemp',
-    'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg','pf_dualReason'];
+    'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg','pf_dualReason','pf_physDamageNote'];
   ids.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
   const sels = ['pf_status','pf_internet','pf_callQuality','pf_hddHealth','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
   sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
@@ -1288,52 +1437,172 @@ function clearPF(){
   // Reset conditional rows
   const dr=$$('pf_dialpadRow'); if(dr) dr.style.display='none';
   const dmr=$$('pf_dualReasonRow'); if(dmr) dmr.style.display='none';
+  const pdr=$$('pf_physDamageNoteRow'); if(pdr) pdr.style.display='none';
 }
 
 // ══════════════════════════════════════════
 // PERF DASHBOARD
 // ══════════════════════════════════════════
 function refreshPerfDash(){
-  const month = getDashMonth();
-  setText('pd_badge', month);
-  const logs  = perfLogs.filter(l=>l.month===month && logInRange(l));
-  const n     = logs.length;
+  const month    = getDashMonth();
+  const teamFilt = ($$('dashTeam')||{}).value || '';
+  const userFilt = ($$('dashUser')||{}).value || '';
+  const fromDate = ($$('dashFrom')||{}).value || '';
+  const toDate   = ($$('dashTo')||{}).value   || '';
+
+  // Badge label
+  let badgeLabel = month;
+  if(teamFilt==='DAY')   badgeLabel += ' · ☀️ Day Team';
+  else if(teamFilt==='NIGHT') badgeLabel += ' · 🌙 Night Team';
+  else if(teamFilt)      badgeLabel += ' · '+teamFilt.split(' - ')[1];
+  if(userFilt)           badgeLabel += ' · '+userFilt;
+  setText('pd_badge', badgeLabel);
+
+  // Filter logs
+  let logs = perfLogs.filter(l => l.month===month && logInRange(l));
+  if(teamFilt==='DAY')        logs = logs.filter(l=>(l.team||'').startsWith('Day'));
+  else if(teamFilt==='NIGHT') logs = logs.filter(l=>(l.team||'').startsWith('Night'));
+  else if(teamFilt)           logs = logs.filter(l=>l.team===teamFilt);
+  if(userFilt)  logs = logs.filter(l=>l.userName===userFilt);
+  if(fromDate)  logs = logs.filter(l=>l.date&&l.date>=fromDate);
+  if(toDate)    logs = logs.filter(l=>l.date&&l.date<=toDate);
+
+  // Populate user dropdown
+  const allUsers = [...new Set(perfLogs.map(l=>l.userName))].sort();
+  const dashUserEl = $$('dashUser');
+  if(dashUserEl){
+    const cur = dashUserEl.value;
+    dashUserEl.innerHTML = '<option value="">All Users</option>' +
+      allUsers.map(u=>`<option value="${u}"${u===cur?' selected':''}>${u}</option>`).join('');
+  }
+
+  const n         = logs.length;
   const reporters = [...new Set(logs.map(l=>l.userName))];
   setText('pd_cnt',  n);
-  setText('pd_cntS', reporters.length+' user'+(reporters.length===1?'':'s')+' reported');
+  setText('pd_cntS', reporters.length+' user'+(reporters.length===1?'':'s'));
+
+  const noData = id => setText(id,'—');
   if(!n){
-    ['pd_cpu','pd_mem','pd_up'].forEach(id=>setText(id,'—'));
-    ['pd_cpuS','pd_memS','pd_upS'].forEach(id=>setText(id,'No data for '+month));
-    setHTML('pd_logs',`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px;">No data for ${month}</td></tr>`);
-    setHTML('pd_bars',`<div style="text-align:center;color:var(--text3);font-size:13px;padding:20px 0;">No data for ${month}</div>`);
+    ['pd_sysScore','pd_teamScore','pd_appScore'].forEach(noData);
+    ['pd_sysScoreS','pd_teamScoreS','pd_appScoreS'].forEach(id=>setText(id,'No data'));
+    ['pd_poorCnt','pd_dmgCnt','pd_actionCnt','pd_goodCnt'].forEach(id=>setText(id,'0'));
+    ['pd_speeds','pd_checklist','pd_leaderboard','pd_ssdList','pd_batList'].forEach(id=>setHTML(id,'<div style="color:var(--text3);font-size:13px;">No data</div>'));
+    ['pd_ssdSummary','pd_batSummary'].forEach(id=>setHTML(id,''));
+    setHTML('pd_userTable',`<tr><td colspan="12" style="text-align:center;color:var(--text3);padding:20px;">No data for ${month}</td></tr>`);
+    setHTML('pd_logs',`<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:20px;">No data for ${month}</td></tr>`);
     return;
   }
-  const avgCPU = (logs.reduce((s,l)=>s+l.cpu,0)/n).toFixed(1);
-  const avgMem = (logs.reduce((s,l)=>s+l.mem,0)/n).toFixed(1);
-  const upL    = logs.filter(l=>l.uptime>0);
-  const avgUp  = upL.length ? (upL.reduce((s,l)=>s+l.uptime,0)/upL.length).toFixed(1) : '—';
-  setText('pd_cpu',  avgCPU+'%'); setText('pd_cpuS', `Avg across ${n} log${n===1?'':'s'}`);
-  setText('pd_mem',  avgMem+'%'); setText('pd_memS', `Avg across ${n} log${n===1?'':'s'}`);
-  setText('pd_up',   avgUp+(avgUp!=='—'?'%':'')); setText('pd_upS', upL.length?`From ${upL.length} reports`:'Not reported');
+
+  // ── Helpers ──
+  const avg = (arr,key) => { const v=arr.filter(l=>l[key]!==''&&l[key]!=null&&!isNaN(parseFloat(l[key]))); return v.length?(v.reduce((s,l)=>s+parseFloat(l[key]),0)/v.length).toFixed(1):'—'; };
+  const scoreColor = v => parseFloat(v)>=80?'var(--accent2)':parseFloat(v)>=60?'var(--accent3)':'var(--danger)';
+  const statusPill = s => { const col=s==='Good'?'var(--accent2)':s==='Critical'||s==='Poor'?'var(--danger)':'var(--accent3)'; return s?`<span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${col};color:#fff;">${s}</span>`:'—'; };
+  const pill = (txt,col) => `<span style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${col};color:#fff;">${txt}</span>`;
+
+  // ── Score Cards ──
+  const avgSys=avg(logs,'sysScore'), avgTeam=avg(logs,'teamScore'), avgApp=avg(logs,'appScore');
+  setText('pd_sysScore',  avgSys!=='—'?avgSys+'%':'—');  setText('pd_sysScoreS',  n+' entries');
+  setText('pd_teamScore', avgTeam!=='—'?avgTeam+'%':'—'); setText('pd_teamScoreS', n+' entries');
+  setText('pd_appScore',  avgApp!=='—'?avgApp+'%':'—');   setText('pd_appScoreS',  n+' entries');
+  const sc1=$$('pd_sysScore'),sc2=$$('pd_teamScore'),sc3=$$('pd_appScore');
+  if(sc1&&avgSys!=='—')  sc1.style.color=scoreColor(avgSys);
+  if(sc2&&avgTeam!=='—') sc2.style.color=scoreColor(avgTeam);
+  if(sc3&&avgApp!=='—')  sc3.style.color=scoreColor(avgApp);
+
+  // ── Issues ──
+  const poorCnt   = logs.filter(l=>l.status==='Poor'||l.status==='Critical').length;
+  const dmgCnt    = logs.filter(l=>l.physDamage&&l.physDamage!=='None'&&l.physDamage!=='').length;
+  const actionCnt = logs.filter(l=>l.action&&l.action.trim()!=='').length;
+  const goodCnt   = logs.filter(l=>l.status==='Good').length;
+  setText('pd_poorCnt',poorCnt);   setText('pd_poorS',   poorCnt?'Need attention':'All good');
+  setText('pd_dmgCnt', dmgCnt);    setText('pd_dmgS',    dmgCnt?'Reported':'No damage');
+  setText('pd_actionCnt',actionCnt); setText('pd_actionS', actionCnt?'Need follow-up':'None');
+  setText('pd_goodCnt',goodCnt);   setText('pd_goodS',   'of '+n+' total');
+
+  // ── Speed Overview ──
+  const avgN=(key,unit)=>{ const v=logs.filter(l=>l[key]&&!isNaN(parseFloat(l[key]))); return v.length?((v.reduce((s,l)=>s+parseFloat(l[key]),0)/v.length).toFixed(1)+unit):'—'; };
+  const speeds=[['🌐 Avg Download',avgN('dlSpeed',' Mbps')],['📤 Avg Upload',avgN('ulSpeed',' Mbps')],
+    ['🖥 Avg BIOS Time',avgN('bios','s')],['🌍 Chrome Load',avgN('chrome','s')],
+    ['📊 Excel Load',avgN('excel','s')],['📄 Web Page',avgN('webpage','s')]];
+  setHTML('pd_speeds', speeds.map(([l,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;color:var(--text2);">${l}</span><span style="font-size:13px;font-weight:700;color:var(--accent);">${v}</span></div>`).join(''));
+
+  // ── Checklist ──
+  const chkItems=[['Clear Cache','clearCache'],['Driver Update','driverUpdate'],['App Update','appUpdate'],
+    ['OneDrive Sync','onedrive'],['Bitlocker','bitlocker'],['SFC/CheckDisk','sfc'],
+    ['Data Cross','dataCross'],['Restore Point','restorePoint']];
+  setHTML('pd_checklist', chkItems.map(([label,key])=>{
+    const done=logs.filter(l=>l[key]===true||l[key]==='true').length;
+    const pct=n?Math.round((done/n)*100):0;
+    return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text2);">${label}</span><span style="font-weight:700;color:${pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'};">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px;"><div style="height:5px;border-radius:3px;width:${pct}%;background:${pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'};"></div></div></div>`;
+  }).join(''));
+
+  // ── Team Leaderboard ──
+  const teamScores={};
+  logs.forEach(l=>{ if(!l.team) return; if(!teamScores[l.team]) teamScores[l.team]=[]; if(l.sysScore&&!isNaN(parseFloat(l.sysScore))) teamScores[l.team].push(parseFloat(l.sysScore)); });
+  const teamAvgs=Object.entries(teamScores).map(([t,v])=>([t,(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1)])).sort((a,b)=>b[1]-a[1]);
+  const medals=['🥇','🥈','🥉'];
+  setHTML('pd_leaderboard', teamAvgs.length?teamAvgs.map(([t,v],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;">${medals[i]||'  '} ${t.split(' - ')[1]||t} <span style="font-size:10px;color:var(--text3);">${t.split(' - ')[0]||''}</span></span><span style="font-weight:700;font-size:13px;color:${scoreColor(v)};">${v}%</span></div>`).join(''):'<div style="color:var(--text3);font-size:13px;">No team data</div>');
+
+  // ── SSD/HDD Health ──
+  const hddGood    = logs.filter(l=>l.hddHealth==='Good').length;
+  const hddCaution = logs.filter(l=>l.hddHealth==='Caution').length;
+  const hddBad     = logs.filter(l=>l.hddHealth==='Bad').length;
+  setHTML('pd_ssdSummary',
+    `${pill(hddGood+' Good','var(--accent2)')} ${pill(hddCaution+' Caution','var(--accent3)')} ${pill(hddBad+' Bad','var(--danger)')}`);
+  const hddWarn = logs.filter(l=>l.hddHealth==='Bad'||l.hddHealth==='Caution');
+  setHTML('pd_ssdList', hddWarn.length ? hddWarn.map(l=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-size:13px;font-weight:600;">${l.userName}</div><div style="font-size:11px;color:var(--text3);">${l.assetId||'—'} · ${l.date||''}</div></div>
+      <div style="text-align:right;"><span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${l.hddHealth==='Bad'?'var(--danger)':'var(--accent3)'};color:#fff;">${l.hddHealth}</span>
+        ${l.hddTemp?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.hddTemp}°C</div>`:''}
+      </div>
+    </div>`).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
+
+  // ── Battery Health ──
+  const bats = logs.filter(l=>l.battery&&!isNaN(parseFloat(l.battery)));
+  const avgBat = bats.length?(bats.reduce((s,l)=>s+parseFloat(l.battery),0)/bats.length).toFixed(0)+'%':'—';
+  const lowBat = logs.filter(l=>l.battery&&parseFloat(l.battery)<50);
+  setHTML('pd_batSummary',
+    `${pill('Avg '+avgBat,'var(--accent)')} ${pill(lowBat.length+' Below 50%',lowBat.length?'var(--danger)':'var(--accent2)')}`);
+  setHTML('pd_batList', bats.length ? [...bats].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
+    const pct=parseFloat(l.battery); const col=pct<30?'var(--danger)':pct<50?'var(--accent3)':'var(--accent2)';
+    return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${l.userName} <span style="color:var(--text3);font-size:11px;">${l.assetId||''}</span></span><span style="font-weight:700;color:${col};">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px;"><div style="height:5px;border-radius:3px;width:${pct}%;background:${col};"></div></div></div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:13px;">No battery data</div>');
+
+  // ── Per-User Score Table ──
+  const userLatest={};
+  [...logs].forEach(l=>{userLatest[l.userName]=l;});
+  setHTML('pd_userTable', Object.values(userLatest).map(l=>`<tr>
+    <td><strong>${l.userName}</strong></td>
+    <td style="font-size:12px;color:var(--text2);">${l.team||'—'}</td>
+    <td style="font-family:monospace;font-size:12px;">${l.assetId||'—'}</td>
+    <td style="font-size:12px;">${l.date||l.time||'—'}</td>
+    <td style="color:${scoreColor(l.sysScore||0)};font-weight:700;">${l.sysScore||'—'}${l.sysScore?'%':''}</td>
+    <td style="color:${scoreColor(l.teamScore||0)};font-weight:700;">${l.teamScore||'—'}${l.teamScore?'%':''}</td>
+    <td style="color:${scoreColor(l.appScore||0)};font-weight:700;">${l.appScore||'—'}${l.appScore?'%':''}</td>
+    <td>${statusPill(l.status)}</td>
+    <td style="font-size:12px;">${l.internet||'—'}</td>
+    <td style="font-size:12px;">${l.dlSpeed?l.dlSpeed+' Mbps':'—'}</td>
+    <td style="font-size:12px;">${l.ulSpeed?l.ulSpeed+' Mbps':'—'}</td>
+    <td style="font-size:12px;color:${l.physDamage&&l.physDamage!=='None'?'var(--danger)':'var(--text2)'};">${l.physDamage||'—'}</td>
+  </tr>`).join(''));
+
+  // ── All Logs ──
   setHTML('pd_logs', [...logs].reverse().map(l=>`<tr>
     <td><strong>${l.userName}</strong></td>
-    <td style="color:${l.cpu>80?'var(--danger)':l.cpu>60?'var(--accent3)':'var(--accent2)'}">${l.cpu}%</td>
-    <td style="color:${l.mem>80?'var(--danger)':l.mem>60?'var(--accent3)':'var(--accent2)'}">${l.mem}%</td>
-    <td>${l.uptime?l.uptime+'%':'—'}</td>
-    <td>${l.resp?l.resp+' ms':'—'}</td>
-    <td>${l.time}</td></tr>`).join(''));
-  // bars
-  const uCpu={};
-  logs.forEach(l=>{ if(!uCpu[l.userName]) uCpu[l.userName]=[]; uCpu[l.userName].push(l.cpu); });
-  const uAvg = Object.entries(uCpu).map(([nm,v])=>([nm,(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1)]));
-  const mx   = Math.max(...uAvg.map(x=>parseFloat(x[1])),1);
-  const barsEl = $$('pd_bars');
-  if(barsEl) barsEl.innerHTML = uAvg.sort((a,b)=>b[1]-a[1]).map(([nm,val])=>`
-    <div class="cr">
-      <span class="cl">${nm.length>10?nm.slice(0,10)+'…':nm}</span>
-      <div class="cbg"><div class="cb" style="width:${Math.max(4,(parseFloat(val)/mx)*100).toFixed(1)}%;background:${parseFloat(val)>80?'var(--danger)':parseFloat(val)>60?'var(--accent3)':'var(--accent2)'}"></div></div>
-      <span class="cv">${val}%</span>
-    </div>`).join('');
+    <td style="font-size:12px;color:var(--text2);">${l.team||'—'}</td>
+    <td style="font-size:12px;">${l.date||'—'}</td>
+    <td style="font-family:monospace;font-size:12px;">${l.assetId||'—'}</td>
+    <td style="font-weight:700;color:${scoreColor(l.sysScore||0)};">${l.sysScore||'—'}${l.sysScore?'%':''}</td>
+    <td style="font-weight:700;color:${scoreColor(l.teamScore||0)};">${l.teamScore||'—'}${l.teamScore?'%':''}</td>
+    <td style="font-weight:700;color:${scoreColor(l.appScore||0)};">${l.appScore||'—'}${l.appScore?'%':''}</td>
+    <td>${statusPill(l.status)}</td>
+    <td style="font-size:12px;">${l.internet||'—'}</td>
+    <td style="font-size:12px;">${l.dlSpeed?l.dlSpeed+' Mbps':'—'}</td>
+    <td style="font-size:12px;">${l.ulSpeed?l.ulSpeed+' Mbps':'—'}</td>
+    <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;">${l.action||'—'}</td>
+    <td style="font-size:12px;color:${l.physDamage&&l.physDamage!=='None'?'var(--danger)':'var(--text2)'};">${l.physDamage||'—'}</td>
+  </tr>`).join(''));
 }
 
 // ══════════════════════════════════════════
@@ -2234,6 +2503,7 @@ async function handleLogin(){
 
 // ── Auto-load on every page refresh ──
 window.addEventListener('load', async ()=>{
+  applyTheme();
   try {
     await fbBootstrap();
   } catch(e){ showFbStatus(false); }
