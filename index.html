@@ -382,14 +382,38 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Internet Provider</label><input type="text" id="pf_internet" placeholder="e.g. Jio, Airtel, BSNL..."/></div>
         <div class="fi"><label>Download Speed (Mbps)</label><input type="number" id="pf_dlSpeed" placeholder="e.g. 50.5" step="0.1" min="0"/></div>
         <div class="fi"><label>Upload Speed (Mbps)</label><input type="number" id="pf_ulSpeed" placeholder="e.g. 20.3" step="0.1" min="0"/></div>
-        <div class="fi" id="pf_dialpadRow" style="display:none;"><label>Dialpad Call Landing Time (s) <span style="color:var(--accent3);font-size:10px;">Sales Only</span></label><input type="number" id="pf_dialpad" placeholder="e.g. 3" step="0.1" min="0"/></div>
+        <div class="fi" id="pf_dialpadRow" style="display:none;"><label>Dialpad Call Landing Time <span style="color:var(--accent3);font-size:10px;">Sales Only</span> <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pf_dialpad_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_dialpad_m" placeholder="MM" min="0" max="59" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_dialpad_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
+          </div>
+        </div>
       </div>
 
       <!-- ROW 4: Performance Timings -->
       <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">⏱ Performance Timings</h3>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-        <div class="fi"><label>Last BIOS Time (s)</label><input type="number" id="pf_bios" placeholder="e.g. 12" step="0.1" min="0"/></div>
-        <div class="fi"><label>Chrome Load Time (s)</label><input type="number" id="pf_chrome" placeholder="e.g. 3.5" step="0.1" min="0"/></div>
+        <div class="fi"><label>Last BIOS Time <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pf_bios_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_bios_m" placeholder="MM" min="0" max="59" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_bios_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
+          </div>
+        </div>
+        <div class="fi"><label>Chrome Load Time <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pf_chrome_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_chrome_m" placeholder="MM" min="0" max="59" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_chrome_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
+          </div>
+        </div>
         <div class="fi"><label>Excel Load Time <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
           <div style="display:flex;gap:6px;align-items:center;">
             <input type="number" id="pf_excel_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
@@ -399,10 +423,26 @@ document.dispatchEvent(new Event('firebase-ready'));
             <input type="number" id="pf_excel_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
           </div>
         </div>
-        <div class="fi"><label>Web Page Load Time (s)</label><input type="number" id="pf_webpage" placeholder="e.g. 2.1" step="0.1" min="0"/></div>
+        <div class="fi"><label>Web Page Load Time <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pf_webpage_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_webpage_m" placeholder="MM" min="0" max="59" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_webpage_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
+          </div>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-        <div class="fi"><label>Multitab Changing Time (s)</label><input type="number" id="pf_multitab" placeholder="e.g. 1.5" step="0.1" min="0"/></div>
+        <div class="fi"><label>Multitab Changing Time <span style="color:var(--text3);font-size:11px;">HH:MM:SS</span></label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pf_multitab_h" placeholder="HH" min="0" max="23" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_multitab_m" placeholder="MM" min="0" max="59" style="width:60px;text-align:center;"/>
+            <span style="color:var(--text3);font-weight:700;">:</span>
+            <input type="number" id="pf_multitab_s" placeholder="SS" min="0" max="59" style="width:60px;text-align:center;"/>
+          </div>
+        </div>
         <div class="fi"><label>Call Quality</label>
           <select id="pf_callQuality"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
         </div>
@@ -419,6 +459,9 @@ document.dispatchEvent(new Event('firebase-ready'));
           <select id="pf_hddHealth"><option value="">Select</option><option>Good</option><option>Caution</option><option>Bad</option></select>
         </div>
         <div class="fi"><label>HDD Temperature (°C)</label><input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0"/></div>
+        <div class="fi"><label>HDD Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB"/></div>
+        <div class="fi"><label>HDD Used Storage</label><input type="text" id="pf_hddUsed" placeholder="e.g. 320 GB"/></div>
+        <div class="fi"><label>HDD Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB"/></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
         <div class="fi"><label>Mouse / Trackpad Status</label>
@@ -469,6 +512,10 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Work Environment Picture (URL or filename)</label><input type="text" id="pf_envImg" placeholder="e.g. desk_setup.jpg or https://..."/></div>
       </div>
 
+      <div id="pf_editBanner" style="display:none;background:rgba(247,131,79,.12);border:1px solid var(--accent3);border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;">
+        <span style="font-size:13px;color:var(--accent3);font-weight:600;">✏️ Editing existing entry</span>
+        <button onclick="cancelEdit()" style="background:none;border:1px solid var(--accent3);color:var(--accent3);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;margin-left:auto;">✕ Cancel Edit</button>
+      </div>
       <div class="fa">
         <button class="btn p" onclick="submitPerf()">💾 Save Entry</button>
         <button class="btn" onclick="clearPF()">Clear</button>
@@ -487,12 +534,12 @@ document.dispatchEvent(new Event('firebase-ready'));
           <th>Restarted</th><th>Action</th><th>User Issues</th><th>Phys Damage</th>
           <th>Complaint Img</th><th>Cache</th><th>Unwanted App</th><th>Driver</th>
           <th>Proc/RAM</th><th>Battery%</th><th>Bat Design</th><th>Bat Full</th>
-          <th>HDD Health</th><th>HDD Temp</th><th>Storage</th><th>Restore Pt</th>
+          <th>HDD Health</th><th>HDD Temp</th><th>HDD Total</th><th>HDD Used</th><th>HDD Free</th><th>Storage Chk</th><th>Restore Pt</th>
           <th>SFC/Disk</th><th>App Update</th><th>Data Cross</th><th>OneDrive</th>
           <th>Bitlocker</th><th>Dual Mon</th><th>Dual Reason</th><th>Reason</th><th>BIOS Time</th>
           <th>Chrome(s)</th><th>Excel(s)</th><th>Web(s)</th><th>Multitab(s)</th>
           <th>Call Quality</th><th>Dialpad(s)</th><th>Work Env</th><th>Env Img</th>
-          <th>Mouse</th>
+          <th>Mouse</th><th>Edit</th>
         </tr></thead>
         <tbody id="uf_logTb"><tr><td colspan="46" style="text-align:center;color:var(--text3);padding:24px;">No entries yet</td></tr></tbody></table>
       </div>
@@ -1323,7 +1370,7 @@ function renderULog(id){
     <td style="padding:6px 10px;">${l.complaintImg?`<a href="${l.complaintImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
     ${td(chk(l.clearCache))}${td(chk(l.unwantedApp))}${td(chk(l.driverUpdate))}
     ${td(l.procRam)}${td(l.battery?l.battery+'%':'—')}${td(l.batDesign)}${td(l.batFull)}
-    ${td(l.hddHealth)}${td(l.hddTemp?l.hddTemp+'°C':'—')}${td(chk(l.storage))}${td(chk(l.restorePoint))}
+    ${td(l.hddHealth)}${td(l.hddTemp?l.hddTemp+'°C':'—')}${td(l.hddTotal||'—')}${td(l.hddUsed||'—')}${td(l.hddFree||'—')}${td(chk(l.storage))}${td(chk(l.restorePoint))}
     ${td(chk(l.sfc))}${td(chk(l.appUpdate))}${td(chk(l.dataCross))}${td(chk(l.onedrive))}
     ${td(chk(l.bitlocker))}${td(l.dualMonitor)}${td(l.dualReason)}${td(l.reason)}${td(l.bios?l.bios+'s':'—')}
     ${td(l.chrome?l.chrome+'s':'—')}${td(l.excel?l.excel+'s':'—')}${td(l.webpage?l.webpage+'s':'—')}${td(l.multitab?l.multitab+'s':'—')}
@@ -1365,6 +1412,92 @@ function onDualMonChange(){
   if(row) row.style.display = v === 'No' ? '' : 'none';
   if(v !== 'No'){ const e=$$('pf_dualReason'); if(e) e.value=''; }
 }
+
+// ── Edit Performance Entry ──
+let _editPerfId = null;
+
+function editPerfEntry(id){
+  const l = perfLogs.find(x=>x.id===id); if(!l) return;
+  _editPerfId = id;
+
+  // Fill basic fields
+  const setV = (elId, v) => { const e=$$(elId); if(e) e.value = v||''; };
+  setV('pf_date',     l.date);
+  setV('pf_assetId',  l.assetId);
+  setV('pf_month2',   l.month);
+  setV('pf_team',     l.team);
+  setV('pf_sysScore', l.sysScore);
+  setV('pf_teamScore',l.teamScore);
+  setV('pf_appScore', l.appScore);
+  setV('pf_status',   l.status);
+  setV('pf_internet', l.internet);
+  setV('pf_dlSpeed',  l.dlSpeed);
+  setV('pf_ulSpeed',  l.ulSpeed);
+  setV('pf_procRam',  l.procRam);
+  setV('pf_battery',  l.battery);
+  setV('pf_batDesign',l.batDesign);
+  setV('pf_batFull',  l.batFull);
+  setV('pf_hddHealth',l.hddHealth);
+  setV('pf_hddTemp',  l.hddTemp);
+  setV('pf_hddTotal', l.hddTotal);
+  setV('pf_hddUsed',  l.hddUsed);
+  setV('pf_hddFree',  l.hddFree);
+  setV('pf_mouse',    l.mouse);
+  setV('pf_dualMonitor', l.dualMonitor);
+  setV('pf_dualReason',  l.dualReason);
+  setV('pf_physDamage',  l.physDamage);
+  setV('pf_physDamageNote', l.physDamageNote);
+  setV('pf_workEnv',  l.workEnv);
+  setV('pf_callQuality', l.callQuality);
+  setV('pf_action',   l.action);
+  setV('pf_userIssues',l.userIssues);
+  setV('pf_complaint',l.complaint);
+  setV('pf_reason',   l.reason);
+  setV('pf_complaintImg', l.complaintImg);
+  setV('pf_envImg',   l.envImg);
+
+  // Fill HH:MM:SS fields
+  const fillHMS = (prefix, val) => {
+    const p = (val||'').split(':');
+    ['_h','_m','_s'].forEach((s,i)=>{ const e=$$(prefix+s); if(e) e.value=p[i]||''; });
+  };
+  fillHMS('pf_bios',    l.bios);
+  fillHMS('pf_chrome',  l.chrome);
+  fillHMS('pf_excel',   l.excel);
+  fillHMS('pf_webpage', l.webpage);
+  fillHMS('pf_multitab',l.multitab);
+  fillHMS('pf_dialpad', l.dialpad);
+
+  // Fill checkboxes
+  const chkIds = ['clearCache','unwantedApp','driverUpdate','storage','restorePoint',
+    'sfc','appUpdate','dataCross','onedrive','bitlocker','sysPerfRestart'];
+  chkIds.forEach(k=>{ const e=$$('pf_'+k); if(e) e.checked=(l[k]===true||l[k]==='true'); });
+
+  // Show conditional fields
+  onTeamChange(); onDualMonChange(); onPhysDamageChange();
+
+  // Update save button to show editing mode
+  const btn = document.querySelector('[onclick="submitPerf()"]');
+  if(btn){ btn.textContent='💾 Update Entry'; btn.style.background='var(--accent3)'; }
+
+  // Scroll to top of form
+  const form = $$('v-perfForm');
+  if(form) form.scrollIntoView({behavior:'smooth'});
+
+  // Show edit banner
+  let banner = $$('pf_editBanner');
+  if(banner) banner.style.display='flex';
+}
+
+function cancelEdit(){
+  _editPerfId = null;
+  clearPF();
+  const btn = document.querySelector('[onclick="submitPerf()"]');
+  if(btn){ btn.textContent='💾 Save Entry'; btn.style.background=''; }
+  const banner = $$('pf_editBanner');
+  if(banner) banner.style.display='none';
+}
+
 function chkVal(id){ const e=$$(id); return e?e.checked:false; }
 function submitPerf(){
   const u = perfUsers.find(x=>x.id===curUserId); if(!u) return;
@@ -1380,14 +1513,14 @@ function submitPerf(){
     // Scores
     sysScore: val('pf_sysScore'), teamScore: val('pf_teamScore'), appScore: val('pf_appScore'), status: val('pf_status'),
     // Network
-    internet: val('pf_internet'), dlSpeed: val('pf_dlSpeed'), ulSpeed: val('pf_ulSpeed'), dialpad: val('pf_dialpad'),
+    internet: val('pf_internet'), dlSpeed: val('pf_dlSpeed'), ulSpeed: val('pf_ulSpeed'), dialpad: (()=>{ const h=val('pf_dialpad_h')||'0', m=val('pf_dialpad_m')||'0', s=val('pf_dialpad_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(),
     // Timings
-    bios: val('pf_bios'), chrome: val('pf_chrome'), webpage: val('pf_webpage'),
+    bios: (()=>{ const h=val('pf_bios_h')||'0', m=val('pf_bios_m')||'0', s=val('pf_bios_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(), chrome: (()=>{ const h=val('pf_chrome_h')||'0', m=val('pf_chrome_m')||'0', s=val('pf_chrome_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(), webpage: (()=>{ const h=val('pf_webpage_h')||'0', m=val('pf_webpage_m')||'0', s=val('pf_webpage_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(),
     excel: (()=>{ const h=val('pf_excel_h')||'0', m=val('pf_excel_m')||'0', s=val('pf_excel_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(),
-    multitab: val('pf_multitab'), callQuality: val('pf_callQuality'),
+    multitab: (()=>{ const h=val('pf_multitab_h')||'0', m=val('pf_multitab_m')||'0', s=val('pf_multitab_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(), callQuality: val('pf_callQuality'),
     // Hardware
     procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
-    batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddTemp: val('pf_hddTemp'),
+    batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddTemp: val('pf_hddTemp'), hddTotal: val('pf_hddTotal'), hddUsed: val('pf_hddUsed'), hddFree: val('pf_hddFree'),
     mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'),
     workEnv: val('pf_workEnv'),
     // Checklist
@@ -1405,17 +1538,37 @@ function submitPerf(){
     // Legacy fields kept for dashboard compat
     cpu: parseFloat(val('pf_sysScore'))||0, mem: parseFloat(val('pf_teamScore'))||0, uptime: 0, resp: 0
   };
-  perfLogs.push(entry);
-  fbSave(COL.perfLogs, perfLogs[perfLogs.length-1]);
+  if(_editPerfId !== null){
+    // Edit mode — update existing entry
+    const idx = perfLogs.findIndex(x=>x.id===_editPerfId);
+    if(idx !== -1){
+      entry.id = _editPerfId;
+      perfLogs[idx] = entry;
+      fbSave(COL.perfLogs, entry);
+    }
+    _editPerfId = null;
+    const btn = document.querySelector('[onclick="submitPerf()"]');
+    if(btn){ btn.textContent='💾 Save Entry'; btn.style.background=''; }
+    const banner = $$('pf_editBanner');
+    if(banner) banner.style.display='none';
+  } else {
+    // New entry
+    perfLogs.push(entry);
+    fbSave(COL.perfLogs, perfLogs[perfLogs.length-1]);
+  }
   renderULog(curUserId); renderUGrid(); refreshPerfDash();
   flash('pf_ok'); clearPF();
 }
 function clearPF(){
   const ids = ['pf_date','pf_assetId','pf_team','pf_sysScore','pf_teamScore','pf_appScore',
-    'pf_dlSpeed','pf_ulSpeed','pf_dialpad','pf_bios','pf_chrome','pf_excel_h','pf_excel_m','pf_excel_s','pf_webpage',
+    'pf_dlSpeed','pf_ulSpeed','pf_hddTotal','pf_hddUsed','pf_hddFree',
     'pf_multitab','pf_procRam','pf_battery','pf_batDesign','pf_batFull','pf_hddTemp',
     'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg','pf_dualReason','pf_physDamageNote'];
   ids.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
+  // Clear all HH:MM:SS fields
+  ['pf_bios','pf_chrome','pf_webpage','pf_multitab','pf_dialpad','pf_excel'].forEach(p=>{
+    ['_h','_m','_s'].forEach(s=>{ const e=$$(p+s); if(e) e.value=''; });
+  });
   const sels = ['pf_status','pf_internet','pf_callQuality','pf_hddHealth','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
   sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
   const chks = ['pf_clearCache','pf_unwantedApp','pf_driverUpdate','pf_storage','pf_restorePoint',
