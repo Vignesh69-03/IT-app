@@ -447,7 +447,10 @@ document.dispatchEvent(new Event('firebase-ready'));
           <select id="pf_callQuality"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
         </div>
         <div class="fi"><label>Processor & RAM</label><input type="text" id="pf_procRam" placeholder="e.g. i5 / 8GB"/></div>
-        <div class="fi"><label>Battery % <span id="pf_batteryAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label><input type="number" id="pf_battery" placeholder="Auto from capacity" min="0" max="100" oninput="clearBatteryAuto()"/></div>
+        <div class="fi"><label>Battery % <span id="pf_batteryAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
+          <input type="number" id="pf_battery" placeholder="Auto from capacity" min="0" max="100" oninput="calcBatteryStatus()"/>
+          <div id="pf_batteryStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
+        </div>
       </div>
 
       <!-- ROW 5: Hardware -->
@@ -455,10 +458,11 @@ document.dispatchEvent(new Event('firebase-ready'));
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
         <div class="fi"><label>Battery mAh Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 45000 mWh" oninput="calcBattery()"/></div>
         <div class="fi"><label>Battery Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 38000 mWh" oninput="calcBattery()"/></div>
-        <div class="fi"><label>HDD Health</label>
-          <select id="pf_hddHealth"><option value="">Select</option><option>Good</option><option>Caution</option><option>Bad</option></select>
+        <div class="fi"><label>HDD Temperature (°C) <span id="pf_hddHealthAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
+          <input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0" oninput="calcHddHealth()"/>
+          <div id="pf_hddHealthStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
+          <input type="hidden" id="pf_hddHealth"/>
         </div>
-        <div class="fi"><label>HDD Temperature (°C)</label><input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0"/></div>
         <div class="fi"><label>HDD Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB" oninput="calcHddUsed()"/></div>
         <div class="fi"><label>HDD Used Storage <span id="pf_hddUsedAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label><input type="text" id="pf_hddUsed" placeholder="Auto: Total − Free" style="color:var(--accent2);font-weight:600;background:var(--surface2);" readonly/></div>
         <div class="fi"><label>HDD Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB" oninput="calcHddUsed()"/></div>
@@ -1400,7 +1404,6 @@ function clearDashFilters(){
 function calcBattery(){
   const designRaw = val('pf_batDesign');
   const fullRaw   = val('pf_batFull');
-  // Extract numeric value — strip units like mWh, mAh, Wh
   const extractNum = s => { const m = String(s).replace(/,/g,'').match(/[\d.]+/); return m ? parseFloat(m[0]) : null; };
   const design = extractNum(designRaw);
   const full   = extractNum(fullRaw);
@@ -1408,10 +1411,38 @@ function calcBattery(){
   const batEl  = $$('pf_battery');
   if(design && full && design > 0){
     const pct = Math.min(100, Math.round((full / design) * 100));
-    if(batEl){ batEl.value = pct; batEl.style.color = pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'; }
-    if(tag)   tag.style.display = 'inline';
+    if(batEl) batEl.value = pct;
+    if(tag) tag.style.display = 'inline';
+    calcBatteryStatus();
   } else {
     if(tag) tag.style.display = 'none';
+    const s=$$('pf_batteryStatus'); if(s) s.style.display='none';
+  }
+}
+
+// ── Battery status badge ──
+function calcBatteryStatus(){
+  const pct = parseFloat(val('pf_battery'));
+  const statusEl = $$('pf_batteryStatus');
+  const tagEl    = $$('pf_batteryAutoTag');
+  if(isNaN(pct)){ if(statusEl) statusEl.style.display='none'; return; }
+  let status, bg;
+  if(pct < 30){
+    status = 'Need to Change'; bg = 'var(--danger)';
+  } else if(pct <= 60){
+    status = 'Under Monitoring'; bg = 'var(--accent3)';
+  } else {
+    status = 'Good'; bg = 'var(--accent2)';
+  }
+  if(statusEl){
+    statusEl.style.display    = 'block';
+    statusEl.style.background = bg;
+    statusEl.style.color      = '#fff';
+    statusEl.textContent      = status + '  (' + pct + '%)';
+  }
+  if(tagEl){
+    tagEl.style.display = 'inline';
+    tagEl.style.color   = bg;
   }
 }
 
@@ -1435,10 +1466,51 @@ function calcHddUsed(){
   }
 }
 
+
+// ── HDD Health auto status — based on temperature only ──
+function calcHddHealth(){
+  const temp     = parseFloat(val('pf_hddTemp'));
+  const statusEl = $$('pf_hddHealthStatus');
+  const tagEl    = $$('pf_hddHealthAutoTag');
+  const hiddenEl = $$('pf_hddHealth');
+
+  if(isNaN(temp)){
+    if(statusEl) statusEl.style.display='none';
+    if(tagEl)    tagEl.style.display='none';
+    if(hiddenEl) hiddenEl.value='';
+    return;
+  }
+
+  // Rules (temperature only):
+  // Need to Change   : temp > 65°C
+  // Under Monitoring : temp 50°C – 65°C
+  // Good             : temp < 50°C
+  let status, bg;
+  if(temp > 65){
+    status = 'Need to Change';   bg = 'var(--danger)';
+  } else if(temp >= 50){
+    status = 'Under Monitoring'; bg = 'var(--accent3)';
+  } else {
+    status = 'Good';             bg = 'var(--accent2)';
+  }
+
+  if(statusEl){
+    statusEl.style.display    = 'block';
+    statusEl.style.background = bg;
+    statusEl.style.color      = '#fff';
+    statusEl.textContent      = status + '  (' + temp + '°C)';
+  }
+  if(tagEl){
+    tagEl.style.display = 'inline';
+    tagEl.style.color   = bg;
+  }
+  if(hiddenEl) hiddenEl.value = status;
+}
+
 function clearBatteryAuto(){
-  // User manually typed battery — hide auto tag
   const tag = $$('pf_batteryAutoTag');
   if(tag) tag.style.display='none';
+  const s = $$('pf_batteryStatus'); if(s) s.style.display='none';
 }
 
 function onPhysDamageChange(){
@@ -1484,8 +1556,10 @@ function editPerfEntry(id){
   setV('pf_battery',  l.battery);
   setV('pf_batDesign',l.batDesign);
   setV('pf_batFull',  l.batFull);
-  setV('pf_hddHealth',l.hddHealth);
+  if(l.battery) calcBatteryStatus();
   setV('pf_hddTemp',  l.hddTemp);
+  setV('pf_hddHealth', l.hddHealth);
+  calcHddHealth();
   setV('pf_hddTotal', l.hddTotal);
   setV('pf_hddUsed',  l.hddUsed);
   setV('pf_hddFree',  l.hddFree);
@@ -1615,7 +1689,14 @@ function clearPF(){
   ['pf_bios','pf_chrome','pf_webpage','pf_multitab','pf_dialpad','pf_excel'].forEach(p=>{
     ['_h','_m','_s'].forEach(s=>{ const e=$$(p+s); if(e) e.value=''; });
   });
-  const sels = ['pf_status','pf_internet','pf_callQuality','pf_hddHealth','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
+  // Clear battery status badge
+  const batStat = $$('pf_batteryStatus'); if(batStat){ batStat.style.display='none'; batStat.textContent=''; }
+  const batTag  = $$('pf_batteryAutoTag'); if(batTag) batTag.style.display='none';
+  // Clear HDD health auto fields
+  const hddStat = $$('pf_hddHealthStatus'); if(hddStat){ hddStat.style.display='none'; hddStat.textContent=''; }
+  const hddTag  = $$('pf_hddHealthAutoTag'); if(hddTag) hddTag.style.display='none';
+  const hddH = $$('pf_hddHealth'); if(hddH) hddH.value='';
+  const sels = ['pf_status','pf_internet','pf_callQuality','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
   sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
   const chks = ['pf_clearCache','pf_unwantedApp','pf_driverUpdate','pf_storage','pf_restorePoint',
     'pf_sfc','pf_appUpdate','pf_dataCross','pf_onedrive','pf_bitlocker','pf_sysPerfRestart'];
@@ -1745,25 +1826,32 @@ function refreshPerfDash(){
 
   // ── SSD/HDD Health ──
   const hddGood    = logs.filter(l=>l.hddHealth==='Good').length;
-  const hddCaution = logs.filter(l=>l.hddHealth==='Caution').length;
-  const hddBad     = logs.filter(l=>l.hddHealth==='Bad').length;
+  const hddMonitor = logs.filter(l=>l.hddHealth==='Under Monitoring').length;
+  const hddChange  = logs.filter(l=>l.hddHealth==='Need to Change').length;
   setHTML('pd_ssdSummary',
-    `${pill(hddGood+' Good','var(--accent2)')} ${pill(hddCaution+' Caution','var(--accent3)')} ${pill(hddBad+' Bad','var(--danger)')}`);
-  const hddWarn = logs.filter(l=>l.hddHealth==='Bad'||l.hddHealth==='Caution');
+    `${pill(hddGood+' Good','var(--accent2)')} ${pill(hddMonitor+' Under Monitoring','var(--accent3)')} ${pill(hddChange+' Need to Change','var(--danger)')}`);
+  const hddWarn = logs.filter(l=>l.hddHealth==='Under Monitoring'||l.hddHealth==='Need to Change');
   setHTML('pd_ssdList', hddWarn.length ? hddWarn.map(l=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
       <div><div style="font-size:13px;font-weight:600;">${l.userName}</div><div style="font-size:11px;color:var(--text3);">${l.assetId||'—'} · ${l.date||''}</div></div>
-      <div style="text-align:right;"><span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${l.hddHealth==='Bad'?'var(--danger)':'var(--accent3)'};color:#fff;">${l.hddHealth}</span>
+      <div style="text-align:right;"><span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};color:#fff;">${l.hddHealth}${l.hddTemp?' — '+l.hddTemp+'°C':''}</span>
         ${l.hddTemp?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.hddTemp}°C</div>`:''}
       </div>
     </div>`).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
 
   // ── Battery Health ──
   const bats = logs.filter(l=>l.battery&&!isNaN(parseFloat(l.battery)));
-  const avgBat = bats.length?(bats.reduce((s,l)=>s+parseFloat(l.battery),0)/bats.length).toFixed(0)+'%':'—';
-  const lowBat = logs.filter(l=>l.battery&&parseFloat(l.battery)<50);
-  setHTML('pd_batSummary',
-    `${pill('Avg '+avgBat,'var(--accent)')} ${pill(lowBat.length+' Below 50%',lowBat.length?'var(--danger)':'var(--accent2)')}`);
+  const avgBatNum = bats.length ? Math.round(bats.reduce((s,l)=>s+parseFloat(l.battery),0)/bats.length) : null;
+  const batChange  = bats.filter(l=>parseFloat(l.battery)<30).length;
+  const batMonitor = bats.filter(l=>parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60).length;
+  const batGood    = bats.filter(l=>parseFloat(l.battery)>60).length;
+  const avgBatCol  = avgBatNum===null?'var(--border)':avgBatNum>60?'var(--accent2)':avgBatNum>=30?'var(--accent3)':'var(--danger)';
+  setHTML('pd_batSummary', bats.length ?
+    pill((avgBatNum!==null?avgBatNum+'%':'—')+' Avg', avgBatCol) + ' ' +
+    pill(batGood+' Good','var(--accent2)') + ' ' +
+    pill(batMonitor+' Under Monitoring','var(--accent3)') + ' ' +
+    pill(batChange+' Need to Change','var(--danger)') :
+    '<span style="color:var(--text3);font-size:12px;">No data</span>');
   setHTML('pd_batList', bats.length ? [...bats].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
     const pct=parseFloat(l.battery); const col=pct<30?'var(--danger)':pct<50?'var(--accent3)':'var(--accent2)';
     return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${l.userName} <span style="color:var(--text3);font-size:11px;">${l.assetId||''}</span></span><span style="font-weight:700;color:${col};">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px;"><div style="height:5px;border-radius:3px;width:${pct}%;background:${col};"></div></div></div>`;
@@ -2616,7 +2704,7 @@ function openIssuePanel(type){
           ${l.dlSpeed?`<div style="font-size:12px;"><span style="color:var(--text3);">⬇ DL: </span><span style="color:var(--text);font-weight:600;">${l.dlSpeed} Mbps</span></div>`:''}
           ${l.ulSpeed?`<div style="font-size:12px;"><span style="color:var(--text3);">⬆ UL: </span><span style="color:var(--text);font-weight:600;">${l.ulSpeed} Mbps</span></div>`:''}
           ${l.battery?`<div style="font-size:12px;"><span style="color:var(--text3);">🔋 Battery: </span><span style="color:${parseFloat(l.battery)<50?'var(--danger)':'var(--accent2)'};font-weight:600;">${l.battery}%</span></div>`:''}
-          ${l.hddHealth?`<div style="font-size:12px;"><span style="color:var(--text3);">💾 HDD: </span><span style="color:${l.hddHealth==='Bad'?'var(--danger)':l.hddHealth==='Caution'?'var(--accent3)':'var(--accent2)'};font-weight:600;">${l.hddHealth}</span></div>`:''}
+          ${l.hddHealth?`<div style="font-size:12px;"><span style="color:var(--text3);">💾 HDD: </span><span style="color:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};font-weight:600;">${l.hddHealth}${l.hddTemp?' — '+l.hddTemp+'°C':''}</span></div>`:''}
           ${l.procRam?`<div style="font-size:12px;"><span style="color:var(--text3);">💻 Proc/RAM: </span><span style="color:var(--text);font-weight:600;">${l.procRam}</span></div>`:''}
         </div>
 
@@ -2684,7 +2772,7 @@ function openUserReport(userName){
   // Flags
   const poorCount = userLogs.filter(l=>l.status==='Poor'||l.status==='Critical').length;
   const dmgCount  = userLogs.filter(l=>l.physDamage&&l.physDamage!=='None'&&l.physDamage!=='').length;
-  const hddBad    = userLogs.filter(l=>l.hddHealth==='Bad').length;
+  const hddBad    = userLogs.filter(l=>l.hddHealth==='Need to Change'||l.hddHealth==='Under Monitoring').length;
   const hddCaution= userLogs.filter(l=>l.hddHealth==='Caution').length;
   const lowBat    = userLogs.filter(l=>l.battery&&parseFloat(l.battery)<50).length;
   const flags = [];
