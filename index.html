@@ -447,21 +447,21 @@ document.dispatchEvent(new Event('firebase-ready'));
           <select id="pf_callQuality"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
         </div>
         <div class="fi"><label>Processor & RAM</label><input type="text" id="pf_procRam" placeholder="e.g. i5 / 8GB"/></div>
-        <div class="fi"><label>Battery %</label><input type="number" id="pf_battery" placeholder="e.g. 85" min="0" max="100"/></div>
+        <div class="fi"><label>Battery % <span id="pf_batteryAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label><input type="number" id="pf_battery" placeholder="Auto from capacity" min="0" max="100" oninput="clearBatteryAuto()"/></div>
       </div>
 
       <!-- ROW 5: Hardware -->
       <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">💻 Hardware</h3>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-        <div class="fi"><label>Battery mAh Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 45000 mWh"/></div>
-        <div class="fi"><label>Battery Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 38000 mWh"/></div>
+        <div class="fi"><label>Battery mAh Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 45000 mWh" oninput="calcBattery()"/></div>
+        <div class="fi"><label>Battery Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 38000 mWh" oninput="calcBattery()"/></div>
         <div class="fi"><label>HDD Health</label>
           <select id="pf_hddHealth"><option value="">Select</option><option>Good</option><option>Caution</option><option>Bad</option></select>
         </div>
         <div class="fi"><label>HDD Temperature (°C)</label><input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0"/></div>
-        <div class="fi"><label>HDD Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB"/></div>
-        <div class="fi"><label>HDD Used Storage</label><input type="text" id="pf_hddUsed" placeholder="e.g. 320 GB"/></div>
-        <div class="fi"><label>HDD Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB"/></div>
+        <div class="fi"><label>HDD Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB" oninput="calcHddUsed()"/></div>
+        <div class="fi"><label>HDD Used Storage <span id="pf_hddUsedAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label><input type="text" id="pf_hddUsed" placeholder="Auto: Total − Free" style="color:var(--accent2);font-weight:600;background:var(--surface2);" readonly/></div>
+        <div class="fi"><label>HDD Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB" oninput="calcHddUsed()"/></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
         <div class="fi"><label>Mouse / Trackpad Status</label>
@@ -1395,6 +1395,52 @@ function clearDashFilters(){
   const user=$$('dashUser'); if(user) user.value='';
   refreshPerfDash();
 }
+
+// ── Battery % auto calculation ──
+function calcBattery(){
+  const designRaw = val('pf_batDesign');
+  const fullRaw   = val('pf_batFull');
+  // Extract numeric value — strip units like mWh, mAh, Wh
+  const extractNum = s => { const m = String(s).replace(/,/g,'').match(/[\d.]+/); return m ? parseFloat(m[0]) : null; };
+  const design = extractNum(designRaw);
+  const full   = extractNum(fullRaw);
+  const tag    = $$('pf_batteryAutoTag');
+  const batEl  = $$('pf_battery');
+  if(design && full && design > 0){
+    const pct = Math.min(100, Math.round((full / design) * 100));
+    if(batEl){ batEl.value = pct; batEl.style.color = pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'; }
+    if(tag)   tag.style.display = 'inline';
+  } else {
+    if(tag) tag.style.display = 'none';
+  }
+}
+
+// ── HDD Used auto calculation ──
+function calcHddUsed(){
+  const totalRaw = val('pf_hddTotal');
+  const freeRaw  = val('pf_hddFree');
+  const extractNum = s => { const m = String(s).replace(/,/g,'').match(/[\d.]+/); return m ? parseFloat(m[0]) : null; };
+  const extractUnit = s => { const m = String(s).match(/[A-Za-z]+/); return m ? m[0].toUpperCase() : 'GB'; };
+  const total = extractNum(totalRaw);
+  const free  = extractNum(freeRaw);
+  const unit  = extractUnit(totalRaw) || extractUnit(freeRaw) || 'GB';
+  const tag   = $$('pf_hddUsedAutoTag');
+  const usedEl= $$('pf_hddUsed');
+  if(total !== null && free !== null){
+    const used = Math.max(0, total - free);
+    if(usedEl){ usedEl.value = used.toFixed(1) + ' ' + unit; }
+    if(tag)   tag.style.display = 'inline';
+  } else {
+    if(tag) tag.style.display = 'none';
+  }
+}
+
+function clearBatteryAuto(){
+  // User manually typed battery — hide auto tag
+  const tag = $$('pf_batteryAutoTag');
+  if(tag) tag.style.display='none';
+}
+
 function onPhysDamageChange(){
   const v = val('pf_physDamage');
   const row = $$('pf_physDamageNoteRow');
