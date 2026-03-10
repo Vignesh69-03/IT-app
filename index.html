@@ -1377,6 +1377,7 @@ function renderULog(id){
     ${td(l.callQuality)}${td(l.dialpad?l.dialpad+'s':'—')}${td(l.workEnv)}
     <td style="padding:6px 10px;">${l.envImg?`<a href="${l.envImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
     ${td(l.mouse)}
+    <td style="padding:6px 10px;"><button onclick="editPerfEntry(${l.id})" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">✏️ Edit</button></td>
   </tr>`).join('');
 }
 
@@ -1480,9 +1481,8 @@ function editPerfEntry(id){
   const btn = document.querySelector('[onclick="submitPerf()"]');
   if(btn){ btn.textContent='💾 Update Entry'; btn.style.background='var(--accent3)'; }
 
-  // Scroll to top of form
-  const form = $$('v-perfForm');
-  if(form) form.scrollIntoView({behavior:'smooth'});
+  // Scroll to top of page
+  window.scrollTo({top:0, behavior:'smooth'});
 
   // Show edit banner
   let banner = $$('pf_editBanner');
