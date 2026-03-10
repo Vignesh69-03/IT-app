@@ -35,6 +35,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn-login:hover{background:#6a9ff8;} .btn-login:active{transform:scale(.98);}
 .lhint{margin-top:20px;text-align:center;font-size:12px;color:var(--text3);}
 .lhint span{color:var(--accent);}
+.chk-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:background .15s;}
+.chk-row:hover{background:var(--surface);}
+.chk-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent);}
 
 
 /* APP */
@@ -334,23 +337,139 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="ufsub">Submitting for: <strong id="uf_month" style="color:var(--accent3);">March 2026</strong></div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;">
-      <div class="fc">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:20px;">System Performance Metrics</h3>
-        <div class="fi" style="margin-bottom:15px;"><label>CPU Usage (%)</label><input type="number" id="pf_cpu" placeholder="e.g. 72" min="0" max="100"/></div>
-        <div class="fi" style="margin-bottom:15px;"><label>Memory Usage (%)</label><input type="number" id="pf_mem" placeholder="e.g. 58" min="0" max="100"/></div>
-        <div class="fi" style="margin-bottom:15px;"><label>Uptime (%)</label><input type="number" id="pf_uptime" placeholder="e.g. 99.9" min="0" max="100" step="0.1"/></div>
-        <div class="fi" style="margin-bottom:4px;"><label>Response Time (ms)</label><input type="number" id="pf_resp" placeholder="e.g. 142" min="0"/></div>
-        <div class="fa">
-          <button class="btn p" onclick="submitPerf()">Save Entry</button>
-          <button class="btn" onclick="clearPF()">Clear</button>
-          <span class="ok" id="pf_ok">✓ Saved</span>
+
+    <div class="fc" style="margin-bottom:18px;">
+      <!-- ROW 1: Basic Info -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">📋 Basic Information</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Date</label><input type="date" id="pf_date"/></div>
+        <div class="fi"><label>Asset ID</label><input type="text" id="pf_assetId" placeholder="e.g. AST-001"/></div>
+        <div class="fi"><label>Month</label><input type="text" id="pf_month2" readonly style="background:var(--surface);"/></div>
+        <div class="fi"><label>Team</label><input type="text" id="pf_team" placeholder="e.g. Support"/></div>
+      </div>
+
+      <!-- ROW 2: Scores & Status -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">📊 Scores & Status</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>System Score</label><input type="number" id="pf_sysScore" placeholder="0-100" min="0" max="100"/></div>
+        <div class="fi"><label>Team Based System Score</label><input type="number" id="pf_teamScore" placeholder="0-100" min="0" max="100"/></div>
+        <div class="fi"><label>Application Score</label><input type="number" id="pf_appScore" placeholder="0-100" min="0" max="100"/></div>
+        <div class="fi"><label>Status</label>
+          <select id="pf_status"><option value="">Select</option><option>Good</option><option>Average</option><option>Poor</option><option>Critical</option></select>
         </div>
       </div>
-      <div class="tw">
-        <div class="th"><h3 id="uf_logTitle">Logs</h3><span id="uf_logMonth" style="font-size:11.5px;color:var(--accent3);font-weight:600;"></span></div>
-        <table><thead><tr><th>Time</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Response</th></tr></thead>
-        <tbody id="uf_logTb"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px;">No entries yet</td></tr></tbody></table>
+
+      <!-- ROW 3: Network -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">🌐 Internet & Network</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Internet</label>
+          <select id="pf_internet"><option value="">Select</option><option>Connected</option><option>Disconnected</option><option>Intermittent</option></select>
+        </div>
+        <div class="fi"><label>Download Speed (Mbps)</label><input type="number" id="pf_dlSpeed" placeholder="e.g. 50.5" step="0.1" min="0"/></div>
+        <div class="fi"><label>Upload Speed (Mbps)</label><input type="number" id="pf_ulSpeed" placeholder="e.g. 20.3" step="0.1" min="0"/></div>
+        <div class="fi"><label>Dialpad Call Landing Time (s)</label><input type="number" id="pf_dialpad" placeholder="e.g. 3" step="0.1" min="0"/></div>
+      </div>
+
+      <!-- ROW 4: Performance Timings -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">⏱ Performance Timings</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Last BIOS Time (s)</label><input type="number" id="pf_bios" placeholder="e.g. 12" step="0.1" min="0"/></div>
+        <div class="fi"><label>Chrome Load Time (s)</label><input type="number" id="pf_chrome" placeholder="e.g. 3.5" step="0.1" min="0"/></div>
+        <div class="fi"><label>Excel Application Time (s)</label><input type="number" id="pf_excel" placeholder="e.g. 5.2" step="0.1" min="0"/></div>
+        <div class="fi"><label>Web Page Load Time (s)</label><input type="number" id="pf_webpage" placeholder="e.g. 2.1" step="0.1" min="0"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Multitab Changing Time (s)</label><input type="number" id="pf_multitab" placeholder="e.g. 1.5" step="0.1" min="0"/></div>
+        <div class="fi"><label>Call Quality</label>
+          <select id="pf_callQuality"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
+        </div>
+        <div class="fi"><label>Processor & RAM</label><input type="text" id="pf_procRam" placeholder="e.g. i5 / 8GB"/></div>
+        <div class="fi"><label>Battery %</label><input type="number" id="pf_battery" placeholder="e.g. 85" min="0" max="100"/></div>
+      </div>
+
+      <!-- ROW 5: Hardware -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">💻 Hardware</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Battery mAh Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 45000 mWh"/></div>
+        <div class="fi"><label>Battery Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 38000 mWh"/></div>
+        <div class="fi"><label>HDD Health</label>
+          <select id="pf_hddHealth"><option value="">Select</option><option>Good</option><option>Caution</option><option>Bad</option></select>
+        </div>
+        <div class="fi"><label>HDD Temperature (°C)</label><input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Mouse / Trackpad Status</label>
+          <select id="pf_mouse"><option value="">Select</option><option>Working</option><option>Issue</option><option>Not Present</option></select>
+        </div>
+        <div class="fi"><label>Dual Monitor</label>
+          <select id="pf_dualMonitor"><option value="">Select</option><option>Yes</option><option>No</option></select>
+        </div>
+        <div class="fi"><label>Any Physical Damage</label>
+          <select id="pf_physDamage"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
+        </div>
+        <div class="fi"><label>Work Environment</label>
+          <select id="pf_workEnv"><option value="">Select</option><option>Separate Room</option><option>Shared Space</option><option>Open Area</option></select>
+        </div>
+      </div>
+
+      <!-- ROW 6: Checklist -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">✅ Maintenance Checklist</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;">
+        <label class="chk-row"><input type="checkbox" id="pf_clearCache"/> Clear Cache &amp; Temp Files</label>
+        <label class="chk-row"><input type="checkbox" id="pf_unwantedApp"/> Check Unwanted Apps</label>
+        <label class="chk-row"><input type="checkbox" id="pf_driverUpdate"/> Driver Update</label>
+        <label class="chk-row"><input type="checkbox" id="pf_storage"/> Check Storage &amp; Remove Files</label>
+        <label class="chk-row"><input type="checkbox" id="pf_restorePoint"/> System Restore Point</label>
+        <label class="chk-row"><input type="checkbox" id="pf_sfc"/> SFC / CheckDisk CMD</label>
+        <label class="chk-row"><input type="checkbox" id="pf_appUpdate"/> Application Update</label>
+        <label class="chk-row"><input type="checkbox" id="pf_dataCross"/> Data Cross Check</label>
+        <label class="chk-row"><input type="checkbox" id="pf_onedrive"/> OneDrive Sync</label>
+        <label class="chk-row"><input type="checkbox" id="pf_bitlocker"/> Enable Bitlocker Encryption</label>
+        <label class="chk-row"><input type="checkbox" id="pf_sysPerfRestart"/> System Performance / Restarted</label>
+      </div>
+
+      <!-- ROW 7: Issues & Notes -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">📝 Issues & Notes</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Action Need to Take</label><textarea id="pf_action" placeholder="Describe actions required..."></textarea></div>
+        <div class="fi"><label>User Issues</label><textarea id="pf_userIssues" placeholder="Describe user reported issues..."></textarea></div>
+        <div class="fi"><label>Any Complaint</label><textarea id="pf_complaint" placeholder="Any complaints..."></textarea></div>
+        <div class="fi"><label>Reason</label><textarea id="pf_reason" placeholder="Reason for visit / check..."></textarea></div>
+      </div>
+
+      <!-- ROW 8: Image Upload -->
+      <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">📷 Images</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div class="fi"><label>Complaint Image (URL or filename)</label><input type="text" id="pf_complaintImg" placeholder="e.g. complaint_01.jpg or https://..."/></div>
+        <div class="fi"><label>Work Environment Picture (URL or filename)</label><input type="text" id="pf_envImg" placeholder="e.g. desk_setup.jpg or https://..."/></div>
+      </div>
+
+      <div class="fa">
+        <button class="btn p" onclick="submitPerf()">💾 Save Entry</button>
+        <button class="btn" onclick="clearPF()">Clear</button>
+        <span class="ok" id="pf_ok">✓ Saved</span>
+      </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="tw">
+      <div class="th"><h3 id="uf_logTitle">Logs</h3><span id="uf_logMonth" style="font-size:11.5px;color:var(--accent3);font-weight:600;"></span></div>
+      <div style="overflow-x:auto;">
+        <table style="min-width:1400px;"><thead><tr>
+          <th>S.No</th><th>Date</th><th>Asset ID</th><th>Month</th>
+          <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
+          <th>Team</th><th>User</th><th>Internet</th><th>DL(Mbps)</th><th>UL(Mbps)</th>
+          <th>Restarted</th><th>Action</th><th>User Issues</th><th>Phys Damage</th>
+          <th>Complaint Img</th><th>Cache</th><th>Unwanted App</th><th>Driver</th>
+          <th>Proc/RAM</th><th>Battery%</th><th>Bat Design</th><th>Bat Full</th>
+          <th>HDD Health</th><th>HDD Temp</th><th>Storage</th><th>Restore Pt</th>
+          <th>SFC/Disk</th><th>App Update</th><th>Data Cross</th><th>OneDrive</th>
+          <th>Bitlocker</th><th>Dual Mon</th><th>Reason</th><th>BIOS Time</th>
+          <th>Chrome(s)</th><th>Excel(s)</th><th>Web(s)</th><th>Multitab(s)</th>
+          <th>Call Quality</th><th>Dialpad(s)</th><th>Work Env</th><th>Env Img</th>
+          <th>Mouse</th>
+        </tr></thead>
+        <tbody id="uf_logTb"><tr><td colspan="46" style="text-align:center;color:var(--text3);padding:24px;">No entries yet</td></tr></tbody></table>
       </div>
     </div>
   </div>
@@ -1048,6 +1167,10 @@ function openUForm(id){
   setText('uf_month', month);
   setText('uf_logTitle', u.name+"'s Logs");
   setText('uf_logMonth', month);
+  // Set today's date and month
+  const today = new Date().toISOString().split('T')[0];
+  const dateEl = $$('pf_date'); if(dateEl) dateEl.value = today;
+  const mo2El  = $$('pf_month2'); if(mo2El) mo2El.value = month;
   renderULog(id);
   showView('perfForm');
 }
@@ -1056,34 +1179,85 @@ function renderULog(id){
   const month = getPerfMonth();
   const logs  = perfLogs.filter(l=>l.userId===id && l.month===month);
   if(!logs.length){
-    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:22px;">No entries for ${month}</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="46" style="text-align:center;color:var(--text3);padding:22px;">No entries for ${month}</td></tr>`;
     return;
   }
-  tb.innerHTML = [...logs].reverse().map(l=>`<tr>
-    <td>${l.time}</td>
-    <td style="color:${l.cpu>80?'var(--danger)':l.cpu>60?'var(--accent3)':'var(--accent2)'}">${l.cpu}%</td>
-    <td style="color:${l.mem>80?'var(--danger)':l.mem>60?'var(--accent3)':'var(--accent2)'}">${l.mem}%</td>
-    <td>${l.uptime?l.uptime+'%':'—'}</td>
-    <td>${l.resp?l.resp+' ms':'—'}</td>
+  const chk = v => v ? '✅' : '—';
+  const td  = v => `<td style="padding:6px 10px;white-space:nowrap;">${v||'—'}</td>`;
+  tb.innerHTML = [...logs].reverse().map((l,i)=>`<tr>
+    ${td(logs.length-i)}${td(l.date)}${td(l.assetId)}${td(l.month)}
+    ${td(l.sysScore)}${td(l.teamScore)}${td(l.appScore)}
+    <td style="padding:6px 10px;"><span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${l.status==='Good'?'var(--accent2)':l.status==='Critical'?'var(--danger)':l.status==='Poor'?'var(--accent3)':'var(--border)'};color:${l.status==='Good'||l.status==='Critical'?'#fff':'var(--text)'};">${l.status||'—'}</span></td>
+    ${td(l.team)}${td(l.userName)}${td(l.internet)}${td(l.dlSpeed?l.dlSpeed+' Mbps':'—')}${td(l.ulSpeed?l.ulSpeed+' Mbps':'—')}
+    ${td(chk(l.sysPerfRestart))}${td(l.action)}${td(l.userIssues)}${td(l.physDamage)}
+    <td style="padding:6px 10px;">${l.complaintImg?`<a href="${l.complaintImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
+    ${td(chk(l.clearCache))}${td(chk(l.unwantedApp))}${td(chk(l.driverUpdate))}
+    ${td(l.procRam)}${td(l.battery?l.battery+'%':'—')}${td(l.batDesign)}${td(l.batFull)}
+    ${td(l.hddHealth)}${td(l.hddTemp?l.hddTemp+'°C':'—')}${td(chk(l.storage))}${td(chk(l.restorePoint))}
+    ${td(chk(l.sfc))}${td(chk(l.appUpdate))}${td(chk(l.dataCross))}${td(chk(l.onedrive))}
+    ${td(chk(l.bitlocker))}${td(l.dualMonitor)}${td(l.reason)}${td(l.bios?l.bios+'s':'—')}
+    ${td(l.chrome?l.chrome+'s':'—')}${td(l.excel?l.excel+'s':'—')}${td(l.webpage?l.webpage+'s':'—')}${td(l.multitab?l.multitab+'s':'—')}
+    ${td(l.callQuality)}${td(l.dialpad?l.dialpad+'s':'—')}${td(l.workEnv)}
+    <td style="padding:6px 10px;">${l.envImg?`<a href="${l.envImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
+    ${td(l.mouse)}
   </tr>`).join('');
 }
+function chkVal(id){ const e=$$(id); return e?e.checked:false; }
 function submitPerf(){
-  const cpu    = parseFloat(val('pf_cpu'));
-  const mem    = parseFloat(val('pf_mem'));
-  const uptime = parseFloat(val('pf_uptime'));
-  const resp   = parseFloat(val('pf_resp'));
-  if(isNaN(cpu)||isNaN(mem)){ alert('Please fill in at least CPU and Memory.'); return; }
   const u = perfUsers.find(x=>x.id===curUserId); if(!u) return;
+  const assetId = val('pf_assetId').trim();
+  if(!assetId){ alert('Please enter an Asset ID.'); return; }
   const now   = new Date();
   const time  = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const month = getPerfMonth();
-  perfLogs.push({id:pId++, userId:curUserId, userName:u.name, cpu, mem,
-    uptime:isNaN(uptime)?0:uptime, resp:isNaN(resp)?0:resp, time, month, dateObj:new Date()});
+  const entry = {
+    id: pId++, userId: curUserId, userName: u.name, time, month, dateObj: new Date(),
+    // Basic
+    date: val('pf_date'), assetId, team: val('pf_team'),
+    // Scores
+    sysScore: val('pf_sysScore'), teamScore: val('pf_teamScore'), appScore: val('pf_appScore'), status: val('pf_status'),
+    // Network
+    internet: val('pf_internet'), dlSpeed: val('pf_dlSpeed'), ulSpeed: val('pf_ulSpeed'), dialpad: val('pf_dialpad'),
+    // Timings
+    bios: val('pf_bios'), chrome: val('pf_chrome'), excel: val('pf_excel'), webpage: val('pf_webpage'),
+    multitab: val('pf_multitab'), callQuality: val('pf_callQuality'),
+    // Hardware
+    procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
+    batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddTemp: val('pf_hddTemp'),
+    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), physDamage: val('pf_physDamage'),
+    workEnv: val('pf_workEnv'),
+    // Checklist
+    clearCache: chkVal('pf_clearCache'), unwantedApp: chkVal('pf_unwantedApp'),
+    driverUpdate: chkVal('pf_driverUpdate'), storage: chkVal('pf_storage'),
+    restorePoint: chkVal('pf_restorePoint'), sfc: chkVal('pf_sfc'),
+    appUpdate: chkVal('pf_appUpdate'), dataCross: chkVal('pf_dataCross'),
+    onedrive: chkVal('pf_onedrive'), bitlocker: chkVal('pf_bitlocker'),
+    sysPerfRestart: chkVal('pf_sysPerfRestart'),
+    // Issues
+    action: val('pf_action'), userIssues: val('pf_userIssues'),
+    complaint: val('pf_complaint'), reason: val('pf_reason'),
+    // Images
+    complaintImg: val('pf_complaintImg'), envImg: val('pf_envImg'),
+    // Legacy fields kept for dashboard compat
+    cpu: parseFloat(val('pf_sysScore'))||0, mem: parseFloat(val('pf_teamScore'))||0, uptime: 0, resp: 0
+  };
+  perfLogs.push(entry);
   fbSave(COL.perfLogs, perfLogs[perfLogs.length-1]);
   renderULog(curUserId); renderUGrid(); refreshPerfDash();
   flash('pf_ok'); clearPF();
 }
-function clearPF(){ ['pf_cpu','pf_mem','pf_uptime','pf_resp'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); }
+function clearPF(){
+  const ids = ['pf_date','pf_assetId','pf_team','pf_sysScore','pf_teamScore','pf_appScore',
+    'pf_dlSpeed','pf_ulSpeed','pf_dialpad','pf_bios','pf_chrome','pf_excel','pf_webpage',
+    'pf_multitab','pf_procRam','pf_battery','pf_batDesign','pf_batFull','pf_hddTemp',
+    'pf_action','pf_userIssues','pf_complaint','pf_reason','pf_complaintImg','pf_envImg'];
+  ids.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
+  const sels = ['pf_status','pf_internet','pf_callQuality','pf_hddHealth','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
+  sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
+  const chks = ['pf_clearCache','pf_unwantedApp','pf_driverUpdate','pf_storage','pf_restorePoint',
+    'pf_sfc','pf_appUpdate','pf_dataCross','pf_onedrive','pf_bitlocker','pf_sysPerfRestart'];
+  chks.forEach(id=>{ const e=$$(id); if(e) e.checked=false; });
+}
 
 // ══════════════════════════════════════════
 // PERF DASHBOARD
