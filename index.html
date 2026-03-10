@@ -446,26 +446,48 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Call Quality</label>
           <select id="pf_callQuality"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
         </div>
-        <div class="fi"><label>Processor & RAM</label><input type="text" id="pf_procRam" placeholder="e.g. i5 / 8GB"/></div>
-        <div class="fi"><label>Battery % <span id="pf_batteryAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
-          <input type="number" id="pf_battery" placeholder="Auto from capacity" min="0" max="100" oninput="calcBatteryStatus()"/>
-          <div id="pf_batteryStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
-        </div>
       </div>
 
       <!-- ROW 5: Hardware -->
       <h3 style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">💻 Hardware</h3>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-        <div class="fi"><label>Battery mAh Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 45000 mWh" oninput="calcBattery()"/></div>
-        <div class="fi"><label>Battery Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 38000 mWh" oninput="calcBattery()"/></div>
-        <div class="fi"><label>HDD Temperature (°C) <span id="pf_hddHealthAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
-          <input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0" oninput="calcHddHealth()"/>
-          <div id="pf_hddHealthStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
-          <input type="hidden" id="pf_hddHealth"/>
+
+      <!-- Group 1: Processor & RAM -->
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🖥 Processor</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div class="fi"><label>Processor & RAM</label><input type="text" id="pf_procRam" placeholder="e.g. i5-11th gen / 16GB"/></div>
         </div>
-        <div class="fi"><label>HDD Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB" oninput="calcHddUsed()"/></div>
-        <div class="fi"><label>HDD Used Storage <span id="pf_hddUsedAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label><input type="text" id="pf_hddUsed" placeholder="Auto: Total − Free" style="color:var(--accent2);font-weight:600;background:var(--surface2);" readonly/></div>
-        <div class="fi"><label>HDD Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB" oninput="calcHddUsed()"/></div>
+      </div>
+
+      <!-- Group 2: Battery -->
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🔋 Battery</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div class="fi"><label>Design Capacity</label><input type="text" id="pf_batDesign" placeholder="e.g. 61758 mWh" oninput="calcBattery()"/></div>
+          <div class="fi"><label>Full Charge Capacity</label><input type="text" id="pf_batFull" placeholder="e.g. 49430 mWh" oninput="calcBattery()"/></div>
+          <div class="fi"><label>Battery % <span id="pf_batteryAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
+            <input type="number" id="pf_battery" placeholder="Auto from capacity" min="0" max="100" oninput="calcBatteryStatus()"/>
+            <div id="pf_batteryStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group 3: HDD -->
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">💾 HDD / Storage</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div class="fi"><label>HDD Health % <span id="pf_hddHealthAutoTag" style="display:none;font-size:10px;font-weight:700;">⚡ Auto</span></label>
+            <input type="number" id="pf_hddHealthPct" placeholder="e.g. 92" min="0" max="100" oninput="calcHddHealth()"/>
+            <div id="pf_hddHealthStatus" style="margin-top:5px;display:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;"></div>
+            <input type="hidden" id="pf_hddHealth"/>
+          </div>
+          <div class="fi"><label>HDD Temperature (°C)</label><input type="number" id="pf_hddTemp" placeholder="e.g. 38" min="0"/></div>
+          <div class="fi"><label>Total Capacity</label><input type="text" id="pf_hddTotal" placeholder="e.g. 512 GB" oninput="calcHddUsed()"/></div>
+          <div class="fi"><label>Free Storage</label><input type="text" id="pf_hddFree" placeholder="e.g. 192 GB" oninput="calcHddUsed()"/></div>
+          <div class="fi"><label>Used Storage <span id="pf_hddUsedAutoTag" style="display:none;font-size:10px;color:var(--accent2);font-weight:600;">⚡ Auto</span></label>
+            <input type="text" id="pf_hddUsed" placeholder="Auto: Total − Free" style="color:var(--accent2);font-weight:600;background:var(--surface);" readonly/>
+          </div>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
         <div class="fi"><label>Mouse / Trackpad Status</label>
@@ -1467,28 +1489,31 @@ function calcHddUsed(){
 }
 
 
-// ── HDD Health auto status — based on temperature only ──
+// ── HDD Health auto status — based on health % ──
+// Need to Change   : below 50%
+// Under Monitoring : 50% to 80%
+// Good             : above 80%
+// Also: if temp > 65°C → Need to Change regardless
 function calcHddHealth(){
+  const pct      = parseFloat(val('pf_hddHealthPct'));
   const temp     = parseFloat(val('pf_hddTemp'));
   const statusEl = $$('pf_hddHealthStatus');
   const tagEl    = $$('pf_hddHealthAutoTag');
   const hiddenEl = $$('pf_hddHealth');
 
-  if(isNaN(temp)){
+  if(isNaN(pct)){
     if(statusEl) statusEl.style.display='none';
     if(tagEl)    tagEl.style.display='none';
     if(hiddenEl) hiddenEl.value='';
     return;
   }
 
-  // Rules (temperature only):
-  // Need to Change   : temp > 65°C
-  // Under Monitoring : temp 50°C – 65°C
-  // Good             : temp < 50°C
   let status, bg;
-  if(temp > 65){
+  const tempBad = !isNaN(temp) && temp > 65;
+
+  if(pct < 50 || tempBad){
     status = 'Need to Change';   bg = 'var(--danger)';
-  } else if(temp >= 50){
+  } else if(pct <= 80){
     status = 'Under Monitoring'; bg = 'var(--accent3)';
   } else {
     status = 'Good';             bg = 'var(--accent2)';
@@ -1498,7 +1523,7 @@ function calcHddHealth(){
     statusEl.style.display    = 'block';
     statusEl.style.background = bg;
     statusEl.style.color      = '#fff';
-    statusEl.textContent      = status + '  (' + temp + '°C)';
+    statusEl.textContent      = status + '  (' + pct + '%)' + (!isNaN(temp)?' — '+temp+'°C':'');
   }
   if(tagEl){
     tagEl.style.display = 'inline';
@@ -1557,8 +1582,9 @@ function editPerfEntry(id){
   setV('pf_batDesign',l.batDesign);
   setV('pf_batFull',  l.batFull);
   if(l.battery) calcBatteryStatus();
-  setV('pf_hddTemp',  l.hddTemp);
-  setV('pf_hddHealth', l.hddHealth);
+  setV('pf_hddTemp',    l.hddTemp);
+  setV('pf_hddHealthPct', l.hddHealthPct);
+  setV('pf_hddHealth',    l.hddHealth);
   calcHddHealth();
   setV('pf_hddTotal', l.hddTotal);
   setV('pf_hddUsed',  l.hddUsed);
@@ -1640,7 +1666,7 @@ function submitPerf(){
     multitab: (()=>{ const h=val('pf_multitab_h')||'0', m=val('pf_multitab_m')||'0', s=val('pf_multitab_s')||'0'; return (parseInt(h)||0)===0&&(parseInt(m)||0)===0&&(parseInt(s)||0)===0?'':String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); })(), callQuality: val('pf_callQuality'),
     // Hardware
     procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
-    batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddTemp: val('pf_hddTemp'), hddTotal: val('pf_hddTotal'), hddUsed: val('pf_hddUsed'), hddFree: val('pf_hddFree'),
+    batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddHealthPct: val('pf_hddHealthPct'), hddTemp: val('pf_hddTemp'), hddTotal: val('pf_hddTotal'), hddUsed: val('pf_hddUsed'), hddFree: val('pf_hddFree'),
     mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'),
     workEnv: val('pf_workEnv'),
     // Checklist
@@ -1695,6 +1721,7 @@ function clearPF(){
   // Clear HDD health auto fields
   const hddStat = $$('pf_hddHealthStatus'); if(hddStat){ hddStat.style.display='none'; hddStat.textContent=''; }
   const hddTag  = $$('pf_hddHealthAutoTag'); if(hddTag) hddTag.style.display='none';
+  const hddPct2 = $$('pf_hddHealthPct'); if(hddPct2) hddPct2.value='';
   const hddH = $$('pf_hddHealth'); if(hddH) hddH.value='';
   const sels = ['pf_status','pf_internet','pf_callQuality','pf_mouse','pf_dualMonitor','pf_physDamage','pf_workEnv'];
   sels.forEach(id=>{ const e=$$(id); if(e) e.value=''; });
