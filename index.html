@@ -1855,8 +1855,11 @@ function refreshPerfDash(){
   const hddGood    = logs.filter(l=>l.hddHealth==='Good').length;
   const hddMonitor = logs.filter(l=>l.hddHealth==='Under Monitoring').length;
   const hddChange  = logs.filter(l=>l.hddHealth==='Need to Change').length;
+  const clickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${col};color:#fff;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
   setHTML('pd_ssdSummary',
-    `${pill(hddGood+' Good','var(--accent2)')} ${pill(hddMonitor+' Under Monitoring','var(--accent3)')} ${pill(hddChange+' Need to Change','var(--danger)')}`);
+    clickPill(hddGood+' Good','var(--accent2)',"openHddPanel('Good')") + ' ' +
+    clickPill(hddMonitor+' Under Monitoring','var(--accent3)',"openHddPanel('Under Monitoring')") + ' ' +
+    clickPill(hddChange+' Need to Change','var(--danger)',"openHddPanel('Need to Change')"));
   const hddWarn = logs.filter(l=>l.hddHealth==='Under Monitoring'||l.hddHealth==='Need to Change');
   setHTML('pd_ssdList', hddWarn.length ? hddWarn.map(l=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
@@ -1873,11 +1876,12 @@ function refreshPerfDash(){
   const batMonitor = bats.filter(l=>parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60).length;
   const batGood    = bats.filter(l=>parseFloat(l.battery)>60).length;
   const avgBatCol  = avgBatNum===null?'var(--border)':avgBatNum>60?'var(--accent2)':avgBatNum>=30?'var(--accent3)':'var(--danger)';
+  const batClickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${col};color:#fff;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
   setHTML('pd_batSummary', bats.length ?
-    pill((avgBatNum!==null?avgBatNum+'%':'—')+' Avg', avgBatCol) + ' ' +
-    pill(batGood+' Good','var(--accent2)') + ' ' +
-    pill(batMonitor+' Under Monitoring','var(--accent3)') + ' ' +
-    pill(batChange+' Need to Change','var(--danger)') :
+    `<span style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${avgBatCol};color:#fff;">${avgBatNum!==null?avgBatNum+'%':'—'} Avg</span>` + ' ' +
+    batClickPill(batGood+' Good','var(--accent2)',"openBatPanel('Good')") + ' ' +
+    batClickPill(batMonitor+' Under Monitoring','var(--accent3)',"openBatPanel('Under Monitoring')") + ' ' +
+    batClickPill(batChange+' Need to Change','var(--danger)',"openBatPanel('Need to Change')") :
     '<span style="color:var(--text3);font-size:12px;">No data</span>');
   setHTML('pd_batList', bats.length ? [...bats].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
     const pct=parseFloat(l.battery); const col=pct<30?'var(--danger)':pct<50?'var(--accent3)':'var(--accent2)';
@@ -2774,6 +2778,103 @@ document.addEventListener('click', e=>{
   if(modal&&e.target===modal) closeIssuePanel();
 });
 
+
+// ── HDD pill click panel ──
+function openHddPanel(status){
+  const logs = getFilteredLogs();
+  const filtered = logs.filter(l=>l.hddHealth===status);
+  const col = status==='Good'?'var(--accent2)':status==='Under Monitoring'?'var(--accent3)':'var(--danger)';
+  const icon = status==='Good'?'✅':status==='Under Monitoring'?'⚠️':'🔴';
+  $$('hddBatModalTitle').innerHTML = `${icon} HDD — <span style="color:${col};">${status}</span>`;
+  $$('hddBatModalSub').textContent  = filtered.length + ' user' + (filtered.length===1?'':'s');
+  if(!filtered.length){
+    $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
+  } else {
+    $$('hddBatModalBody').innerHTML = filtered.map(l=>{
+      const hPct = l.hddHealthPct ? l.hddHealthPct+'%' : '—';
+      const temp  = l.hddTemp ? l.hddTemp+'°C' : '—';
+      const statCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
+      return `<div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;">${l.userName}</div>
+            <div style="font-size:11px;color:var(--text3);">${l.team||'—'} · ${l.assetId||'—'} · ${l.date||'—'}</div>
+          </div>
+          <span style="padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;background:${statCol};color:#fff;">${l.hddHealth}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">HEALTH %</div><div style="font-weight:700;color:${statCol};">${hPct}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">TEMPERATURE</div><div style="font-weight:700;color:${l.hddTemp&&parseFloat(l.hddTemp)>65?'var(--danger)':parseFloat(l.hddTemp)>=50?'var(--accent3)':'var(--accent2)'}">${temp}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">TOTAL / USED</div><div style="font-weight:700;">${l.hddTotal||'—'} / ${l.hddUsed||'—'}</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const m = $$('hddBatModal'); m.style.display='flex';
+}
+
+// ── Battery pill click panel ──
+function openBatPanel(status){
+  const logs = getFilteredLogs();
+  let filtered;
+  if(status==='Good')               filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)>60);
+  else if(status==='Under Monitoring') filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60);
+  else                              filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)<30);
+  const col  = status==='Good'?'var(--accent2)':status==='Under Monitoring'?'var(--accent3)':'var(--danger)';
+  const icon = status==='Good'?'✅':status==='Under Monitoring'?'⚠️':'🔴';
+  $$('hddBatModalTitle').innerHTML = `${icon} Battery — <span style="color:${col};">${status}</span>`;
+  $$('hddBatModalSub').textContent  = filtered.length + ' user' + (filtered.length===1?'':'s');
+  if(!filtered.length){
+    $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
+  } else {
+    $$('hddBatModalBody').innerHTML = [...filtered].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
+      const pct = parseFloat(l.battery);
+      const batCol = pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
+      const barW = Math.min(100,pct);
+      return `<div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;">${l.userName}</div>
+            <div style="font-size:11px;color:var(--text3);">${l.team||'—'} · ${l.assetId||'—'} · ${l.date||'—'}</div>
+          </div>
+          <span style="font-size:20px;font-weight:800;color:${batCol};">${pct}%</span>
+        </div>
+        <div style="height:8px;background:var(--border);border-radius:4px;margin-bottom:8px;">
+          <div style="height:8px;border-radius:4px;width:${barW}%;background:${batCol};transition:width .3s;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">STATUS</div><div style="font-weight:700;color:${batCol};">${status}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">DESIGN CAP</div><div style="font-weight:600;">${l.batDesign||'—'}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">FULL CHARGE</div><div style="font-weight:600;">${l.batFull||'—'}</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const m = $$('hddBatModal'); m.style.display='flex';
+}
+
+function closeHddBatModal(){
+  const m=$$('hddBatModal'); if(m) m.style.display='none';
+}
+
+// helper — get currently filtered logs for panel
+function getFilteredLogs(){
+  const month  = val('dashMonth');
+  const from   = val('dashFrom');
+  const to     = val('dashTo');
+  const team   = val('dashTeam');
+  const user   = val('dashUser');
+  let logs = [...perfLogs];
+  if(month)  logs=logs.filter(l=>l.month===month);
+  if(from)   logs=logs.filter(l=>l.date>=from);
+  if(to)     logs=logs.filter(l=>l.date<=to);
+  if(team&&team!=='ALL'&&team!=='DAY'&&team!=='NIGHT') logs=logs.filter(l=>l.team===team);
+  else if(team==='DAY')   logs=logs.filter(l=>l.team&&l.team.startsWith('Day'));
+  else if(team==='NIGHT') logs=logs.filter(l=>l.team&&l.team.startsWith('Night'));
+  if(user&&user!=='all')  logs=logs.filter(l=>l.userName===user);
+  return logs;
+}
+
 function openUserReport(userName){
   _reportUserName = userName;
   const userLogs = perfLogs.filter(l=>l.userName===userName);
@@ -3247,6 +3348,20 @@ window.addEventListener('load', async ()=>{
     </div>
     <!-- User Cards -->
     <div id="ip_body" style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- HDD / Battery Panel Modal -->
+<div id="hddBatModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;" onclick="if(event.target===this)closeHddBatModal()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;padding:24px;position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div id="hddBatModalTitle" style="font-size:16px;font-weight:700;color:var(--text);"></div>
+        <div id="hddBatModalSub" style="font-size:12px;color:var(--text3);margin-top:2px;"></div>
+      </div>
+      <button onclick="closeHddBatModal()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="hddBatModalBody"></div>
   </div>
 </div>
 </body>
