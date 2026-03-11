@@ -811,10 +811,11 @@ document.dispatchEvent(new Event('firebase-ready'));
         <thead><tr style="border-bottom:1px solid var(--border);">
           <th class="th-s">Asset ID</th><th class="th-s">Laptop User</th><th class="th-s">Model</th>
           <th class="th-s">Serial No</th><th class="th-s">Brand</th><th class="th-s">Processor</th>
-          <th class="th-s">RAM</th><th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">RAM</th><th class="th-s">Warranty</th><th class="th-s">Warranty End</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Custom Fields</th>
           <th class="th-s">Service</th><th class="th-s" style="min-width:160px;"></th>
         </tr></thead>
-        <tbody id="av_assignedTb"><tr><td colspan="11" class="td-empty">No laptop assets yet — add via Asset Entry tab</td></tr></tbody>
+        <tbody id="av_assignedTb"><tr><td colspan="12" class="td-empty">No laptop assets yet — add via Asset Entry tab</td></tr></tbody>
       </table>
       </div>
     </div>
@@ -829,6 +830,7 @@ document.dispatchEvent(new Event('firebase-ready'));
           <th class="th-s">Serial No</th><th class="th-s">Brand</th><th class="th-s">Headset</th><th class="th-s">UPS</th>
           <th class="th-s">Keyboard</th><th class="th-s">Mouse</th>
           <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Custom Fields</th>
           <th class="th-s">Service</th><th class="th-s" style="min-width:160px;"></th>
         </tr></thead>
         <tbody id="av_supportTb"><tr><td colspan="13" class="td-empty">No supporting assets yet</td></tr></tbody>
@@ -848,6 +850,8 @@ document.dispatchEvent(new Event('firebase-ready'));
           <th class="th-s">Headset</th><th class="th-s">Mouse</th><th class="th-s">Keyboard</th>
           <th class="th-s">Collected</th><th class="th-s">Reason</th>
           <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Vendor</th>
+          <th class="th-s">Custom Fields</th>
           <th class="th-s">Service</th><th class="th-s" style="min-width:130px;"></th>
         </tr></thead>
         <tbody id="av_backupTb"><tr><td colspan="17" class="td-empty">No backup assets yet</td></tr></tbody>
@@ -862,8 +866,9 @@ document.dispatchEvent(new Event('firebase-ready'));
       <table style="width:100%;border-collapse:collapse;min-width:900px;">
         <thead><tr style="border-bottom:1px solid var(--border);">
           <th class="th-s">Asset ID</th><th class="th-s">Prev User</th><th class="th-s">Serial No</th>
-          <th class="th-s">Brand</th><th class="th-s">Reason</th><th class="th-s">Date</th>
-          <th class="th-s">Warranty</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Brand</th><th class="th-s">Moving Reason</th><th class="th-s">Date</th>
+          <th class="th-s">Warranty</th><th class="th-s">Warranty End</th><th class="th-s">Purchase Date</th>
+          <th class="th-s">Custom Fields</th>
           <th class="th-s">Service</th><th class="th-s">Notes</th><th class="th-s" style="min-width:80px;"></th>
         </tr></thead>
         <tbody id="av_deadTb"><tr><td colspan="11" class="td-empty">No dead assets</td></tr></tbody>
@@ -909,8 +914,16 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Processor</label><input id="ae_proc" placeholder="e.g. Intel i7-1265U"/></div>
             <div class="fi"><label>RAM</label><input id="ae_ram" placeholder="e.g. 16GB DDR5"/></div>
             <div class="fi"><label>Warranty</label><input id="ae_warranty" placeholder="e.g. 3 years"/></div>
+            <div class="fi"><label>Warranty End Date</label><input type="date" id="ae_warrantyEnd" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Purchase Date</label><input type="date" id="ae_purchaseDate" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Laptop User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
+          </div>
+          <!-- Custom Fields: Laptop -->
+          <div id="cf_assigned_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_assigned" onclick="openColManager('assigned')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_assigned_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
           </div>
         </div>
 
@@ -927,13 +940,16 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Keyboard</label><input id="ae_skeyboard" placeholder="e.g. Dell KB216"/></div>
             <div class="fi"><label>Mouse</label><input id="ae_smouse" placeholder="e.g. Logitech M100"/></div>
             <div class="fi"><label>Warranty</label><input id="ae_swarranty" placeholder="e.g. 1 year"/></div>
+            <div class="fi"><label>Warranty End Date</label><input type="date" id="ae_swarrantyEnd" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Purchase Date</label><input type="date" id="ae_spurchaseDate" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
-            <div class="fi" style="grid-column:span 3;">
-              <label style="display:flex;align-items:center;gap:8px;">Customize <button onclick="toggleSACustom()" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;text-decoration:underline;">+ Add Custom Field</button></label>
-              <div id="saCustomFields" style="display:none;margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
-              <button id="saAddCustomBtn" onclick="addSACustomField()" style="display:none;margin-top:6px;font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;">+ Add another field</button>
+          </div>
+          <!-- Custom Fields: Supporting -->
+          <div id="cf_supporting_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_supporting" onclick="openColManager('supporting')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
             </div>
+            <div id="cf_supporting_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
           </div>
         </div>
 
@@ -948,6 +964,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Processor</label><input id="ae_bproc" placeholder="e.g. AMD Ryzen 5"/></div>
             <div class="fi"><label>RAM</label><input id="ae_bram" placeholder="e.g. 8GB DDR4"/></div>
             <div class="fi"><label>Warranty</label><input id="ae_bwarranty" placeholder="e.g. 1 year"/></div>
+            <div class="fi"><label>Warranty End Date</label><input type="date" id="ae_bwarrantyEnd" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Purchase Date</label><input type="date" id="ae_bpurchaseDate" style="color-scheme:dark;"/></div>
           </div>
           <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">🔧 Supporting Peripherals</div>
@@ -969,6 +986,24 @@ document.dispatchEvent(new Event('firebase-ready'));
             </div>
             <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_bnotes" placeholder="Any notes about this backup asset"/></div>
           </div>
+          <!-- Vendor Details: Backup -->
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;margin-top:4px;padding-bottom:6px;border-bottom:1px solid var(--border);">🏪 Vendor Details</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div class="fi"><label>Vendor Name</label><input id="ae_bvendorName" placeholder="e.g. Ingram Micro"/></div>
+            <div class="fi"><label>Vendor Contact Person</label><input id="ae_bvendorContact" placeholder="e.g. Ravi Kumar"/></div>
+            <div class="fi"><label>Vendor Phone</label><input id="ae_bvendorPhone" placeholder="e.g. +91 98765 43210"/></div>
+            <div class="fi"><label>Vendor Email</label><input id="ae_bvendorEmail" placeholder="e.g. vendor@example.com"/></div>
+            <div class="fi"><label>Invoice Number</label><input id="ae_bvendorInvoice" placeholder="e.g. INV-2024-0089"/></div>
+            <div class="fi"><label>Purchase Price</label><input id="ae_bvendorPrice" placeholder="e.g. ₹45,000"/></div>
+          </div>
+
+          <!-- Custom Fields: Backup -->
+          <div id="cf_backup_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_backup" onclick="openColManager('backup')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_backup_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+          </div>
         </div>
 
         <!-- DEAD fields -->
@@ -979,11 +1014,33 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Serial Number</label><input id="ae_dserial" placeholder="e.g. SN-12345"/></div>
             <div class="fi"><label>Brand</label><input id="ae_dbrand" placeholder="e.g. Dell"/></div>
             <div class="fi"><label>Previous User</label><input id="ae_duser" placeholder="Last person who used it"/></div>
-            <div class="fi"><label>Reason</label><input id="ae_dreason" placeholder="e.g. Screen broken, HDD failure"/></div>
+            <div class="fi"><label>Moving Reason <span style="color:var(--danger);font-size:10px;">Why moved to Dead</span></label>
+              <select id="ae_dreason" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">Select reason</option>
+                <option>Screen Broken</option>
+                <option>HDD Failure</option>
+                <option>Motherboard Failure</option>
+                <option>Battery Dead</option>
+                <option>Water Damage</option>
+                <option>Stolen</option>
+                <option>Beyond Repair</option>
+                <option>Employee Left</option>
+                <option>Upgraded / Replaced</option>
+                <option>Other</option>
+              </select>
+            </div>
             <div class="fi"><label>Date</label><input type="date" id="ae_ddate" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Warranty</label><input id="ae_dwarranty" placeholder="e.g. Expired"/></div>
+            <div class="fi"><label>Warranty End Date</label><input type="date" id="ae_dwarrantyEnd" style="color-scheme:dark;"/></div>
             <div class="fi"><label>Purchase Date</label><input type="date" id="ae_dpurchaseDate" style="color-scheme:dark;"/></div>
             <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
+          </div>
+          <!-- Custom Fields: Dead -->
+          <div id="cf_dead_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_dead" onclick="openColManager('dead')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_dead_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
           </div>
         </div>
 
@@ -1179,6 +1236,99 @@ function setText(id,v){ const e=$$( id); if(e) e.textContent=v; }
 function setHTML(id,v){ const e=$$(id); if(e) e.innerHTML=v; }
 function val(id){ const e=$$(id); return e?e.value:''; }
 function fmt(n){ return (n||0).toLocaleString(undefined,{maximumFractionDigits:0}); }
+
+// ── Celebration Popup ────────────────────────────────
+let _lastSubmitBtn = null;
+
+function celebrate(msg='Saved!', sub=''){
+  const old=$$('successToast'); if(old) old.remove();
+
+  if(!$$('successToastStyles')){
+    const s=document.createElement('style'); s.id='successToastStyles';
+    s.textContent=`
+      @keyframes toastIn {
+        0%   { transform:translateX(120%); opacity:0; }
+        60%  { transform:translateX(-8px); opacity:1; }
+        100% { transform:translateX(0); opacity:1; }
+      }
+      @keyframes toastOut {
+        0%   { transform:translateX(0); opacity:1; }
+        100% { transform:translateX(120%); opacity:0; }
+      }
+      @keyframes checkPop {
+        0%   { transform:scale(0); opacity:0; }
+        60%  { transform:scale(1.2); opacity:1; }
+        100% { transform:scale(1); opacity:1; }
+      }
+      @keyframes toastProgress {
+        from { width:100%; }
+        to   { width:0%; }
+      }
+      @keyframes glowFade {
+        0%,100% { opacity:.6; }
+        50%     { opacity:1; }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  const toast = document.createElement('div');
+  toast.id = 'successToast';
+  toast.style.cssText = `
+    position:fixed;
+    bottom:32px;
+    right:28px;
+    z-index:99999;
+    width:320px;
+    background:rgba(10,20,14,.82);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(56,217,120,.25);
+    border-radius:16px;
+    padding:14px 16px 10px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:0 8px 32px rgba(0,0,0,.55), 0 0 0 1px rgba(56,217,120,.08), inset 0 1px 0 rgba(255,255,255,.05);
+    animation:toastIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
+    overflow:hidden;
+  `;
+
+  toast.innerHTML = `
+    <!-- Green glow behind icon -->
+    <div style="position:relative;flex-shrink:0;">
+      <div style="position:absolute;inset:-6px;border-radius:14px;background:radial-gradient(circle,rgba(56,217,120,.35),transparent 70%);animation:glowFade 2s infinite;"></div>
+      <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#1a6b3a,#22c55e);display:grid;place-items:center;position:relative;box-shadow:0 4px 14px rgba(34,197,94,.4);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation:checkPop .4s .2s cubic-bezier(.34,1.56,.64,1) both;">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.1px;">${msg}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.42);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sub||'Successfully saved to Firebase'}</div>
+    </div>
+
+    <!-- Close -->
+    <button onclick="(function(){const t=document.getElementById('successToast');if(t){t.style.animation='toastOut .35s ease forwards';setTimeout(()=>t.remove(),350);}})()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;transition:color .2s;" onmouseenter="this.style.color='rgba(255,255,255,.7)'" onmouseleave="this.style.color='rgba(255,255,255,.3)'">✕</button>
+
+    <!-- Progress bar -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.06);">
+      <div style="height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);animation:toastProgress 2.8s .3s linear forwards;border-radius:0 0 0 0;"></div>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+
+  setTimeout(()=>{
+    if(!$$('successToast')) return;
+    toast.style.animation='toastOut .35s ease forwards';
+    setTimeout(()=>toast.remove(), 350);
+  }, 3100);
+}
+// ─────────────────────────────────────────────────────
 function flash(id){ const e=$$(id); if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);} }
 
 // ══════════════════════════════════════════
@@ -1379,6 +1529,7 @@ function createSysCheck(){
   const n=$$('sc_name'); if(n) n.value='';
   const m=$$('sc_months'); if(m) m.value='';
   renderSCGrid();
+  _lastSubmitBtn=document.querySelector('[onclick="createSysCheck()"]'); celebrate('System Check Created!', sc.name);
 }
 
 function deleteSysCheck(id){
@@ -1433,6 +1584,7 @@ function addPerfUser(){
   fbSave(COL.perf, newU);
   inp.value='';
   renderUGrid();
+  _lastSubmitBtn=document.querySelector('[onclick="addPerfUser()"]'); celebrate('User Added!', name + ' added to this check');
 }
 function delPerfUser(id,ev){
   if(!isAdmin()){ denyAccess("Only Admin can delete performance users."); return; }
@@ -1829,7 +1981,7 @@ function submitPerf(){
     fbSave(COL.perfLogs, perfLogs[perfLogs.length-1]);
   }
   renderULog(curUserId); renderUGrid(); refreshPerfDash();
-  flash('pf_ok'); clearPF();
+  flash('pf_ok'); _lastSubmitBtn=document.querySelector('[onclick="submitPerf()"]'); clearPF(); celebrate('Entry Saved!','Performance entry saved successfully');
 }
 function clearPF(){
   const ids = ['pf_date','pf_assetId','pf_team','pf_sysScore','pf_teamScore','pf_appScore',
@@ -1995,14 +2147,20 @@ function refreshPerfDash(){
     clickPill(hddGood+' Good','var(--accent2)',"openHddPanel('Good')") + ' ' +
     clickPill(hddMonitor+' Under Monitoring','var(--accent3)',"openHddPanel('Under Monitoring')") + ' ' +
     clickPill(hddChange+' Need to Change','var(--danger)',"openHddPanel('Need to Change')"));
+  const hddAll = logs.filter(l=>l.hddHealth);
   const hddWarn = logs.filter(l=>l.hddHealth==='Under Monitoring'||l.hddHealth==='Need to Change');
-  setHTML('pd_ssdList', hddWarn.length ? hddWarn.map(l=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-      <div><div style="font-size:13px;font-weight:600;">${l.userName}</div><div style="font-size:11px;color:var(--text3);">${l.assetId||'—'} · ${l.date||''}</div></div>
-      <div style="text-align:right;"><span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};color:#fff;">${l.hddHealth}${l.hddTemp?' — '+l.hddTemp+'°C':''}</span>
-        ${l.hddTemp?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.hddTemp}°C</div>`:''}
+  setHTML('pd_ssdList', hddAll.length ? hddAll.map(l=>{
+    const hCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
+    return `<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:var(--surface2);border-left:3px solid ${hCol};">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:13px;font-weight:600;">${l.userName}</div><div style="font-size:11px;color:var(--text3);">${l.assetId||'—'} · ${l.date||''}</div></div>
+        <div style="text-align:right;">
+          <span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${hCol};color:#fff;">${l.hddHealth}${l.hddHealthPct?' — '+l.hddHealthPct+'%':''}</span>
+          ${l.hddTemp?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">🌡 ${l.hddTemp}°C</div>`:''}
+        </div>
       </div>
-    </div>`).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
+    </div>`;
+  }).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
 
   // ── Battery Health ──
   const bats = logs.filter(l=>l.battery&&!isNaN(parseFloat(l.battery)));
@@ -2019,8 +2177,18 @@ function refreshPerfDash(){
     batClickPill(batChange+' Need to Change','var(--danger)',"openBatPanel('Need to Change')") :
     '<span style="color:var(--text3);font-size:12px;">No data</span>');
   setHTML('pd_batList', bats.length ? [...bats].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
-    const pct=parseFloat(l.battery); const col=pct<30?'var(--danger)':pct<50?'var(--accent3)':'var(--accent2)';
-    return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${l.userName} <span style="color:var(--text3);font-size:11px;">${l.assetId||''}</span></span><span style="font-weight:700;color:${col};">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px;"><div style="height:5px;border-radius:3px;width:${pct}%;background:${col};"></div></div></div>`;
+    const pct=parseFloat(l.battery);
+    const col=pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
+    const statusLabel=pct<30?'Need to Change':pct<=60?'Under Monitoring':'Good';
+    return `<div style="margin-bottom:10px;padding:8px 10px;border-radius:8px;background:var(--surface2);border-left:3px solid ${col};">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="font-weight:600;">${l.userName} <span style="color:var(--text3);font-size:11px;">${l.assetId||''}</span></span>
+        <span style="font-weight:700;color:${col};">${pct}% — ${statusLabel}</span>
+      </div>
+      <div style="height:5px;background:var(--border);border-radius:3px;">
+        <div style="height:5px;border-radius:3px;width:${pct}%;background:${col};transition:width .4s;"></div>
+      </div>
+    </div>`;
   }).join('') : '<div style="color:var(--text3);font-size:13px;">No battery data</div>');
 
   // ── Per-User Score Table ──
@@ -2093,7 +2261,7 @@ function createUser(){
   const created = d.toLocaleString('default',{month:'short'})+' '+d.getDate()+', '+d.getFullYear();
   loginAccounts.push({id:acctId++,name,email:email||'',username:email||user,password:pass,role,created});
   fbSave(COL.accounts, loginAccounts[loginAccounts.length-1]);
-  renderAccounts(); flash('um_ok'); clearUM();
+  renderAccounts(); flash('um_ok'); clearUM(); _lastSubmitBtn=document.querySelector('[onclick="createUser()"]'); celebrate('Account Created!','Login account added successfully');
 }
 function delUser(id){
   if(!isAdmin()){ denyAccess("Only Admin can delete user accounts."); return; }
@@ -2108,7 +2276,8 @@ function clearUM(){ ['um_name','um_email','um_user','um_pass'].forEach(id=>{ con
 function showPass(btn,pass){ const s=btn.previousElementSibling; const p=typeof pass==='string'?pass:String(pass||''); if(btn.textContent==='show'){s.textContent=p;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(p.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
 function renderAccounts(){
   const tb = $$('um_tb'); if(!tb) return;
-  tb.innerHTML = loginAccounts.map(a=>{
+  // Hide built-in admin (id===0) from the list
+  tb.innerHTML = loginAccounts.filter(a=>a.id!==0).map(a=>{
     const pw = String(a.password||'');
     const emailCell = a.email ? `<span style="color:var(--accent2);font-size:12px;">${a.email}</span>` : `<span style="color:var(--text3);font-size:11px;">—</span>`;
     const pwCell = `<span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min(pw.length,8))}</span>
@@ -2141,6 +2310,11 @@ let backupLogs   = []; // backup: {id,fromType,assetId,model,serial,brand,proc,r
 let deadLogs     = []; // dead: {id,assetId,serial,brand,prevUser,reason,date,warranty,purchaseDate,notes,services:[]}
 let aId=1, sId=1, bId=1, dId=1;
 let saCustomCount=0;
+// Unified custom field counter per form type
+const cfCount={assigned:0, supporting:0, backup:0, dead:0};
+// Custom column templates — saved per form type in Firebase
+// e.g. {assigned:['IP Address','Location'], supporting:['Condition'], ...}
+let customColTemplates = {assigned:[], supporting:[], backup:[], dead:[]};
 let curEditId=null, curEditType=null;
 let curMoveId=null, curMoveType=null;
 let curAssignId=null, curAssignType=null;
@@ -2258,6 +2432,15 @@ const actBtns=(editFn,extra)=>`<td style="padding:7px 11px;white-space:nowrap;di
 </td>`;
 
 // ── LAPTOP DETAILS (Tab 1) ──
+// Render custom fields as small tags in a table cell
+function renderCustomCells(custom){
+  if(!custom||!Object.keys(custom).length) return '<td style="padding:9px 11px;font-size:12px;color:var(--text3);">—</td>';
+  return '<td style="padding:6px 8px;max-width:200px;">' +
+    Object.entries(custom).map(([k,v])=>
+      `<div style="font-size:11px;background:var(--surface2);border-radius:4px;padding:2px 7px;margin-bottom:3px;"><span style="color:var(--text3);">${k}:</span> <span style="color:var(--text);font-weight:600;">${v}</span></div>`
+    ).join('') + '</td>';
+}
+
 function renderAssigned(){
   const tb=$$('av_assignedTb'); if(!tb) return;
   const list=assignedLogs.filter(a=>matchSearch(a.assetId));
@@ -2265,7 +2448,10 @@ function renderAssigned(){
   if(!list.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">${assetSearchQ?'No results':'No laptops yet — add via Asset Entry tab'}</td></tr>`; return; }
   tb.innerHTML=[...list].reverse().map(a=>TROW(
     TDM(a.assetId)+userCell(a.userName,a.id,'assigned')+
-    TD(a.model)+TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.ram)+TD(a.warranty)+TD(a.purchaseDate)+
+    TD(a.model)+TDM(a.serial)+TD(a.brand)+TD(a.proc)+TD(a.ram)+TD(a.warranty)+
+    `<td style="padding:9px 11px;font-size:13px;color:${a.warrantyEnd&&new Date(a.warrantyEnd)<new Date()?'var(--danger)':a.warrantyEnd&&new Date(a.warrantyEnd)<new Date(Date.now()+30*24*60*60*1000)?'var(--accent3)':'var(--text2)'};">${a.warrantyEnd||'—'}</td>`+
+    TD(a.purchaseDate)+
+    renderCustomCells(a.custom)+
     svcBadge(a.services,a.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       ${isEditor()?`<button class="act-btn" onclick="openEdit(${a.id},'assigned')" style="margin-right:3px;">Edit</button>`:''}
@@ -2287,6 +2473,7 @@ function renderSupporting(){
     TDM(s.assetId)+userCell(s.userName,s.id,'supporting')+
     `<td style="padding:9px 11px;font-size:12px;color:var(--accent);font-weight:600;">${s.laptop||'—'}</td>`+
     TDM(s.serial)+TD(s.brand)+TD(s.headset)+TD(s.ups)+TD(s.keyboard)+TD(s.mouse)+TD(s.warranty)+TD(s.purchaseDate)+
+    renderCustomCells(s.custom)+
     svcBadge(s.services,s.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       ${isEditor()?`<button class="act-btn" onclick="openEdit(${s.id},'supporting')" style="margin-right:3px;">Edit</button>`:''}
@@ -2311,6 +2498,8 @@ function renderBackup(){
     TD(b.model||'—')+TDM(b.serial)+TD(b.brand)+TD(b.proc||'—')+TD(b.ram||'—')+
     TD(b.headset||'—')+TD(b.mouse||'—')+TD(b.keyboard||'—')+
     TD(b.collectedDate)+TD(b.reason)+TD(b.warranty)+TD(b.purchaseDate)+
+    `<td style="padding:6px 8px;min-width:130px;"><div style="font-size:12px;font-weight:600;color:var(--text)">${b.vendorName||'—'}</div><div style="font-size:10px;color:var(--text3);">${b.vendorPhone||''}</div><div style="font-size:10px;color:var(--text3);">${b.vendorInvoice?'Inv: '+b.vendorInvoice:''}</div></td>`+
+    renderCustomCells(b.custom)+
     svcBadge(b.services,b.assetId)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       ${isEditor()?`<button class="act-btn" onclick="openEdit(${b.id},'backup')" style="margin-right:3px;">Edit</button>`:''}
@@ -2329,8 +2518,10 @@ function renderDead(){
   if(!list.length){ tb.innerHTML=`<tr><td colspan="11" class="td-empty">${assetSearchQ?'No results':'No dead assets'}</td></tr>`; return; }
   tb.innerHTML=[...list].reverse().map(d=>TROW(
     TDM(d.assetId)+`<td style="padding:9px 11px;color:var(--text2);font-size:12px;">${d.prevUser||'—'}</td>`+
-    TDM(d.serial)+TD(d.brand)+`<td style="padding:9px 11px;color:var(--danger);font-size:12px;">${d.reason||'—'}</td>`+
-    TD(d.date)+TD(d.warranty)+TD(d.purchaseDate)+svcBadge(d.services,d.assetId)+TD(d.notes)+
+    TDM(d.serial)+TD(d.brand)+`<td style="padding:9px 11px;color:var(--danger);font-size:12px;font-weight:600;">${d.reason||'—'}</td>`+
+    TD(d.date)+TD(d.warranty)+
+    `<td style="padding:9px 11px;font-size:13px;color:${d.warrantyEnd&&new Date(d.warrantyEnd)<new Date()?'var(--danger)':d.warrantyEnd?'var(--accent3)':'var(--text2)'};">${d.warrantyEnd||'—'}</td>`+
+    TD(d.purchaseDate)+renderCustomCells(d.custom)+svcBadge(d.services,d.assetId)+TD(d.notes)+
     `<td style="padding:7px 11px;white-space:nowrap;">
       ${isEditor()?`<button class="act-btn" onclick="openEdit(${d.id},'dead')" style="margin-right:3px;">Edit</button>`:''}
       ${isAdmin()?`<button class="act-btn" onclick="delAsset(${d.id},'dead')" style="color:var(--danger);">✕</button>`:''}
@@ -2431,6 +2622,13 @@ function openCatPicker(){
 function closeCatPicker(){ const cp=$$('catPicker'); if(cp)cp.style.display='none'; }
 function backToPicker(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='block'; if(af)af.style.display='none'; }
 function closeAEForm(){ const cp=$$('catPicker'),af=$$('aeForm'); if(cp)cp.style.display='none'; if(af)af.style.display='none'; }
+function applyTemplateToForm(type){
+  // After selecting a category, pre-populate custom fields from template
+  clearCustomFields(type);
+  const cols = customColTemplates[type]||[];
+  cols.forEach(label=>{ if(label.trim()) addCustomField(type, label); });
+}
+
 function selectCat(cat){
   curAssetCat=cat;
   const cp=$$('catPicker'),af=$$('aeForm');
@@ -2441,11 +2639,14 @@ function selectCat(cat){
   const lbl=$$('ae_catLabel');
   if(lbl){lbl.textContent=labels[cat];lbl.style.background=bgcols[cat];lbl.style.color=txcols[cat];}
   ['ae_fAssigned','ae_fSupporting','ae_fBackup','ae_fDead'].forEach(id=>{const e=$$(id);if(e)e.style.display='none';});
+  ['assigned','supporting','backup','dead'].forEach(t=>clearCustomFields(t));
   const map={assigned:'ae_fAssigned',supporting:'ae_fSupporting',backup:'ae_fBackup',dead:'ae_fDead'};
   const fd=$$(map[cat]); if(fd)fd.style.display='block';
+  // Pre-fill custom fields from saved template
+  setTimeout(()=>applyTemplateToForm(cat), 50);
   ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user',
    'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
-   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes',
+   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice',
    'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes']
    .forEach(id=>{const e=$$(id);if(e)e.value='';});
   const er=$$('ae_err');if(er)er.textContent='';
@@ -2461,43 +2662,160 @@ function submitAssetEntry(){
     const assetId=val('ae_id').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),services:[]});
+    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),custom:getCustomFields('assigned'),services:[]});
   } else if(curAssetCat==='supporting'){
     const assetId=val('ae_sid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),services:[],custom:{}});
+    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:getCustomFields('supporting'),services:[]});
   } else if(curAssetCat==='backup'){
     const assetId=val('ae_bid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),prevUser:'',collectedDate:'',reason:'',services:[]});
+    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),custom:getCustomFields('backup'),prevUser:'',collectedDate:'',reason:'',services:[]});
   } else {
     const assetId=val('ae_did').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),services:[]});
+    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),custom:getCustomFields('dead'),services:[]});
   }
   triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
-  refreshAll(); flash('ae_ok'); closeAEForm();
+  refreshAll(); flash('ae_ok'); _lastSubmitBtn=document.querySelector('[onclick="submitAssetEntry()"]'); closeAEForm(); celebrate('Asset Saved!','Asset entry saved successfully');
   fbAfterAdd(curAssetCat);
 }
 
 // ── CUSTOM FIELDS (Supporting) ──
-function toggleSACustom(){
-  const f=$$('saCustomFields'),b=$$('saAddCustomBtn');
-  if(!f)return;
-  const showing=f.style.display!=='none'&&f.style.display!=='';
-  if(showing){f.style.display='none';if(b)b.style.display='none';}
-  else{f.style.display='grid';if(b)b.style.display='block';if(!f.children.length)addSACustomField();}
+function toggleSACustom(){ addCustomField('supporting'); } // legacy alias
+function addSACustomField(){ addCustomField('supporting'); }      // legacy alias
+
+// ── Column Template Manager ──
+function saveColTemplate(type){
+  const cols = customColTemplates[type]||[];
+  // Find existing doc id for this type or use type as id
+  fbSave(COL.colCfg, {id: 'col_'+type, type, cols});
 }
-function addSACustomField(){
-  const f=$$('saCustomFields'); if(!f)return;
-  saCustomCount++;
-  const n=saCustomCount;
-  const row=document.createElement('div');row.style.cssText='display:contents;';
-  row.innerHTML=`<div class="fi" style="margin-bottom:0;"><label>Label</label><input id="sa_cLabel${n}" placeholder="Field name"/></div><div class="fi" style="margin-bottom:0;"><label>Value</label><input id="sa_cVal${n}" placeholder="Value"/></div>`;
-  f.appendChild(row);
+
+function openColManager(type){
+  const labels={assigned:'💻 Laptop',supporting:'🔧 Supporting',backup:'💾 Backup',dead:'💀 Dead'};
+  const cols = customColTemplates[type]||[];
+  const modal = document.createElement('div');
+  modal.id = 'colMgrModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:700;">${labels[type]} — Custom Columns</div>
+        <button onclick="closeColManager()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Add column labels below. These will auto-appear as empty fields every time you fill a ${labels[type]} form.</p>
+      <div id="colMgr_list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        ${cols.map((col,i)=>`
+          <div style="display:flex;gap:8px;align-items:center;" id="colMgr_row_${i}">
+            <input value="${col}" onchange="updateColRow(${i},this.value,'${type}')"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;"/>
+            <button onclick="removeColRow(${i},'${type}')" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;">✕</button>
+          </div>`).join('')}
+      </div>
+      <button onclick="addColRow('${type}')" style="width:100%;background:none;border:1px dashed var(--accent);color:var(--accent);border-radius:7px;padding:8px;cursor:pointer;font-size:13px;margin-bottom:12px;">+ Add Column</button>
+      <button onclick="applyColTemplate('${type}')" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px;cursor:pointer;font-size:13px;font-weight:700;">✅ Save & Apply</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{ if(e.target===modal) closeColManager(); });
+  window._colMgrType = type;
+}
+
+function addColRow(type){
+  const list = $$('colMgr_list'); if(!list) return;
+  const cols = customColTemplates[type]||[];
+  const i = list.children.length;
+  const div = document.createElement('div');
+  div.id='colMgr_row_'+i;
+  div.style.cssText='display:flex;gap:8px;align-items:center;';
+  div.innerHTML=`<input placeholder="e.g. IP Address, Location…" onchange="updateColRow(${i},this.value,'${type}')"
+    style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;"/>
+    <button onclick="removeColRow(${i},'${type}')" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;">✕</button>`;
+  list.appendChild(div);
+  // push placeholder
+  customColTemplates[type].push('');
+}
+
+function updateColRow(i, val, type){
+  if(!customColTemplates[type]) customColTemplates[type]=[];
+  customColTemplates[type][i] = val;
+}
+
+function removeColRow(i, type){
+  customColTemplates[type].splice(i,1);
+  const modal = $$('colMgrModal');
+  if(modal){ closeColManager(); openColManager(type); }
+}
+
+function closeColManager(){
+  const m=$$('colMgrModal'); if(m) m.remove();
+}
+
+function applyColTemplate(type){
+  customColTemplates[type] = (customColTemplates[type]||[]).filter(c=>c.trim()!=='');
+  saveColTemplate(type);
+  closeColManager();
+  // Rebuild custom fields in form with template labels
+  clearCustomFields(type);
+  customColTemplates[type].forEach(label=>{
+    addCustomField(type, label);
+  });
+  // flash confirmation
+  const btn = $$('colMgrBtn_'+type);
+  if(btn){ const orig=btn.textContent; btn.textContent='✅ Saved!'; setTimeout(()=>btn.textContent=orig,1500); }
+}
+
+function addCustomField(type, prefillLabel=''){
+  const container = $$('cf_'+type+'_fields');
+  if(!container) return;
+  cfCount[type] = (cfCount[type]||0) + 1;
+  const n = cfCount[type];
+  const wrap = document.createElement('div');
+  wrap.id = 'cf_'+type+'_row_'+n;
+  wrap.style.cssText = 'display:contents;';
+  wrap.innerHTML = `
+    <div class="fi" style="margin-bottom:0;position:relative;">
+      <label style="display:flex;justify-content:space-between;">
+        <span>Field Label</span>
+        <button type="button" onclick="removeCustomField('${type}',${n})" style="font-size:10px;color:var(--danger);background:none;border:none;cursor:pointer;">✕ Remove</button>
+      </label>
+      <input id="cf_${type}_label_${n}" placeholder="e.g. IP Address, Location…" style="border-color:var(--accent);"/>
+    </div>
+    <div class="fi" style="margin-bottom:0;">
+      <label>Value</label>
+      <input id="cf_${type}_val_${n}" placeholder="Enter value"/>
+    </div>`;
+  container.appendChild(wrap);
+}
+
+function removeCustomField(type, n){
+  const el = $$('cf_'+type+'_row_'+n);
+  if(el) el.remove();
+}
+
+function getCustomFields(type){
+  // Collect all custom label+value pairs for the given form type
+  const container = $$('cf_'+type+'_fields');
+  if(!container) return {};
+  const result = {};
+  const count = cfCount[type]||0;
+  for(let i=1;i<=count;i++){
+    const labelEl = $$('cf_'+type+'_label_'+i);
+    const valEl   = $$('cf_'+type+'_val_'+i);
+    if(labelEl && valEl && labelEl.value.trim()){
+      result[labelEl.value.trim()] = valEl.value.trim();
+    }
+  }
+  return result;
+}
+
+function clearCustomFields(type){
+  const container = $$('cf_'+type+'_fields');
+  if(container) container.innerHTML='';
+  cfCount[type]=0;
 }
 
 // ── EDIT ──
@@ -2519,7 +2837,7 @@ function openEdit(id,type){
   const kOpts=['— None —','Dell KB216','Dell KB522','Logitech K120','Logitech MK270','HP K1500','Microsoft Wired 600','Keychron K2','Other'];
   let body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   if(type==='assigned'){
-    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Model','model',a.model)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('RAM','ram',a.ram)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
+    body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Model','model',a.model)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Processor','proc',a.proc)+fi('RAM','ram',a.ram)+fi('Warranty','warranty',a.warranty)+fi('Warranty End Date','warrantyEnd',a.warrantyEnd,'date')+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Laptop User','user',a.userName);
   } else if(type==='supporting'){
     body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Laptop (Linked)','laptop',a.laptop)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Headset','headset',a.headset)+fi('UPS','ups',a.ups)+fi('Keyboard','keyboard',a.keyboard)+fi('Mouse','mouse',a.mouse)+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
@@ -2529,9 +2847,24 @@ function openEdit(id,type){
     body+=fsel('Headset','headset',a.headset,hOpts)+fsel('Mouse','mouse',a.mouse,mOpts)+fsel('Keyboard','keyboard',a.keyboard,kOpts);
     body+=fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Prev User','prevUser',a.prevUser)+fi('Reason','reason',a.reason)+fi('Notes','notes',a.notes);
+    body+='<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);">🏪 Vendor Details</div>';
+    body+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+    body+=fi('Vendor Name','vendorName',a.vendorName)+fi('Contact Person','vendorContact',a.vendorContact)+fi('Phone','vendorPhone',a.vendorPhone)+fi('Email','vendorEmail',a.vendorEmail)+fi('Invoice No','vendorInvoice',a.vendorInvoice)+fi('Purchase Price','vendorPrice',a.vendorPrice);
+    body+='</div>';
   } else {
     body+=fi('Asset ID','id',a.assetId,'text',true)+fi('Serial No','serial',a.serial)+fi('Brand','brand',a.brand)+fi('Prev User','prevUser',a.prevUser)+fi('Reason','reason',a.reason)+fi('Date','date',a.date,'date')+fi('Warranty','warranty',a.warranty)+fi('Purchase Date','purchaseDate',a.purchaseDate,'date');
     body+='</div>'+fi('Notes','notes',a.notes);
+  }
+  // Show saved custom fields in edit modal
+  if(a.custom && Object.keys(a.custom).length){
+    body += '<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);">';
+    body += '<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">📌 Custom Fields</div>';
+    body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+    Object.entries(a.custom).forEach(([k,v])=>{
+      const safeKey = k.replace(/[^a-zA-Z0-9]/g,'_');
+      body+=`<div class="fi" style="margin-bottom:0;"><label>${k}</label><input id="em_cf_${safeKey}" value="${v||''}"/></div>`;
+    });
+    body += '</div></div>';
   }
   setHTML('editModalBody',body);
   renderSvcList(a.services||[]);
@@ -2544,18 +2877,18 @@ function saveEdit(){
   const g=id=>{const e=$$('em_'+id);return e?e.value.trim():'';};
   if(curEditType==='assigned'){
     const a=assignedLogs.find(x=>x.id===curEditId);
-    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
+    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),warranty:g('warranty'),warrantyEnd:g('warrantyEnd'),purchaseDate:g('purchaseDate'),userName:g('user')});
   } else if(curEditType==='supporting'){
     const a=supportLogs.find(x=>x.id===curEditId);
     if(a)Object.assign(a,{laptop:g('laptop'),serial:g('serial'),brand:g('brand'),headset:g('headset'),ups:g('ups'),keyboard:g('keyboard'),mouse:g('mouse'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),userName:g('user')});
   } else if(curEditType==='backup'){
     const a=backupLogs.find(x=>x.id===curEditId);
-    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),headset:g('headset'),mouse:g('mouse'),keyboard:g('keyboard'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),prevUser:g('prevUser'),reason:g('reason'),notes:g('notes')});
+    if(a)Object.assign(a,{model:g('model'),serial:g('serial'),brand:g('brand'),proc:g('proc'),ram:g('ram'),headset:g('headset'),mouse:g('mouse'),keyboard:g('keyboard'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),prevUser:g('prevUser'),reason:g('reason'),notes:g('notes'),vendorName:g('vendorName'),vendorContact:g('vendorContact'),vendorPhone:g('vendorPhone'),vendorEmail:g('vendorEmail'),vendorInvoice:g('vendorInvoice'),vendorPrice:g('vendorPrice')});
   } else {
     const a=deadLogs.find(x=>x.id===curEditId);
     if(a)Object.assign(a,{serial:g('serial'),brand:g('brand'),prevUser:g('prevUser'),reason:g('reason'),date:g('date'),warranty:g('warranty'),purchaseDate:g('purchaseDate'),notes:g('notes')});
   }
-  refreshAll(); flash('edit_ok'); setTimeout(closeEditModal,1200);
+  refreshAll(); flash('edit_ok'); _lastSubmitBtn=document.querySelector('[onclick="saveEdit()"]'); celebrate('Changes Saved!','Asset updated successfully'); setTimeout(closeEditModal,1200);
   fbAfterEdit();
 }
 
@@ -2847,62 +3180,69 @@ function openIssuePanel(type){
 
   setText('ip_icon',  icon);
   setText('ip_title', title);
-  setText('ip_sub',   filtered.length + ' user entr' + (filtered.length===1?'y':'ies') + ' · ' + month);
+  setText('ip_sub',   filtered.length + ' user entr' + (filtered.length===1?'y':'ies'));
 
   if(!filtered.length){
-    setHTML('ip_body', `<div style="text-align:center;padding:40px;color:var(--text3);font-size:14px;">No entries found for this category</div>`);
+    setHTML('ip_body', '<div style="text-align:center;padding:40px;color:var(--text3);font-size:14px;">No entries found for this category</div>');
   } else {
     const statusCol = s => s==='Good'?'var(--accent2)':s==='Critical'||s==='Poor'?'var(--danger)':'var(--accent3)';
-    setHTML('ip_body', filtered.map(l=>`
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;">
-        <!-- User name + team + date row -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-          <div style="width:38px;height:38px;border-radius:10px;background:${accent};display:grid;place-items:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;">${l.userName?l.userName[0].toUpperCase():'?'}</div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:700;color:var(--text);">${l.userName||'—'}</div>
-            <div style="font-size:11px;color:var(--text3);">${l.team||'No team'} · ${l.date||l.time||'—'} · Asset: ${l.assetId||'—'}</div>
+    setHTML('ip_body', filtered.map(l=>{
+      const safeUser = (l.userName||'').replace(/'/g,"\'");
+      return `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;">
+
+        <!-- ── TOP: Avatar + User Name + Team + Date ── -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:42px;height:42px;border-radius:12px;background:${accent};display:grid;place-items:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;">${l.userName?l.userName[0].toUpperCase():'?'}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.userName||'Unknown User'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:1px;">${l.team||'No team'} &nbsp;·&nbsp; ${l.date||l.time||'—'} &nbsp;·&nbsp; Asset: <strong style="color:var(--text2);">${l.assetId||'—'}</strong></div>
           </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;flex-shrink:0;">
             ${l.status?`<span style="padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:${statusCol(l.status)};color:#fff;">${l.status}</span>`:''}
-            ${l.sysScore?`<span style="padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--surface);border:1px solid var(--border);color:var(--text2);">Sys: ${l.sysScore}/10</span>`:''}
-            <button onclick="closeIssuePanel();openUserReport('${l.userName.replace(/'/g,"\'")}');" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">👁 Full Report</button>
+            ${l.sysScore?`<span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;background:var(--surface);border:1px solid var(--border);color:var(--text2);">Sys: ${l.sysScore}/10</span>`:''}
           </div>
         </div>
 
-        <!-- Key details grid -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:${(type==='action'&&l.action)||(type==='damage'&&l.physDamage&&l.physDamage!=='None')?'12px':'0'};">
-          ${l.internet?`<div style="font-size:12px;"><span style="color:var(--text3);">🌐 Internet: </span><span style="color:var(--text);font-weight:600;">${l.internet}</span></div>`:''}
-          ${l.dlSpeed?`<div style="font-size:12px;"><span style="color:var(--text3);">⬇ DL: </span><span style="color:var(--text);font-weight:600;">${l.dlSpeed} Mbps</span></div>`:''}
-          ${l.ulSpeed?`<div style="font-size:12px;"><span style="color:var(--text3);">⬆ UL: </span><span style="color:var(--text);font-weight:600;">${l.ulSpeed} Mbps</span></div>`:''}
-          ${l.battery?`<div style="font-size:12px;"><span style="color:var(--text3);">🔋 Battery: </span><span style="color:${parseFloat(l.battery)<50?'var(--danger)':'var(--accent2)'};font-weight:600;">${l.battery}%</span></div>`:''}
-          ${l.hddHealth?`<div style="font-size:12px;"><span style="color:var(--text3);">💾 HDD: </span><span style="color:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};font-weight:600;">${l.hddHealth}${l.hddTemp?' — '+l.hddTemp+'°C':''}</span></div>`:''}
-          ${l.procRam?`<div style="font-size:12px;"><span style="color:var(--text3);">💻 Proc/RAM: </span><span style="color:var(--text);font-weight:600;">${l.procRam}</span></div>`:''}
+        <!-- ── REASON block — shown for ALL types ── -->
+        ${l.reason?`
+        <div style="background:rgba(242,92,92,.07);border:1px solid rgba(242,92,92,.25);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--danger);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">📝 REASON</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.5;">${l.reason}</div>
+        </div>`:''}
+
+        <!-- ── Physical Damage block ── -->
+        ${l.physDamage&&l.physDamage!=='None'&&l.physDamage!==''?`
+        <div style="background:rgba(247,131,79,.08);border:1px solid rgba(247,131,79,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--accent3);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">🔧 PHYSICAL DAMAGE</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent3);margin-bottom:4px;">${l.physDamage}</div>
+          ${l.physDamageNote?`<div style="font-size:13px;color:var(--text);line-height:1.5;">${l.physDamageNote}</div>`:'<div style="font-size:12px;color:var(--text3);">No description provided</div>'}
+          ${l.complaintImg?`<a href="${l.complaintImg}" target="_blank" style="font-size:12px;color:var(--accent);display:inline-block;margin-top:6px;">📷 View Image</a>`:''}
+        </div>`:''}
+
+        <!-- ── Action block ── -->
+        ${l.action&&l.action.trim()!==''?`
+        <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--accent);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">📋 ACTION NEEDED</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.5;">${l.action}</div>
+          ${l.userIssues?`<div style="font-size:10px;color:var(--text3);margin-top:8px;font-weight:800;letter-spacing:.6px;">🐛 USER ISSUES</div><div style="font-size:13px;color:var(--text);margin-top:3px;">${l.userIssues}</div>`:''}
+        </div>`:''}
+
+        <!-- ── Hardware stats row ── -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:10px;">
+          ${l.battery?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">🔋 BATTERY</div><div style="font-weight:700;color:${parseFloat(l.battery)<30?'var(--danger)':parseFloat(l.battery)<=60?'var(--accent3)':'var(--accent2)'};">${l.battery}%</div></div>`:''}
+          ${l.hddHealth?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">💾 HDD</div><div style="font-weight:700;font-size:11px;color:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};">${l.hddHealth}</div></div>`:''}
+          ${l.hddTemp?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">🌡 TEMP</div><div style="font-weight:700;color:${parseFloat(l.hddTemp)>65?'var(--danger)':parseFloat(l.hddTemp)>=50?'var(--accent3)':'var(--accent2)'};">${l.hddTemp}°C</div></div>`:''}
+          ${l.internet?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">🌐 NET</div><div style="font-weight:700;font-size:11px;">${l.internet}</div></div>`:''}
+          ${l.dlSpeed?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">⬇ DL</div><div style="font-weight:700;">${l.dlSpeed} Mbps</div></div>`:''}
+          ${l.ulSpeed?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">⬆ UL</div><div style="font-weight:700;">${l.ulSpeed} Mbps</div></div>`:''}
+          ${l.procRam?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">💻 PROC/RAM</div><div style="font-weight:700;font-size:11px;">${l.procRam}</div></div>`:''}
         </div>
 
-        <!-- Physical Damage block -->
-        ${type==='damage'&&l.physDamage&&l.physDamage!=='None'?`
-        <div style="background:rgba(247,131,79,.08);border:1px solid rgba(247,131,79,.3);border-radius:10px;padding:10px 14px;">
-          <div style="font-size:11px;color:var(--accent3);font-weight:700;margin-bottom:4px;">🔧 DAMAGE: ${l.physDamage}</div>
-          ${l.physDamageNote?`<div style="font-size:13px;color:var(--text);">${l.physDamageNote}</div>`:'<div style="font-size:12px;color:var(--text3);">No description provided</div>'}
-          ${l.complaintImg?`<a href="${l.complaintImg}" target="_blank" style="font-size:12px;color:var(--accent);display:inline-block;margin-top:6px;">📷 View Complaint Image</a>`:''}
-        </div>`:''}
-
-        <!-- Action block -->
-        ${type==='action'&&l.action?`
-        <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.3);border-radius:10px;padding:10px 14px;">
-          <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:4px;">📋 ACTION TO TAKE:</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.5;">${l.action}</div>
-          ${l.userIssues?`<div style="font-size:11px;color:var(--text3);margin-top:8px;font-weight:700;">🐛 USER ISSUES:</div><div style="font-size:13px;color:var(--text);margin-top:2px;">${l.userIssues}</div>`:''}
-        </div>`:''}
-
-        <!-- Poor/critical reason -->
-        ${type==='poor'&&l.reason?`
-        <div style="background:rgba(242,92,92,.08);border:1px solid rgba(242,92,92,.3);border-radius:10px;padding:10px 14px;margin-top:10px;">
-          <div style="font-size:11px;color:var(--danger);font-weight:700;margin-bottom:4px;">📝 REASON:</div>
-          <div style="font-size:13px;color:var(--text);">${l.reason}</div>
-        </div>`:''}
-      </div>
-    `).join(''));
+        <!-- ── Full Report button ── -->
+        <button onclick="closeIssuePanel();openUserReport('${safeUser}');" style="width:100%;background:var(--accent);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
+      </div>`;
+    }).join(''));
   }
 
   const modal=$$('issuePanelModal'); if(modal){ modal.style.display='block'; modal.scrollTop=0; }
@@ -2931,22 +3271,29 @@ function openHddPanel(status){
     $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
   } else {
     $$('hddBatModalBody').innerHTML = filtered.map(l=>{
-      const hPct = l.hddHealthPct ? l.hddHealthPct+'%' : '—';
-      const temp  = l.hddTemp ? l.hddTemp+'°C' : '—';
+      const hPct    = l.hddHealthPct ? l.hddHealthPct+'%' : '—';
+      const temp    = l.hddTemp ? l.hddTemp+'°C' : '—';
       const statCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
-      return `<div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      const tempCol = l.hddTemp&&parseFloat(l.hddTemp)>65?'var(--danger)':parseFloat(l.hddTemp)>=50?'var(--accent3)':'var(--accent2)';
+      const safeU   = (l.userName||'').replace(/'/g,"\'");
+      return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${statCol};">
+        <!-- User Name -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
           <div>
-            <div style="font-size:14px;font-weight:700;">${l.userName}</div>
-            <div style="font-size:11px;color:var(--text3);">${l.team||'—'} · ${l.assetId||'—'} · ${l.date||'—'}</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text);">${l.userName||'Unknown'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.team||'—'} &nbsp;·&nbsp; Asset: <strong>${l.assetId||'—'}</strong> &nbsp;·&nbsp; ${l.date||'—'}</div>
           </div>
-          <span style="padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;background:${statCol};color:#fff;">${l.hddHealth}</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:${statCol};color:#fff;flex-shrink:0;">${l.hddHealth}</span>
         </div>
+        <!-- Reason if any -->
+        ${l.reason?`<div style="background:rgba(242,92,92,.07);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;"><span style="color:var(--danger);font-weight:700;">📝 Reason: </span><span style="color:var(--text);">${l.reason}</span></div>`:''}
+        <!-- Stats -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">HEALTH %</div><div style="font-weight:700;color:${statCol};">${hPct}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">TEMPERATURE</div><div style="font-weight:700;color:${l.hddTemp&&parseFloat(l.hddTemp)>65?'var(--danger)':parseFloat(l.hddTemp)>=50?'var(--accent3)':'var(--accent2)'}">${temp}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">TOTAL / USED</div><div style="font-weight:700;">${l.hddTotal||'—'} / ${l.hddUsed||'—'}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">HEALTH %</div><div style="font-weight:800;font-size:15px;color:${statCol};">${hPct}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">TEMPERATURE</div><div style="font-weight:800;font-size:15px;color:${tempCol};">${temp}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">TOTAL / USED</div><div style="font-weight:700;font-size:12px;">${l.hddTotal||'—'} / ${l.hddUsed||'—'}</div></div>
         </div>
+        <button onclick="closeHddBatModal();openUserReport('${safeU}');" style="width:100%;margin-top:10px;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
       </div>`;
     }).join('');
   }
@@ -2968,25 +3315,32 @@ function openBatPanel(status){
     $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
   } else {
     $$('hddBatModalBody').innerHTML = [...filtered].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
-      const pct = parseFloat(l.battery);
+      const pct    = parseFloat(l.battery);
       const batCol = pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
-      const barW = Math.min(100,pct);
-      return `<div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      const barW   = Math.min(100,pct);
+      const safeU  = (l.userName||'').replace(/'/g,"\'");
+      return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${batCol};">
+        <!-- User Name -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
           <div>
-            <div style="font-size:14px;font-weight:700;">${l.userName}</div>
-            <div style="font-size:11px;color:var(--text3);">${l.team||'—'} · ${l.assetId||'—'} · ${l.date||'—'}</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text);">${l.userName||'Unknown'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.team||'—'} &nbsp;·&nbsp; Asset: <strong>${l.assetId||'—'}</strong> &nbsp;·&nbsp; ${l.date||'—'}</div>
           </div>
-          <span style="font-size:20px;font-weight:800;color:${batCol};">${pct}%</span>
+          <span style="font-size:22px;font-weight:900;color:${batCol};">${pct}%</span>
         </div>
-        <div style="height:8px;background:var(--border);border-radius:4px;margin-bottom:8px;">
-          <div style="height:8px;border-radius:4px;width:${barW}%;background:${batCol};transition:width .3s;"></div>
+        <!-- Battery bar -->
+        <div style="height:8px;background:var(--border);border-radius:4px;margin-bottom:10px;">
+          <div style="height:8px;border-radius:4px;width:${barW}%;background:${batCol};transition:width .4s;"></div>
         </div>
+        <!-- Reason if any -->
+        ${l.reason?`<div style="background:rgba(242,92,92,.07);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;"><span style="color:var(--danger);font-weight:700;">📝 Reason: </span><span style="color:var(--text);">${l.reason}</span></div>`:''}
+        <!-- Stats -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">STATUS</div><div style="font-weight:700;color:${batCol};">${status}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">DESIGN CAP</div><div style="font-weight:600;">${l.batDesign||'—'}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:10px;margin-bottom:2px;">FULL CHARGE</div><div style="font-weight:600;">${l.batFull||'—'}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">STATUS</div><div style="font-weight:800;font-size:12px;color:${batCol};">${status}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">DESIGN CAP</div><div style="font-weight:700;">${l.batDesign||'—'}</div></div>
+          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">FULL CHARGE</div><div style="font-weight:700;">${l.batFull||'—'}</div></div>
         </div>
+        <button onclick="closeHddBatModal();openUserReport('${safeU}');" style="width:100%;margin-top:10px;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
       </div>`;
     }).join('');
   }
@@ -3177,6 +3531,14 @@ function downloadExcel(){
 // FIREBASE DIRECT — Firestore persistence
 // ══════════════════════════════════════════
 
+// ── Create status dot early as grey (connecting…) ──
+(function initStatusDot(){
+  const el=document.createElement('div'); el.id='fbStatusDot';
+  el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;background:#555e75;transition:background .5s;';
+  el.title='Connecting to Firebase…';
+  document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(el));
+})();
+
 // ── Loading overlay ──
 function showFbLoading(msg){
   let el=$$('fbLoadOverlay');
@@ -3198,14 +3560,50 @@ function hideFbLoading(){ const el=$$('fbLoadOverlay');if(el)el.style.display='n
 
 // ── Backend status dot ──
 function showFbStatus(ok){
+  // Add pulse keyframe if not already added
+  if(!document.getElementById('fbPulseStyle')){
+    const s=document.createElement('style'); s.id='fbPulseStyle';
+    s.textContent=`
+      @keyframes fbPulseGreen {
+        0%   { box-shadow: 0 0 0 0 rgba(56,217,169,.6); }
+        70%  { box-shadow: 0 0 0 6px rgba(56,217,169,0); }
+        100% { box-shadow: 0 0 0 0 rgba(56,217,169,0); }
+      }
+      @keyframes fbPulseRed {
+        0%   { box-shadow: 0 0 0 0 rgba(242,92,92,.7); }
+        70%  { box-shadow: 0 0 0 6px rgba(242,92,92,0); }
+        100% { box-shadow: 0 0 0 0 rgba(242,92,92,0); }
+      }
+    `;
+    document.head.appendChild(s);
+  }
   let el=$$('fbStatusDot');
   if(!el){
     el=document.createElement('div'); el.id='fbStatusDot';
-    el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;box-shadow:0 0 0 2px rgba(0,0,0,.4);';
+    el.style.cssText='position:fixed;bottom:14px;right:14px;width:10px;height:10px;border-radius:50%;z-index:9000;cursor:default;transition:background .5s;';
+    // Add tooltip text on hover
+    el.addEventListener('mouseenter', function(){
+      let tip=$$('fbStatusTip');
+      if(!tip){ tip=document.createElement('div'); tip.id='fbStatusTip';
+        tip.style.cssText='position:fixed;bottom:30px;right:10px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:4px 10px;border-radius:6px;z-index:9001;white-space:nowrap;font-family:DM Sans,sans-serif;';
+        document.body.appendChild(tip);
+      }
+      tip.textContent = el._ok ? '🟢 Firebase Connected' : '🔴 Firebase Offline';
+      tip.style.display='block';
+    });
+    el.addEventListener('mouseleave', function(){
+      const tip=$$('fbStatusTip'); if(tip) tip.style.display='none';
+    });
     document.body.appendChild(el);
   }
-  el.style.background = ok ? 'var(--accent2)' : 'var(--danger)';
-  el.title = ok ? '🟢 Backend: Connected' : '🔴 Backend: Offline — check server';
+  el._ok = ok;
+  if(ok){
+    el.style.background = 'var(--accent2)';
+    el.style.animation  = 'fbPulseGreen 2s ease-out infinite';
+  } else {
+    el.style.background = 'var(--danger)';
+    el.style.animation  = 'fbPulseRed 1.2s ease-out infinite';
+  }
 }
 
 // ── Firestore collection names ──
@@ -3218,7 +3616,8 @@ const COL = {
   perf:       'perf_users',
   perfLogs:   'perf_logs',
   alertCfg:   'alert_config',
-  sysChecks:  'sys_checks'
+  sysChecks:  'sys_checks',
+  colCfg:     'col_config'
 };
 function fbColFor(type){ return COL[type] || COL.dead; }
 
@@ -3297,12 +3696,12 @@ async function fbBootstrap(){
   showFbLoading('Loading your data…');
   try {
     await waitForFb();
-    const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs, scDocs] = await Promise.all([
+    const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs, scDocs, colCfgDocs] = await Promise.all([
       fbLoadAll(COL.assigned),   fbLoadAll(COL.supporting),
       fbLoadAll(COL.backup),     fbLoadAll(COL.dead),
       fbLoadAll(COL.accounts),   fbLoadAll(COL.perf),
       fbLoadAll(COL.perfLogs),   fbLoadAll(COL.alertCfg),
-      fbLoadAll(COL.sysChecks)
+      fbLoadAll(COL.sysChecks),  fbLoadAll(COL.colCfg)
     ]);
 
     const fixRow = x => ({...x, services: Array.isArray(x.services) ? x.services : []});
@@ -3323,6 +3722,12 @@ async function fbBootstrap(){
     acctId = maxId(loginAccounts);
 
     sysChecks = scDocs;
+    // Load column templates
+    colCfgDocs.forEach(doc=>{
+      if(doc.type && customColTemplates[doc.type] !== undefined){
+        customColTemplates[doc.type] = doc.cols || [];
+      }
+    });
     perfUsers = pUsers;
     perfLogs  = pLogs;
     uId = Math.max(maxId(perfUsers), maxId(sysChecks), 1);
