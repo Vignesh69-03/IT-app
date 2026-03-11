@@ -283,6 +283,7 @@ document.dispatchEvent(new Event('firebase-ready'));
     </div>
 
     <div class="tb-right">
+      <button id="refreshBtn" onclick="hardRefresh()" title="Sync data from Firebase" style="padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;font-size:12px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">🔄 Sync</button>
       <div class="av" id="tbAv">A</div>
       <span class="tb-name" id="tbName">Admin</span>
       <button class="btn-out" onclick="doLogout()">Sign Out</button>
@@ -1423,8 +1424,11 @@ function addPerfUser(){
   const inp = $$('newUN'); if(!inp) return;
   const name = inp.value.trim();
   if(!name){ inp.focus(); return; }
-  if(perfUsers.find(u=>u.name.toLowerCase()===name.toLowerCase())){ alert('User already exists.'); return; }
-  const newU = {id:uId++, name, sysCheckId: curSysCheckId};
+  // Only check duplicates within the same system check
+  const usersInThisCheck = perfUsers.filter(u=>u.sysCheckId===curSysCheckId);
+  if(usersInThisCheck.find(u=>u.name.toLowerCase()===name.toLowerCase())){ alert('User already exists in this check.'); return; }
+  const newId = uId++;
+  const newU = {id:newId, name, sysCheckId: curSysCheckId};
   perfUsers.push(newU);
   fbSave(COL.perf, newU);
   inp.value='';
@@ -1913,8 +1917,8 @@ function refreshPerfDash(){
     ['pd_poorCnt','pd_dmgCnt','pd_actionCnt','pd_goodCnt'].forEach(id=>setText(id,'0'));
     ['pd_userScoreBars','pd_checklist','pd_leaderboard','pd_ssdList','pd_batList'].forEach(id=>setHTML(id,'<div style="color:var(--text3);font-size:13px;">No data</div>'));
     ['pd_ssdSummary','pd_batSummary'].forEach(id=>setHTML(id,''));
-    setHTML('pd_userTable',`<tr><td colspan="12" style="text-align:center;color:var(--text3);padding:20px;">No data for ${month}</td></tr>`);
-    setHTML('pd_logs',`<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:20px;">No data for ${month}</td></tr>`);
+    setHTML('pd_userTable','<tr><td colspan="12" style="text-align:center;color:var(--text3);padding:20px;">No data yet</td></tr>');
+    setHTML('pd_logs','<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:20px;">No data yet</td></tr>');
     return;
   }
 
@@ -2766,14 +2770,15 @@ function downloadUserLog(){
 
 // Download per-user summary (latest entry per user)
 function downloadSummaryCSV(){
-  const month    = getDashMonth();
+  const scFilt   = val('dashSysCheck')||'';
   const teamFilt = ($$('dashTeam')||{}).value||'';
   const userFilt = ($$('dashUser')||{}).value||'';
-  let logs = perfLogs.filter(l=>l.month===month);
+  let logs = [...perfLogs];
+  if(scFilt)                  logs=logs.filter(l=>String(l.sysCheckId)===scFilt);
   if(teamFilt==='DAY')        logs=logs.filter(l=>(l.team||'').startsWith('Day'));
   else if(teamFilt==='NIGHT') logs=logs.filter(l=>(l.team||'').startsWith('Night'));
   else if(teamFilt)           logs=logs.filter(l=>l.team===teamFilt);
-  if(userFilt) logs=logs.filter(l=>l.userName===userFilt);
+  if(userFilt)                logs=logs.filter(l=>l.userName===userFilt);
   if(!logs.length){ alert('No data to download.'); return; }
   const userLatest={};
   [...logs].forEach(l=>{userLatest[l.userName]=l;});
@@ -2787,18 +2792,15 @@ function downloadSummaryCSV(){
 
 // Download all logs in dashboard view
 function downloadAllLogsCSV(){
-  const month    = getDashMonth();
+  const scFilt   = val('dashSysCheck')||'';
   const teamFilt = ($$('dashTeam')||{}).value||'';
   const userFilt = ($$('dashUser')||{}).value||'';
-  const fromDate = ($$('dashFrom')||{}).value||'';
-  const toDate   = ($$('dashTo')||{}).value||'';
-  let logs = perfLogs.filter(l=>l.month===month);
+  let logs = [...perfLogs];
+  if(scFilt)                  logs=logs.filter(l=>String(l.sysCheckId)===scFilt);
   if(teamFilt==='DAY')        logs=logs.filter(l=>(l.team||'').startsWith('Day'));
   else if(teamFilt==='NIGHT') logs=logs.filter(l=>(l.team||'').startsWith('Night'));
   else if(teamFilt)           logs=logs.filter(l=>l.team===teamFilt);
-  if(userFilt)  logs=logs.filter(l=>l.userName===userFilt);
-  if(fromDate)  logs=logs.filter(l=>l.date&&l.date>=fromDate);
-  if(toDate)    logs=logs.filter(l=>l.date&&l.date<=toDate);
+  if(userFilt)                logs=logs.filter(l=>l.userName===userFilt);
   if(!logs.length){ alert('No data to download.'); return; }
   const headers = ['User Name','Team','Date','Asset ID','Sys Score','Team Score','App Score',
     'Status','Internet','DL Speed','UL Speed','Action','Physical Damage'];
@@ -2816,19 +2818,16 @@ let _reportUserName = '';
 let _issueLogs = [];
 
 function openIssuePanel(type){
-  const month    = getDashMonth();
+  const scFilt   = val('dashSysCheck')||'';
   const teamFilt = ($$('dashTeam')||{}).value||'';
   const userFilt = ($$('dashUser')||{}).value||'';
-  const fromDate = ($$('dashFrom')||{}).value||'';
-  const toDate   = ($$('dashTo')||{}).value||'';
 
-  let logs = perfLogs.filter(l=>l.month===month && logInRange(l));
+  let logs = [...perfLogs];
+  if(scFilt)                  logs=logs.filter(l=>String(l.sysCheckId)===scFilt);
   if(teamFilt==='DAY')        logs=logs.filter(l=>(l.team||'').startsWith('Day'));
   else if(teamFilt==='NIGHT') logs=logs.filter(l=>(l.team||'').startsWith('Night'));
   else if(teamFilt)           logs=logs.filter(l=>l.team===teamFilt);
-  if(userFilt)  logs=logs.filter(l=>l.userName===userFilt);
-  if(fromDate)  logs=logs.filter(l=>l.date&&l.date>=fromDate);
-  if(toDate)    logs=logs.filter(l=>l.date&&l.date<=toDate);
+  if(userFilt)                logs=logs.filter(l=>l.userName===userFilt);
 
   let filtered=[], icon='', title='', accent='var(--accent3)';
 
@@ -3281,12 +3280,24 @@ async function fbAfterAssign(type,id){
   if(a) await fbSave(fbColFor(type),a);
 }
 
+// ── Hard Refresh: re-sync all data from Firebase ──
+async function hardRefresh(){
+  const btn = $$('refreshBtn');
+  if(btn){ btn.textContent='⏳ Syncing…'; btn.disabled=true; }
+  // Reset all local state
+  assignedLogs=[]; supportLogs=[]; backupLogs=[]; deadLogs=[];
+  perfUsers=[]; perfLogs=[]; sysChecks=[]; loginAccounts=[{id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'}];
+  aId=1; sId=1; bId=1; dId=1; uId=1; pId=1; acctId=1;
+  await fbBootstrap();
+  if(btn){ btn.textContent='🔄 Sync'; btn.disabled=false; }
+}
+
 // ── Bootstrap: load ALL data from Firestore ──
 async function fbBootstrap(){
   showFbLoading('Loading your data…');
   try {
     await waitForFb();
-    const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs] = await Promise.all([
+    const [asgn, supp, bkup, dead, accts, pUsers, pLogs, alertCfgDocs, scDocs] = await Promise.all([
       fbLoadAll(COL.assigned),   fbLoadAll(COL.supporting),
       fbLoadAll(COL.backup),     fbLoadAll(COL.dead),
       fbLoadAll(COL.accounts),   fbLoadAll(COL.perf),
@@ -3311,9 +3322,10 @@ async function fbBootstrap(){
     loginAccounts = [builtIn, ...accts.filter(a => Number(a.id) !== 0)];
     acctId = maxId(loginAccounts);
 
+    sysChecks = scDocs;
     perfUsers = pUsers;
     perfLogs  = pLogs;
-    uId = maxId(perfUsers);
+    uId = Math.max(maxId(perfUsers), maxId(sysChecks), 1);
     pId = maxId(perfLogs);
 
     if(alertCfgDocs.length){
