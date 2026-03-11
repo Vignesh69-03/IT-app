@@ -592,7 +592,7 @@ document.dispatchEvent(new Event('firebase-ready'));
           <th>Bitlocker</th><th>Dual Mon</th><th>Dual Reason</th><th>Reason</th><th>BIOS Time</th>
           <th>Chrome(s)</th><th>Excel(s)</th><th>Web(s)</th><th>Multitab(s)</th>
           <th>Call Quality</th><th>Dialpad(s)</th><th>Work Env</th><th>Env Img</th>
-          <th>Mouse</th><th>Edit</th>
+          <th>Mouse</th><th>Edit</th><th>Delete</th>
         </tr></thead>
         <tbody id="uf_logTb"><tr><td colspan="46" style="text-align:center;color:var(--text3);padding:24px;">No entries yet</td></tr></tbody></table>
       </div>
@@ -1381,14 +1381,20 @@ function createSysCheck(){
 }
 
 function deleteSysCheck(id){
-  if(!confirm('Delete this system check? Users inside it will also be removed.')) return;
+  if(!confirm('Delete this system check? All users and logs inside will be permanently deleted.')) return;
+  // Delete the check itself
   sysChecks = sysChecks.filter(s=>s.id!==id);
   fbDelete(COL.sysChecks, id);
-  // Remove users belonging to this check
-  const toRemove = perfUsers.filter(u=>u.sysCheckId===id);
-  toRemove.forEach(u=>{ fbDelete(COL.perf, u.id); });
+  // Delete all users in this check
+  const usersToRemove = perfUsers.filter(u=>u.sysCheckId===id);
+  usersToRemove.forEach(u=>{ fbDelete(COL.perf, u.id); });
   perfUsers = perfUsers.filter(u=>u.sysCheckId!==id);
+  // Delete all perf logs in this check
+  const logsToRemove = perfLogs.filter(l=>l.sysCheckId===id);
+  logsToRemove.forEach(l=>{ fbDelete(COL.perfLogs, l.id); });
+  perfLogs = perfLogs.filter(l=>l.sysCheckId!==id);
   renderSCGrid();
+  refreshPerfDash();
 }
 
 function openSysCheck(id){
@@ -1441,6 +1447,7 @@ function renderUGrid(){
   const empty = $$('uEmpty');
   if(!grid) return;
   const month = getPerfMonth();
+  const visibleUsers = curSysCheckId !== null ? perfUsers.filter(u=>u.sysCheckId===curSysCheckId) : perfUsers;
   if(!visibleUsers.length){
     grid.innerHTML='';
     if(empty) empty.style.display='block';
@@ -1509,6 +1516,7 @@ function renderULog(id){
     <td style="padding:6px 10px;">${l.envImg?`<a href="${l.envImg}" target="_blank" style="color:var(--accent);">View</a>`:'—'}</td>
     ${td(l.mouse)}
     <td style="padding:6px 10px;"><button onclick="editPerfEntry(${l.id})" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">✏️ Edit</button></td>
+    <td style="padding:6px 10px;"><button onclick="deletePerfEntry(${l.id})" style="background:var(--danger);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">🗑 Del</button></td>
   </tr>`).join('');
 }
 
@@ -1738,6 +1746,15 @@ function editPerfEntry(id){
   // Show edit banner
   let banner = $$('pf_editBanner');
   if(banner) banner.style.display='flex';
+}
+
+
+function deletePerfEntry(id){
+  if(!confirm('Delete this entry? This cannot be undone.')) return;
+  perfLogs = perfLogs.filter(x=>x.id!==id);
+  fbDelete(COL.perfLogs, id);
+  renderULog(curUserId);
+  refreshPerfDash();
 }
 
 function cancelEdit(){
