@@ -528,7 +528,7 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Any Physical Damage</label>
           <select id="pf_physDamage" onchange="onPhysDamageChange()"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
         </div>
-        <div class="fi" id="pf_physDamageNoteRow" style="display:none;"><label>Damage Description <span style="color:var(--danger);font-size:10px;">Required</span></label><textarea id="pf_physDamageNote" placeholder="Describe the physical damage (e.g. cracked screen, broken hinge, dented chassis...)"></textarea></div>
+        <div class="fi" id="pf_physDamageNoteRow" style="display:none;grid-column:1/-1;"><label>Damage Description <span style="color:var(--danger);font-size:10px;">Required</span></label><textarea id="pf_physDamageNote" placeholder="Describe the physical damage (e.g. cracked screen, broken hinge, dented chassis...)"></textarea></div>
         <div class="fi"><label>Work Environment</label>
           <select id="pf_workEnv"><option value="">Select</option><option>Separate Room</option><option>Shared Space</option><option>Open Area</option></select>
         </div>
@@ -919,7 +919,12 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Laptop User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Laptop -->
-          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_assigned_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
+          <div id="cf_assigned_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_assigned" onclick="openColManager('assigned')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_assigned_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+          </div>
         </div>
 
         <!-- SUPPORTING fields -->
@@ -940,7 +945,12 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Supporting -->
-          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_supporting_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
+          <div id="cf_supporting_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_supporting" onclick="openColManager('supporting')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_supporting_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+          </div>
         </div>
 
         <!-- BACKUP fields (laptop + supporting combined) -->
@@ -988,7 +998,12 @@ document.dispatchEvent(new Event('firebase-ready'));
           </div>
 
           <!-- Custom Fields: Backup -->
-          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_backup_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
+          <div id="cf_backup_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_backup" onclick="openColManager('backup')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_backup_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+          </div>
         </div>
 
         <!-- DEAD fields -->
@@ -1021,7 +1036,12 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
           </div>
           <!-- Custom Fields: Dead -->
-          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_dead_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
+          <div id="cf_dead_wrap" style="margin-top:4px;">
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" id="colMgrBtn_dead" onclick="openColManager('dead')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
+            </div>
+            <div id="cf_dead_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
+          </div>
         </div>
 
         <div style="display:flex;align-items:center;gap:9px;">
@@ -1845,7 +1865,7 @@ function clearBatteryAuto(){
 function onPhysDamageChange(){
   const v = val('pf_physDamage');
   const row = $$('pf_physDamageNoteRow');
-  if(row) row.style.display = (v==='Minor'||v==='Major') ? '' : 'none';
+  if(row) row.style.display = (v==='Minor'||v==='Major') ? 'block' : 'none';
   if(v===''||v==='None'){ const e=$$('pf_physDamageNote'); if(e) e.value=''; }
 }
 function onTeamChange(){
@@ -1924,8 +1944,9 @@ function editPerfEntry(id){
     'sfc','appUpdate','dataCross','onedrive','bitlocker','sysPerfRestart'];
   chkIds.forEach(k=>{ const e=$$('pf_'+k); if(e) e.checked=(l[k]===true||l[k]==='true'); });
 
-  // Show conditional fields
+  // Show conditional fields first, then fill physDamageNote AFTER so textarea is visible
   onTeamChange(); onDualMonChange(); onPhysDamageChange();
+  setV('pf_physDamageNote', l.physDamageNote);
 
   // Update save button to show editing mode
   const btn = document.querySelector('[onclick="submitPerf()"]');
@@ -1980,7 +2001,7 @@ function submitPerf(){
     // Hardware
     procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
     batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddHealthPct: val('pf_hddHealthPct'), hddTemp: val('pf_hddTemp'), hddTotal: val('pf_hddTotal'), hddUsed: val('pf_hddUsed'), hddFree: val('pf_hddFree'),
-    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'),
+    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'), physDamageNote: val('pf_physDamageNote'),
     workEnv: val('pf_workEnv'),
     // Checklist
     clearCache: chkVal('pf_clearCache'), unwantedApp: chkVal('pf_unwantedApp'),
@@ -2703,10 +2724,10 @@ function selectCat(cat){
   const fd=$$(map[cat]); if(fd)fd.style.display='block';
   // Pre-fill custom fields from saved template
   setTimeout(()=>applyTemplateToForm(cat), 50);
-  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user','cf_assigned_notes',
-   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser','cf_supporting_notes',
-   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice','cf_backup_notes',
-   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes','cf_dead_notes']
+  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user',
+   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
+   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice',
+   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes']
    .forEach(id=>{const e=$$(id);if(e)e.value='';});
   const er=$$('ae_err');if(er)er.textContent='';
 }
@@ -2721,22 +2742,22 @@ function submitAssetEntry(){
     const assetId=val('ae_id').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),notes:val('cf_assigned_notes'),services:[]});
+    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),custom:getCustomFields('assigned'),services:[]});
   } else if(curAssetCat==='supporting'){
     const assetId=val('ae_sid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),notes:val('cf_supporting_notes'),services:[]});
+    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:getCustomFields('supporting'),services:[]});
   } else if(curAssetCat==='backup'){
     const assetId=val('ae_bid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes')||val('cf_backup_notes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),prevUser:'',collectedDate:'',reason:'',services:[]});
+    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),custom:getCustomFields('backup'),prevUser:'',collectedDate:'',reason:'',services:[]});
   } else {
     const assetId=val('ae_did').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes')||val('cf_dead_notes'),services:[]});
+    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),custom:getCustomFields('dead'),services:[]});
   }
   triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
   refreshAll(); flash('ae_ok'); _lastSubmitBtn=document.querySelector('[onclick="submitAssetEntry()"]'); closeAEForm(); celebrate('Asset Saved!','Asset entry saved successfully');
@@ -3500,7 +3521,10 @@ function openUserReport(userName){
   ];
   if(latest.action)       detail.push(['📋 Action', latest.action]);
   if(latest.userIssues)   detail.push(['🐛 Issues', latest.userIssues]);
-  if(latest.physDamage&&latest.physDamage!=='None') detail.push(['⚠️ Damage', latest.physDamage+(latest.physDamageNote?' — '+latest.physDamageNote:'')]);
+  if(latest.physDamage&&latest.physDamage!=='None'){
+    detail.push(['⚠️ Damage Type', latest.physDamage]);
+    if(latest.physDamageNote) detail.push(['📝 Damage Description', latest.physDamageNote]);
+  }
   if(latest.reason)       detail.push(['📝 Reason', latest.reason]);
   setHTML('urm_latestDetail', detail.map(([label,val])=>`
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;">
@@ -3546,6 +3570,7 @@ function openUserReport(userName){
     <td style="font-size:12px;color:${l.battery&&parseFloat(l.battery)<50?'var(--danger)':'var(--text2)'};">${l.battery?l.battery+'%':'—'}</td>
     <td style="font-size:12px;color:${l.hddHealth==='Bad'?'var(--danger)':l.hddHealth==='Caution'?'var(--accent3)':'var(--text2)'};">${l.hddHealth||'—'}</td>
     <td style="font-size:12px;color:${l.physDamage&&l.physDamage!=='None'?'var(--accent3)':'var(--text2)'};">${l.physDamage||'—'}</td>
+    <td style="font-size:12px;color:var(--text2);max-width:180px;">${l.physDamageNote||'—'}</td>
     <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.action||'—'}</td>
   </tr>`).join(''));
 
@@ -3957,7 +3982,7 @@ window.addEventListener('load', async ()=>{
           <th>S.No</th><th>Date</th><th>Asset ID</th><th>Month</th>
           <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
           <th>Internet</th><th>DL</th><th>UL</th><th>Battery</th>
-          <th>HDD</th><th>Damage</th><th>Action</th>
+          <th>HDD</th><th>Damage</th><th>Damage Description</th><th>Action</th>
         </tr></thead>
         <tbody id="urm_historyTb"></tbody></table>
       </div>
