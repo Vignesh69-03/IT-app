@@ -919,12 +919,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Laptop User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Laptop -->
-          <div id="cf_assigned_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_assigned" onclick="openColManager('assigned')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_assigned_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_assigned_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- SUPPORTING fields -->
@@ -945,12 +940,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Supporting -->
-          <div id="cf_supporting_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_supporting" onclick="openColManager('supporting')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_supporting_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_supporting_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- BACKUP fields (laptop + supporting combined) -->
@@ -998,12 +988,7 @@ document.dispatchEvent(new Event('firebase-ready'));
           </div>
 
           <!-- Custom Fields: Backup -->
-          <div id="cf_backup_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_backup" onclick="openColManager('backup')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_backup_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_backup_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- DEAD fields -->
@@ -1036,12 +1021,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
           </div>
           <!-- Custom Fields: Dead -->
-          <div id="cf_dead_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_dead" onclick="openColManager('dead')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_dead_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_dead_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <div style="display:flex;align-items:center;gap:9px;">
@@ -1115,11 +1095,25 @@ document.dispatchEvent(new Event('firebase-ready'));
         <h3 style="font-size:15px;font-weight:600;">Move to Backup</h3>
         <button onclick="closeMoveModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
       </div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">User is leaving — collect this asset back into backup storage</p>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Collect this asset from the user and move it into backup storage</p>
+      <div id="mb_assetInfo" style="background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-        <div class="fi" style="grid-column:span 2;"><label>User Name *</label><input id="mb_prevUser" placeholder="Name of user returning asset"/></div>
+        <div class="fi" style="grid-column:span 2;"><label>Previous User *</label><input id="mb_prevUser" placeholder="Name of user returning asset"/></div>
         <div class="fi"><label>Date Collected</label><input type="date" id="mb_date" style="color-scheme:dark;"/></div>
-        <div class="fi"><label>Reason</label><input id="mb_reason" placeholder="e.g. Employee resigned"/></div>
+        <div class="fi"><label>Reason for Moving *</label>
+              <select id="mb_reason" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+                <option value="">Select a reason</option>
+                <option>Employee Resigned</option>
+                <option>Employee Terminated</option>
+                <option>Employee on Leave</option>
+                <option>Device Upgrade</option>
+                <option>Device Under Repair</option>
+                <option>Device Replaced</option>
+                <option>Department Transfer</option>
+                <option>Project Ended</option>
+                <option>Other</option>
+              </select>
+            </div>
         <div class="fi" style="grid-column:span 2;"><label>Notes</label><input id="mb_notes" placeholder="Any notes"/></div>
       </div>
       <div style="display:flex;gap:9px;">
@@ -1129,14 +1123,53 @@ document.dispatchEvent(new Event('firebase-ready'));
     </div>
   </div>
 
+  <!-- MOVE TO DEAD MODAL -->
+  <div id="moveDeadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:480px;max-width:95vw;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h3 style="font-size:15px;font-weight:600;color:var(--danger);">💀 Move to Dead Assets</h3>
+        <button onclick="closeMoveDeadModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">This asset will be permanently marked as dead and removed from active inventory.</p>
+      <div id="md_assetInfo" style="background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--text2);"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="fi"><label>Previous User</label><input id="md_prevUser" placeholder="User who had this asset"/></div>
+        <div class="fi"><label>Date</label><input type="date" id="md_date" style="color-scheme:dark;"/></div>
+        <div class="fi" style="grid-column:span 2;"><label>Reason for Dead *</label>
+          <select id="md_reason" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
+            <option value="">Select a reason</option>
+            <option>Screen Broken</option>
+            <option>HDD Failure</option>
+            <option>Motherboard Failure</option>
+            <option>Battery Dead</option>
+            <option>Water Damage</option>
+            <option>Stolen</option>
+            <option>Beyond Repair</option>
+            <option>Employee Left</option>
+            <option>Upgraded / Replaced</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="fi" style="grid-column:span 2;"><label>Notes</label><input id="md_notes" placeholder="Any additional notes"/></div>
+      </div>
+      <div style="display:flex;gap:9px;">
+        <button class="btn p" onclick="confirmMoveToDead()" style="background:var(--danger);border-color:var(--danger);">💀 Confirm Move to Dead</button>
+        <button class="btn" onclick="closeMoveDeadModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ASSIGN USER MODAL -->
   <div id="assignModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;">
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:400px;max-width:95vw;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <h3 style="font-size:15px;font-weight:600;">Assign / Update User</h3>
         <button onclick="closeAssignModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
       </div>
-      <div class="fi" style="margin-bottom:16px;"><label>User Name</label><input id="assign_user" placeholder="Enter name of user"/></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Update the user assigned to this asset</p>
+      <div id="assign_assetInfo" style="background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);"></div>
+      <div class="fi" style="margin-bottom:10px;"><label>Previous User</label><input id="assign_prevUser" placeholder="—" readonly style="opacity:.7;cursor:default;"/></div>
+      <div class="fi" style="margin-bottom:16px;"><label>New User Name *</label><input id="assign_user" placeholder="Enter name of new user"/></div>
       <div style="display:flex;gap:9px;">
         <button class="btn p" onclick="confirmAssignUser()">Save</button>
         <button class="btn" onclick="closeAssignModal()">Cancel</button>
@@ -1151,8 +1184,10 @@ document.dispatchEvent(new Event('firebase-ready'));
         <h3 style="font-size:15px;font-weight:600;">Restore Asset</h3>
         <button onclick="closeRestoreModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;">✕</button>
       </div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">Move this backup asset back to active use</p>
-      <div class="fi" style="margin-bottom:12px;"><label>Assign To (User Name)</label><input id="restore_user" placeholder="Name of user to assign"/></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Move this backup asset back to active use</p>
+      <div id="restore_assetInfo" style="background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);"></div>
+      <div class="fi" style="margin-bottom:12px;"><label>Previous User</label><input id="restore_prevUser" placeholder="Who previously used this asset" readonly style="opacity:.7;cursor:default;"/></div>
+      <div class="fi" style="margin-bottom:12px;"><label>Assign To New User *</label><input id="restore_user" placeholder="Name of user to assign"/></div>
       <div class="fi" style="margin-bottom:16px;"><label>Restore To</label>
         <select id="restore_target" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:13px;width:100%;color-scheme:dark;">
           <option value="assigned">💻 Laptop Details</option>
@@ -2600,20 +2635,44 @@ function delAsset(id,type){
 }
 
 // ── MOVE TO DEAD ──
+let curDeadId=null, curDeadType=null;
+
 function moveToDeadDirect(id,type){
   if(!isEditor()){ denyAccess("Only Admin or Editor can retire assets."); return; }
+  curDeadId=id; curDeadType=type;
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
   if(!a) return;
-  const reason=prompt(`Reason for marking "${a.assetId}" as dead?`,'');
-  if(reason===null) return;
-  deadLogs.push({id:dId++,assetId:a.assetId,serial:a.serial,brand:a.brand,prevUser:a.userName||'',reason,date:new Date().toISOString().split('T')[0],warranty:a.warranty,purchaseDate:a.purchaseDate,notes:'',services:[]});
-  if(type==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==id);
-  if(type==='supporting') supportLogs=supportLogs.filter(x=>x.id!==id);
+  // Populate modal info
+  const info=$$('md_assetInfo');
+  if(info) info.innerHTML=`<span style="color:var(--text3);">Asset:</span> <strong style="color:var(--text);">${a.assetId}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Brand:</span> <strong style="color:var(--text);">${a.brand||'—'}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">User:</span> <strong style="color:var(--text);">${a.userName||'—'}</strong>`;
+  const pu=$$('md_prevUser'); if(pu) pu.value=a.userName||'';
+  const dt=$$('md_date'); if(dt) dt.value=new Date().toISOString().split('T')[0];
+  const rs=$$('md_reason'); if(rs) rs.value='';
+  const nt=$$('md_notes'); if(nt) nt.value='';
+  const m=$$('moveDeadModal'); if(m) m.style.display='flex';
+}
+
+function closeMoveDeadModal(){ const m=$$('moveDeadModal'); if(m) m.style.display='none'; }
+
+function confirmMoveToDead(){
+  if(!isEditor()){ denyAccess("Only Admin or Editor can retire assets."); return; }
+  const reason=val('md_reason');
+  if(!reason){ alert('Please select a reason.'); return; }
+  const prevUser=val('md_prevUser').trim();
+  const notes=val('md_notes').trim();
+  let a;
+  if(curDeadType==='assigned')   a=assignedLogs.find(x=>x.id===curDeadId);
+  if(curDeadType==='supporting') a=supportLogs.find(x=>x.id===curDeadId);
+  if(!a){ closeMoveDeadModal(); return; }
+  deadLogs.push({id:dId++,assetId:a.assetId,serial:a.serial,brand:a.brand,prevUser:prevUser||a.userName||'',reason,date:val('md_date')||new Date().toISOString().split('T')[0],warranty:a.warranty,purchaseDate:a.purchaseDate,notes,services:[]});
+  if(curDeadType==='assigned')   assignedLogs=assignedLogs.filter(x=>x.id!==curDeadId);
+  if(curDeadType==='supporting') supportLogs=supportLogs.filter(x=>x.id!==curDeadId);
   fbSave(COL.dead, deadLogs[deadLogs.length-1]);
-  fbDelete(fbColFor(type), id);
-  refreshAll();
+  fbDelete(fbColFor(curDeadType), curDeadId);
+  refreshAll(); closeMoveDeadModal();
+  celebrate('💀 Moved to Dead Assets', a.assetId + ' · ' + reason);
 }
 
 // ── CATEGORY PICKER ──
@@ -2644,10 +2703,10 @@ function selectCat(cat){
   const fd=$$(map[cat]); if(fd)fd.style.display='block';
   // Pre-fill custom fields from saved template
   setTimeout(()=>applyTemplateToForm(cat), 50);
-  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user',
-   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
-   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice',
-   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes']
+  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user','cf_assigned_notes',
+   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser','cf_supporting_notes',
+   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice','cf_backup_notes',
+   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes','cf_dead_notes']
    .forEach(id=>{const e=$$(id);if(e)e.value='';});
   const er=$$('ae_err');if(er)er.textContent='';
 }
@@ -2662,22 +2721,22 @@ function submitAssetEntry(){
     const assetId=val('ae_id').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),custom:getCustomFields('assigned'),services:[]});
+    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),notes:val('cf_assigned_notes'),services:[]});
   } else if(curAssetCat==='supporting'){
     const assetId=val('ae_sid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:getCustomFields('supporting'),services:[]});
+    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),notes:val('cf_supporting_notes'),services:[]});
   } else if(curAssetCat==='backup'){
     const assetId=val('ae_bid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),custom:getCustomFields('backup'),prevUser:'',collectedDate:'',reason:'',services:[]});
+    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes')||val('cf_backup_notes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),prevUser:'',collectedDate:'',reason:'',services:[]});
   } else {
     const assetId=val('ae_did').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),custom:getCustomFields('dead'),services:[]});
+    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes')||val('cf_dead_notes'),services:[]});
   }
   triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
   refreshAll(); flash('ae_ok'); _lastSubmitBtn=document.querySelector('[onclick="submitAssetEntry()"]'); closeAEForm(); celebrate('Asset Saved!','Asset entry saved successfully');
@@ -2898,7 +2957,10 @@ function openAssign(id,type){
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
-  const inp=$$('assign_user');if(inp)inp.value=a?a.userName||'':'';
+  const info=$$('assign_assetInfo');
+  if(info&&a) info.innerHTML=`<span style="color:var(--text3);">Asset:</span> <strong style="color:var(--text);">${a.assetId}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Brand:</span> <strong style="color:var(--text);">${a.brand||'—'}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Current User:</span> <strong style="color:var(--accent);">${a.userName||'Not assigned'}</strong>`;
+  const pu=$$('assign_prevUser');if(pu)pu.value=a?a.userName||'':'';
+  const inp=$$('assign_user');if(inp)inp.value='';
   const m=$$('assignModal');if(m)m.style.display='flex';
 }
 function closeAssignModal(){ const m=$$('assignModal');if(m)m.style.display='none'; }
@@ -2907,7 +2969,9 @@ function confirmAssignUser(){
   if(curAssignType==='assigned'){const a=assignedLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
   if(curAssignType==='supporting'){const a=supportLogs.find(x=>x.id===curAssignId);if(a)a.userName=u;}
   fbAfterAssign(curAssignType, curAssignId);
+  const aObj2 = curAssignType==='assigned'?assignedLogs.find(x=>x.id===curAssignId):supportLogs.find(x=>x.id===curAssignId);
   refreshAll(); closeAssignModal();
+  if(aObj2) celebrate('👤 User Assigned', (aObj2.assetId||'Asset') + ' → ' + u);
 }
 
 // ── MOVE TO BACKUP ──
@@ -2916,6 +2980,8 @@ function openMove(id,type){
   let a;
   if(type==='assigned')   a=assignedLogs.find(x=>x.id===id);
   if(type==='supporting') a=supportLogs.find(x=>x.id===id);
+  const info=$$('mb_assetInfo');
+  if(info&&a) info.innerHTML=`<span style="color:var(--text3);">Asset:</span> <strong style="color:var(--text);">${a.assetId}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Brand:</span> <strong style="color:var(--text);">${a.brand||'—'}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Current User:</span> <strong style="color:var(--accent3);">${a.userName||'—'}</strong>`;
   const inp=$$('mb_prevUser');if(inp)inp.value=a?a.userName||'':'';
   const dt=$$('mb_date');if(dt)dt.value=new Date().toISOString().split('T')[0];
   const rs=$$('mb_reason');if(rs)rs.value='';
@@ -2939,13 +3005,21 @@ function confirmMoveToBackup(){
   fbSave(COL.backup, backupLogs[backupLogs.length-1]);
   fbDelete(fbColFor(movedType), movedId);
   refreshAll(); closeMoveModal();
+  const movedAsset = backupLogs[backupLogs.length-1];
+  celebrate(
+    '📦 Moved to Backup',
+    (movedAsset.assetId||'Asset') + (reason ? ' · ' + reason : ' · Collected from ' + prevUser)
+  );
 }
 
 // ── RESTORE FROM BACKUP ──
 function openRestore(id){
   curRestoreId=id;
   const b=backupLogs.find(x=>x.id===id);
-  const inp=$$('restore_user');if(inp)inp.value=b?b.prevUser||'':'';
+  const info=$$('restore_assetInfo');
+  if(info&&b) info.innerHTML=`<span style="color:var(--text3);">Asset:</span> <strong style="color:var(--text);">${b.assetId}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Brand:</span> <strong style="color:var(--text);">${b.brand||'—'}</strong> &nbsp;·&nbsp; <span style="color:var(--text3);">Collected:</span> <strong style="color:var(--text2);">${b.collectedDate||'—'}</strong>`;
+  const pu=$$('restore_prevUser');if(pu)pu.value=b?b.prevUser||'':'';
+  const inp=$$('restore_user');if(inp)inp.value='';
   const m=$$('restoreModal');if(m)m.style.display='flex';
 }
 function closeRestoreModal(){ const m=$$('restoreModal');if(m)m.style.display='none'; }
@@ -2967,6 +3041,7 @@ function confirmRestore(){
   backupLogs=backupLogs.filter(x=>x.id!==curRestoreId);
   fbDelete(COL.backup, restoredBkpId);
   refreshAll(); closeRestoreModal();
+  celebrate('✅ Asset Restored', (b.assetId||'Asset') + ' → ' + (target==='assigned'?'Laptop':'Supporting'));
 }
 
 
