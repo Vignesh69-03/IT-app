@@ -292,13 +292,263 @@ document.dispatchEvent(new Event('firebase-ready'));
 
   <!-- HOME -->
   <div class="view active" id="v-home">
-    <div class="ph"><h1>Management System</h1><p>Choose a module to get started</p></div>
-    <div class="hgrid">
-      <div class="mc m3" onclick="nav('perfUsers')"><div class="mci i3">⚡</div><div class="mc-title">System Performance</div><div class="mc-desc">Add users, select a month, click a user to fill in their system performance details.</div><div class="mc-arr">→</div></div>
-      <div class="mc m4" onclick="nav('perfDash')"><div class="mci i4">📈</div><div class="mc-title">Performance Summary</div><div class="mc-desc">Aggregated metrics and logs across all users — updates automatically as data is entered.</div><div class="mc-arr">→</div></div>
-      <div class="mc m1" onclick="nav('assetDetail')"><div class="mci i1">🗂️</div><div class="mc-title">Asset Sheet</div><div class="mc-desc">Manage assets — view assigned assets, supporting assets, and log new asset entries.</div><div class="mc-arr">→</div></div>
-      <div class="mc m5" id="cardUM" onclick="nav('userMgmt')" style="display:none;"><div class="mci i5">🔐</div><div class="mc-title">User Management</div><div class="mc-desc">Create and manage login credentials. Add users with a username and password.</div><div class="mc-arr">→</div></div>
+    <style>
+      #spaceHome {
+        position:relative; width:100%; height:calc(100vh - 60px);
+        overflow:hidden; background:radial-gradient(ellipse at 60% 50%, #0a1628 0%, #050d1a 60%, #020710 100%);
+        display:flex; align-items:center; justify-content:center;
+      }
+      /* Stars */
+      #spaceHome .stars { position:absolute; inset:0; pointer-events:none; }
+      /* Orbit ring */
+      @keyframes orbitRing { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+      @keyframes orbitRingRev { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(-360deg)} }
+      @keyframes counterRot { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+      @keyframes counterRotRev { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes blackholePulse {
+        0%,100%{ box-shadow: 0 0 40px 10px rgba(56,150,255,.25), 0 0 80px 20px rgba(56,100,255,.1); }
+        50%    { box-shadow: 0 0 60px 20px rgba(56,150,255,.4), 0 0 120px 40px rgba(56,100,255,.2); }
+      }
+      @keyframes accretionSpin { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+      @keyframes diskFloat {
+        0%,100%{transform:translate(-50%,-50%) scaleY(1) rotate(-15deg)}
+        50%{transform:translate(-50%,-50%) scaleY(1.04) rotate(-15deg)}
+      }
+      @keyframes rayPulse {
+        0%,100%{opacity:.5; transform:translate(-50%,-50%) rotate(var(--ray-angle)) scaleX(1)}
+        50%{opacity:.85; transform:translate(-50%,-50%) rotate(var(--ray-angle)) scaleX(1.05)}
+      }
+      @keyframes nodePop {
+        0%{transform:scale(0) rotate(-20deg); opacity:0}
+        70%{transform:scale(1.15) rotate(4deg); opacity:1}
+        100%{transform:scale(1) rotate(0deg); opacity:1}
+      }
+      @keyframes nodeHover {
+        0%,100%{transform:translateY(0px)}
+        50%{transform:translateY(-4px)}
+      }
+      @keyframes titleFade {
+        from{opacity:0; transform:translateY(-12px)}
+        to{opacity:1; transform:translateY(0)}
+      }
+      .orbit-node {
+        position:absolute; top:0; left:0;
+        display:flex; flex-direction:column; align-items:center; gap:6px;
+        cursor:pointer;
+        animation: nodePop .6s cubic-bezier(.34,1.56,.64,1) both;
+      }
+      .orbit-node:hover .orbit-icon { transform:scale(1.15); box-shadow:0 0 24px rgba(255,255,255,.25); }
+      .orbit-node:hover .orbit-label { color:#fff; }
+      .orbit-icon {
+        width:54px; height:54px; border-radius:16px;
+        display:grid; place-items:center; font-size:24px;
+        backdrop-filter:blur(10px);
+        transition:transform .25s, box-shadow .25s;
+        border:1px solid rgba(255,255,255,.15);
+        box-shadow:0 4px 20px rgba(0,0,0,.4);
+      }
+      .orbit-label {
+        font-size:11px; font-weight:700; color:rgba(255,255,255,.7);
+        white-space:nowrap; letter-spacing:.4px; text-align:center;
+        transition:color .25s;
+        text-shadow:0 2px 8px rgba(0,0,0,.8);
+      }
+      .orbit-ring {
+        position:absolute; top:50%; left:50%;
+        border-radius:50%; border:1px solid rgba(100,160,255,.15);
+        pointer-events:none;
+      }
+    </style>
+
+    <div id="spaceHome">
+      <!-- Stars canvas -->
+      <canvas id="starCanvas" class="stars"></canvas>
+
+      <!-- Glow rays (like image) -->
+      <div style="position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;">
+        <!-- rays -->
+        <div style="--ray-angle:-55deg; position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(-55deg);animation:rayPulse 3s ease-in-out infinite;opacity:.5;"></div>
+        <div style="--ray-angle:-45deg; position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(-45deg);animation:rayPulse 3.5s ease-in-out infinite;opacity:.6;"></div>
+        <div style="--ray-angle:-35deg; position:absolute;top:0;left:0;width:580px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(-35deg);animation:rayPulse 4s ease-in-out infinite;opacity:.45;"></div>
+        <div style="--ray-angle:120deg; position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(120deg);animation:rayPulse 3.2s ease-in-out infinite;opacity:.5;"></div>
+        <div style="--ray-angle:130deg; position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(130deg);animation:rayPulse 3.8s ease-in-out infinite;opacity:.55;"></div>
+        <div style="--ray-angle:140deg; position:absolute;top:0;left:0;width:570px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(140deg);animation:rayPulse 4.2s ease-in-out infinite;opacity:.4;"></div>
+      </div>
+
+      <!-- Accretion disk outer glow -->
+      <div style="position:absolute;top:50%;left:50%;width:320px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(60,140,255,.18) 0%,transparent 70%);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
+      <!-- Accretion disk ring -->
+      <div style="position:absolute;top:50%;left:50%;width:300px;height:80px;border-radius:50%;border:18px solid transparent;background:radial-gradient(ellipse,rgba(80,160,255,.22),transparent 70%) border-box;box-shadow:0 0 40px rgba(60,140,255,.35), inset 0 0 20px rgba(60,140,255,.2);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
+      <!-- Inner disk bright -->
+      <div style="position:absolute;top:50%;left:50%;width:200px;height:50px;border-radius:50%;border:8px solid rgba(120,190,255,.4);box-shadow:0 0 30px rgba(100,180,255,.5), inset 0 0 10px rgba(100,180,255,.3);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
+
+      <!-- Black hole center -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;">
+        <div id="blackHole" title="Click to explore" style="width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,#000 60%,#060c1a 100%);animation:blackholePulse 3s ease-in-out infinite;box-shadow:0 0 40px 10px rgba(40,100,255,.3);transition:box-shadow .4s;">
+        </div>
+      </div>
+
+      <!-- Orbit rings (decorative) -->
+      <div class="orbit-ring" style="width:260px;height:260px;margin-left:-130px;margin-top:-130px;"></div>
+      <div class="orbit-ring" style="width:380px;height:380px;margin-left:-190px;margin-top:-190px;opacity:.08;"></div>
+
+      <!-- Title top -->
+      <div style="position:absolute;top:32px;left:0;right:0;text-align:center;animation:titleFade .8s ease both;pointer-events:none;">
+        <div style="font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(100,170,255,.7);text-transform:uppercase;">TechTrack</div>
+        <div style="font-size:22px;font-weight:900;color:#fff;margin-top:4px;text-shadow:0 0 30px rgba(80,150,255,.5);">Management System</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;">Select a module to begin</div>
+      </div>
+
+      <!-- Orbit nodes — positioned via JS -->
+      <div id="orbitNodes" style="position:absolute;top:50%;left:50%;width:0;height:0;"></div>
     </div>
+
+    <script>
+    (function(){
+      // ── Stars ──
+      const canvas = document.getElementById('starCanvas');
+      function resizeCanvas(){
+        if(!canvas) return;
+        canvas.width  = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(let i=0;i<180;i++){
+          const x=Math.random()*canvas.width, y=Math.random()*canvas.height;
+          const r=Math.random()*1.2+.2, a=Math.random()*.8+.2;
+          ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+          ctx.fillStyle='rgba(255,255,255,'+a+')'; ctx.fill();
+        }
+      }
+      window.addEventListener('resize', resizeCanvas);
+      setTimeout(resizeCanvas, 100);
+
+      // ── Module definitions ──
+      const modules = [
+        { icon:'⚡', label:'System\nPerformance', color:'#4f8ef7', nav:'perfUsers'   },
+        { icon:'📈', label:'Performance\nSummary', color:'#a855f7', nav:'perfDash'    },
+        { icon:'🗂️', label:'Asset\nSheet',         color:'#38d9a9', nav:'assetDetail' },
+        { icon:'🔐', label:'User\nManagement',      color:'#fb923c', nav:'userMgmt',  adminOnly:true },
+      ];
+
+      let expanded = false;
+      const RADIUS = 160;
+      const nodeEls = [];
+
+      // ── Build each node absolutely on the SPACE container ──
+      const space = document.getElementById('spaceHome');
+
+      modules.forEach((m) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = [
+          'position:absolute',
+          'display:flex',
+          'flex-direction:column',
+          'align-items:center',
+          'gap:6px',
+          'cursor:pointer',
+          'opacity:0',
+          'pointer-events:none',
+          'transition:opacity .4s ease, left .5s cubic-bezier(.34,1.56,.64,1), top .5s cubic-bezier(.34,1.56,.64,1)',
+          'z-index:20',
+        ].join(';');
+        if(m.adminOnly){ wrap.id='homeCardUM'; }
+
+        const icon = document.createElement('div');
+        icon.style.cssText = [
+          'width:54px','height:54px','border-radius:16px',
+          'display:grid','place-items:center','font-size:26px',
+          'background:'+m.color+'cc',
+          'border:1.5px solid '+m.color,
+          'box-shadow:0 4px 24px rgba(0,0,0,.5)',
+          'transition:transform .2s',
+        ].join(';');
+        icon.textContent = m.icon;
+        icon.addEventListener('mouseenter',()=>icon.style.transform='scale(1.15)');
+        icon.addEventListener('mouseleave',()=>icon.style.transform='');
+
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-align:center;line-height:1.4;text-shadow:0 2px 8px rgba(0,0,0,.9);white-space:nowrap;';
+        lbl.innerHTML = m.label.replace('\n','<br>');
+
+        wrap.appendChild(icon);
+        wrap.appendChild(lbl);
+        wrap.addEventListener('click', e => { e.stopPropagation(); nav(m.nav); });
+
+        space.appendChild(wrap);
+        nodeEls.push({ el: wrap, m });
+      });
+
+      function getCenter(){
+        const bh = document.getElementById('blackHole');
+        const sr = space.getBoundingClientRect();
+        const br = bh ? bh.getBoundingClientRect() : { left: sr.width/2, top: sr.height/2, width:72, height:72 };
+        return {
+          x: br.left - sr.left + br.width/2,
+          y: br.top  - sr.top  + br.height/2,
+        };
+      }
+
+      function showNodes(){
+        const visible = nodeEls.filter(n => !n.m.adminOnly || n.el.style.display !== 'none');
+        const count = visible.length;
+        const c = getCenter();
+        visible.forEach((nd, idx) => {
+          const angle = (idx * 360/count - 90) * Math.PI / 180;
+          const tx = c.x + Math.cos(angle) * RADIUS;
+          const ty = c.y + Math.sin(angle) * RADIUS;
+          // position so the node CENTER lands on tx,ty
+          nd.el.style.left = tx + 'px';
+          nd.el.style.top  = ty + 'px';
+          nd.el.style.transform = 'translate(-50%, -50%)';
+          nd.el.style.transitionDelay = (idx * 0.07) + 's';
+          nd.el.style.opacity = '1';
+          nd.el.style.pointerEvents = 'all';
+        });
+        expanded = true;
+      }
+
+      function hideNodes(){
+        const c = getCenter();
+        nodeEls.forEach(nd => {
+          nd.el.style.left = c.x + 'px';
+          nd.el.style.top  = c.y + 'px';
+          nd.el.style.transform = 'translate(-50%,-50%) scale(0.1)';
+          nd.el.style.opacity = '0';
+          nd.el.style.pointerEvents = 'none';
+          nd.el.style.transitionDelay = '0s';
+        });
+        expanded = false;
+      }
+
+      // init positions to center (hidden)
+      setTimeout(()=>{
+        const c = getCenter();
+        nodeEls.forEach(nd => {
+          nd.el.style.left = c.x + 'px';
+          nd.el.style.top  = c.y + 'px';
+          nd.el.style.transform = 'translate(-50%,-50%) scale(0.1)';
+        });
+      }, 150);
+
+      // Click black hole
+      const bh = document.getElementById('blackHole');
+      if(bh){
+        bh.style.cursor = 'pointer';
+        bh.addEventListener('click', e => {
+          e.stopPropagation();
+          expanded ? hideNodes() : showNodes();
+        });
+      }
+
+      // Click outside collapses
+      space.addEventListener('click', () => { if(expanded) hideNodes(); });
+
+      window._spaceNodeEls   = nodeEls;
+      window._spaceShowNodes = showNodes;
+      window._spaceHideNodes = hideNodes;
+    })();
+    </script>
   </div>
 
   <!-- PERF USER LIST -->
@@ -528,7 +778,7 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Any Physical Damage</label>
           <select id="pf_physDamage" onchange="onPhysDamageChange()"><option value="">Select</option><option>None</option><option>Minor</option><option>Major</option></select>
         </div>
-        <div class="fi" id="pf_physDamageNoteRow" style="display:none;grid-column:1/-1;"><label>Damage Description <span style="color:var(--danger);font-size:10px;">Required</span></label><textarea id="pf_physDamageNote" placeholder="Describe the physical damage (e.g. cracked screen, broken hinge, dented chassis...)"></textarea></div>
+        <div class="fi" id="pf_physDamageNoteRow" style="display:none;"><label>Damage Description <span style="color:var(--danger);font-size:10px;">Required</span></label><textarea id="pf_physDamageNote" placeholder="Describe the physical damage (e.g. cracked screen, broken hinge, dented chassis...)"></textarea></div>
         <div class="fi"><label>Work Environment</label>
           <select id="pf_workEnv"><option value="">Select</option><option>Separate Room</option><option>Shared Space</option><option>Open Area</option></select>
         </div>
@@ -919,12 +1169,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Laptop User Name</label><input id="ae_user" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Laptop -->
-          <div id="cf_assigned_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_assigned" onclick="openColManager('assigned')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_assigned_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_assigned_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- SUPPORTING fields -->
@@ -945,12 +1190,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi"><label>Assigned User Name</label><input id="ae_suser" placeholder="e.g. John Doe"/></div>
           </div>
           <!-- Custom Fields: Supporting -->
-          <div id="cf_supporting_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_supporting" onclick="openColManager('supporting')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_supporting_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_supporting_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- BACKUP fields (laptop + supporting combined) -->
@@ -998,12 +1238,7 @@ document.dispatchEvent(new Event('firebase-ready'));
           </div>
 
           <!-- Custom Fields: Backup -->
-          <div id="cf_backup_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_backup" onclick="openColManager('backup')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_backup_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_backup_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <!-- DEAD fields -->
@@ -1036,12 +1271,7 @@ document.dispatchEvent(new Event('firebase-ready'));
             <div class="fi" style="grid-column:span 3;"><label>Notes</label><input id="ae_dnotes" placeholder="Any additional notes"/></div>
           </div>
           <!-- Custom Fields: Dead -->
-          <div id="cf_dead_wrap" style="margin-top:4px;">
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <button type="button" id="colMgrBtn_dead" onclick="openColManager('dead')" style="font-size:12px;color:var(--accent2);background:rgba(56,217,169,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px 14px;cursor:pointer;width:100%;">⚙️ Manage Columns</button>
-            </div>
-            <div id="cf_dead_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"></div>
-          </div>
+          <div class="fi" style="margin-top:4px;"><label>Notes / Comments</label><textarea id="cf_dead_notes" placeholder="Any additional notes or comments..." style="min-height:70px;resize:vertical;"></textarea></div>
         </div>
 
         <div style="display:flex;align-items:center;gap:9px;">
@@ -1350,7 +1580,7 @@ function celebrate(msg='Saved!', sub=''){
   `;
 
   toast.innerHTML = `
-    <!-- Green glow behind icon -->
+    
     <div style="position:relative;flex-shrink:0;">
       <div style="position:absolute;inset:-6px;border-radius:14px;background:radial-gradient(circle,rgba(56,217,120,.35),transparent 70%);animation:glowFade 2s infinite;"></div>
       <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#1a6b3a,#22c55e);display:grid;place-items:center;position:relative;box-shadow:0 4px 14px rgba(34,197,94,.4);">
@@ -1360,16 +1590,16 @@ function celebrate(msg='Saved!', sub=''){
       </div>
     </div>
 
-    <!-- Text -->
+    
     <div style="flex:1;min-width:0;">
       <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.1px;">${msg}</div>
       <div style="font-size:12px;color:rgba(255,255,255,.42);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sub||'Successfully saved to Firebase'}</div>
     </div>
 
-    <!-- Close -->
+    
     <button onclick="(function(){const t=document.getElementById('successToast');if(t){t.style.animation='toastOut .35s ease forwards';setTimeout(()=>t.remove(),350);}})()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;transition:color .2s;" onmouseenter="this.style.color='rgba(255,255,255,.7)'" onmouseleave="this.style.color='rgba(255,255,255,.3)'">✕</button>
 
-    <!-- Progress bar -->
+    
     <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.06);">
       <div style="height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);animation:toastProgress 2.8s .3s linear forwards;border-radius:0 0 0 0;"></div>
     </div>
@@ -1547,32 +1777,77 @@ let sysChecks = [];
 let curSysCheckId = null;
 
 function renderSCGrid(){
-  const grid  = $$('sc_grid');
-  const empty = $$('sc_empty');
+  const grid=$$('sc_grid'), empty=$$('sc_empty');
   if(!grid) return;
-  if(!sysChecks.length){
-    grid.innerHTML = '';
-    if(empty) empty.style.display='block';
-    return;
-  }
+  if(!sysChecks.length){ grid.innerHTML=''; if(empty)empty.style.display='block'; return; }
   if(empty) empty.style.display='none';
-  grid.innerHTML = sysChecks.map(sc=>{
-    const userCount = perfUsers.filter(u=>u.sysCheckId===sc.id).length;
-    const logCount  = perfLogs.filter(l=>l.sysCheckId===sc.id).length;
-    return `<div onclick="openSysCheck(${sc.id})" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:border-color .2s,transform .15s;position:relative;" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
-      <button onclick="event.stopPropagation();deleteSysCheck(${sc.id})" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;opacity:0;" onmouseover="this.style.opacity='1';this.style.color='var(--danger)'" onmouseout="this.style.opacity='0'">✕</button>
-      <div style="font-size:18px;margin-bottom:6px;">📋</div>
-      <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${sc.name}</div>
-      <div style="font-size:12px;color:var(--accent3);font-weight:600;margin-bottom:10px;">📅 ${sc.months||'No months set'}</div>
-      <div style="display:flex;gap:10px;">
-        <span style="background:var(--surface2);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--text2);">👥 ${userCount} user${userCount===1?'':'s'}</span>
-        <span style="background:var(--surface2);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--text2);">📝 ${logCount} log${logCount===1?'':'s'}</span>
-      </div>
-      <div style="margin-top:12px;font-size:11px;color:var(--text3);">Click to open →</div>
-    </div>`;
+  const P=[
+    {bg:'linear-gradient(135deg,#1a2a4a,#0f1e38)',ac:'#4f8ef7'},
+    {bg:'linear-gradient(135deg,#0f2a22,#071a14)',ac:'#38d9a9'},
+    {bg:'linear-gradient(135deg,#231535,#130a24)',ac:'#a855f7'},
+    {bg:'linear-gradient(135deg,#2e1e0a,#1a1005)',ac:'#fb923c'},
+  ];
+  grid.innerHTML = sysChecks.map(function(sc,i){
+    const uc=perfUsers.filter(u=>u.sysCheckId===sc.id).length;
+    const lc=perfLogs.filter(l=>l.sysCheckId===sc.id).length;
+    const p=P[i%P.length];
+    const bw=uc>0?Math.min(100,Math.round(lc/uc*100)):0;
+    const hm=sc.months&&sc.months.trim();
+    const card=[
+      '<div class="sc-card" data-id="'+sc.id+'" onclick="openSysCheck('+sc.id+')"',
+      'style="background:'+p.bg+';border:1px solid '+p.ac+'44;border-radius:18px;cursor:pointer;',
+      'transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;',
+      'box-shadow:0 4px 24px rgba(0,0,0,.35);">',
+      '<div style="position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;',
+      'background:'+p.ac+'22;filter:blur(35px);pointer-events:none;"></div>',
+      '<div style="height:3px;background:linear-gradient(90deg,'+p.ac+',transparent);border-radius:18px 18px 0 0;"></div>',
+      '<div style="padding:16px 16px 14px;position:relative;">',
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">',
+          '<div style="display:flex;align-items:center;gap:10px;">',
+            '<div style="width:42px;height:42px;border-radius:12px;background:'+p.ac+'22;border:1px solid '+p.ac+'44;display:grid;place-items:center;font-size:20px;flex-shrink:0;">📋</div>',
+            '<div>',
+              '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.2px;">'+sc.name+'</div>',
+              '<div style="font-size:11px;color:'+(hm?p.ac:'rgba(255,255,255,.3)')+';font-weight:600;margin-top:2px;">'+(hm?'📅 '+sc.months:'No months set')+'</div>',
+            '</div>',
+          '</div>',
+          '<button onclick="event.stopPropagation();deleteSysCheck('+sc.id+')"',
+          'style="background:rgba(242,92,92,.1);border:1px solid rgba(242,92,92,.2);color:rgba(242,92,92,.6);',
+          'font-size:12px;cursor:pointer;border-radius:8px;padding:3px 9px;transition:all .2s;flex-shrink:0;">✕</button>',
+        '</div>',
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;">',
+          '<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;">',
+            '<div style="font-size:9px;color:rgba(255,255,255,.38);font-weight:700;letter-spacing:.6px;margin-bottom:4px;">USERS</div>',
+            '<div style="font-size:22px;font-weight:900;color:#fff;line-height:1;">'+uc+'</div>',
+          '</div>',
+          '<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;">',
+            '<div style="font-size:9px;color:rgba(255,255,255,.38);font-weight:700;letter-spacing:.6px;margin-bottom:4px;">LOGS</div>',
+            '<div style="font-size:22px;font-weight:900;color:'+p.ac+';line-height:1;">'+lc+'</div>',
+          '</div>',
+        '</div>',
+        '<div style="margin-bottom:11px;">',
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">',
+            '<span style="font-size:9px;color:rgba(255,255,255,.35);font-weight:700;letter-spacing:.6px;">COMPLETION</span>',
+            '<span style="font-size:11px;font-weight:800;color:'+p.ac+';">'+bw+'%</span>',
+          '</div>',
+          '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;">',
+            '<div style="height:4px;width:'+bw+'%;background:'+p.ac+';border-radius:2px;"></div>',
+          '</div>',
+        '</div>',
+        '<div style="display:flex;align-items:center;justify-content:space-between;">',
+          '<span style="font-size:10px;color:rgba(255,255,255,.22);">'+(sc.created||'')+'</span>',
+          '<span style="font-size:11px;font-weight:700;color:'+p.ac+';">Open →</span>',
+        '</div>',
+      '</div>',
+      '</div>'
+    ];
+    return card.join('');
   }).join('');
+  // attach hover via JS (no inline single-quote conflicts)
+  grid.querySelectorAll('.sc-card').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ el.style.transform='translateY(-3px)'; el.style.boxShadow='0 14px 44px rgba(0,0,0,.5)'; });
+    el.addEventListener('mouseleave',function(){ el.style.transform=''; el.style.boxShadow='0 4px 24px rgba(0,0,0,.35)'; });
+  });
 }
-
 function createSysCheck(){
   const name   = (val('sc_name')||'').trim();
   const months = (val('sc_months')||'').trim();
@@ -1865,7 +2140,7 @@ function clearBatteryAuto(){
 function onPhysDamageChange(){
   const v = val('pf_physDamage');
   const row = $$('pf_physDamageNoteRow');
-  if(row) row.style.display = (v==='Minor'||v==='Major') ? 'block' : 'none';
+  if(row) row.style.display = (v==='Minor'||v==='Major') ? '' : 'none';
   if(v===''||v==='None'){ const e=$$('pf_physDamageNote'); if(e) e.value=''; }
 }
 function onTeamChange(){
@@ -1944,9 +2219,8 @@ function editPerfEntry(id){
     'sfc','appUpdate','dataCross','onedrive','bitlocker','sysPerfRestart'];
   chkIds.forEach(k=>{ const e=$$('pf_'+k); if(e) e.checked=(l[k]===true||l[k]==='true'); });
 
-  // Show conditional fields first, then fill physDamageNote AFTER so textarea is visible
+  // Show conditional fields
   onTeamChange(); onDualMonChange(); onPhysDamageChange();
-  setV('pf_physDamageNote', l.physDamageNote);
 
   // Update save button to show editing mode
   const btn = document.querySelector('[onclick="submitPerf()"]');
@@ -2001,7 +2275,7 @@ function submitPerf(){
     // Hardware
     procRam: val('pf_procRam'), battery: val('pf_battery'), batDesign: val('pf_batDesign'),
     batFull: val('pf_batFull'), hddHealth: val('pf_hddHealth'), hddHealthPct: val('pf_hddHealthPct'), hddTemp: val('pf_hddTemp'), hddTotal: val('pf_hddTotal'), hddUsed: val('pf_hddUsed'), hddFree: val('pf_hddFree'),
-    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'), physDamageNote: val('pf_physDamageNote'),
+    mouse: val('pf_mouse'), dualMonitor: val('pf_dualMonitor'), dualReason: val('pf_dualReason'), physDamage: val('pf_physDamage'),
     workEnv: val('pf_workEnv'),
     // Checklist
     clearCache: chkVal('pf_clearCache'), unwantedApp: chkVal('pf_unwantedApp'),
@@ -2623,6 +2897,8 @@ function applyRoleUI(){
   // User Management card — Admin only
   const cardUM = $$('cardUM');
   if(cardUM) cardUM.style.display = admin ? 'block' : 'none';
+  const hcUM = $$('homeCardUM');
+  if(hcUM){ hcUM.style.display = admin ? 'flex' : 'none'; if(hcUM.dataset&&hcUM.dataset.adminOnly) hcUM.style.display = admin ? '' : 'none'; }
   // Role badge next to user name in topbar
   let badge = $$('roleBadge');
   if(!badge){
@@ -2724,10 +3000,10 @@ function selectCat(cat){
   const fd=$$(map[cat]); if(fd)fd.style.display='block';
   // Pre-fill custom fields from saved template
   setTimeout(()=>applyTemplateToForm(cat), 50);
-  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user',
-   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser',
-   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice',
-   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes']
+  ['ae_id','ae_model','ae_serial','ae_brand','ae_proc','ae_ram','ae_warranty','ae_purchaseDate','ae_user','cf_assigned_notes',
+   'ae_sid','ae_slaptop','ae_sserial','ae_sbrand','ae_sheadset','ae_sups','ae_skeyboard','ae_smouse','ae_swarranty','ae_spurchaseDate','ae_suser','cf_supporting_notes',
+   'ae_bid','ae_bmodel','ae_bserial','ae_bbrand','ae_bproc','ae_bram','ae_bwarranty','ae_bpurchaseDate','ae_bnotes','ae_bvendorName','ae_bvendorContact','ae_bvendorPhone','ae_bvendorEmail','ae_bvendorInvoice','ae_bvendorPrice','cf_backup_notes',
+   'ae_did','ae_dserial','ae_dbrand','ae_duser','ae_dreason','ae_ddate','ae_dwarranty','ae_dpurchaseDate','ae_dnotes','cf_dead_notes']
    .forEach(id=>{const e=$$(id);if(e)e.value='';});
   const er=$$('ae_err');if(er)er.textContent='';
 }
@@ -2742,22 +3018,22 @@ function submitAssetEntry(){
     const assetId=val('ae_id').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),custom:getCustomFields('assigned'),services:[]});
+    assignedLogs.push({id:aId++,assetId,model:val('ae_model'),serial:val('ae_serial'),brand:val('ae_brand'),proc:val('ae_proc'),ram:val('ae_ram'),warranty:val('ae_warranty'),warrantyEnd:val('ae_warrantyEnd'),purchaseDate:val('ae_purchaseDate'),userName:val('ae_user'),notes:val('cf_assigned_notes'),services:[]});
   } else if(curAssetCat==='supporting'){
     const assetId=val('ae_sid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),custom:getCustomFields('supporting'),services:[]});
+    supportLogs.push({id:sId++,assetId,laptop:val('ae_slaptop'),serial:val('ae_sserial'),brand:val('ae_sbrand'),headset:val('ae_sheadset'),ups:val('ae_sups'),keyboard:val('ae_skeyboard'),mouse:val('ae_smouse'),warranty:val('ae_swarranty'),warrantyEnd:val('ae_swarrantyEnd'),purchaseDate:val('ae_spurchaseDate'),userName:val('ae_suser'),notes:val('cf_supporting_notes'),services:[]});
   } else if(curAssetCat==='backup'){
     const assetId=val('ae_bid').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),custom:getCustomFields('backup'),prevUser:'',collectedDate:'',reason:'',services:[]});
+    backupLogs.push({id:bId++,fromType:'backup',assetId,model:val('ae_bmodel'),serial:val('ae_bserial'),brand:val('ae_bbrand'),proc:val('ae_bproc'),ram:val('ae_bram'),headset:val('ae_bheadset'),mouse:val('ae_bmouse'),keyboard:val('ae_bkeyboard'),warranty:val('ae_bwarranty'),warrantyEnd:val('ae_bwarrantyEnd'),purchaseDate:val('ae_bpurchaseDate'),notes:val('ae_bnotes')||val('cf_backup_notes'),vendorName:val('ae_bvendorName'),vendorContact:val('ae_bvendorContact'),vendorPhone:val('ae_bvendorPhone'),vendorEmail:val('ae_bvendorEmail'),vendorInvoice:val('ae_bvendorInvoice'),vendorPrice:val('ae_bvendorPrice'),prevUser:'',collectedDate:'',reason:'',services:[]});
   } else {
     const assetId=val('ae_did').trim();
     if(!assetId){if(errEl)errEl.textContent='Asset ID is required.';return;}
     if(chkDup(assetId))return;
-    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes'),custom:getCustomFields('dead'),services:[]});
+    deadLogs.push({id:dId++,assetId,serial:val('ae_dserial'),brand:val('ae_dbrand'),prevUser:val('ae_duser'),reason:val('ae_dreason'),date:val('ae_ddate'),warranty:val('ae_dwarranty'),warrantyEnd:val('ae_dwarrantyEnd'),purchaseDate:val('ae_dpurchaseDate'),notes:val('ae_dnotes')||val('cf_dead_notes'),services:[]});
   }
   triggerAlert('new', curAssetCat==='assigned'?val('ae_id'):curAssetCat==='supporting'?val('ae_sid'):curAssetCat==='backup'?val('ae_bid'):val('ae_did'));
   refreshAll(); flash('ae_ok'); _lastSubmitBtn=document.querySelector('[onclick="submitAssetEntry()"]'); closeAEForm(); celebrate('Asset Saved!','Asset entry saved successfully');
@@ -3287,7 +3563,7 @@ function openIssuePanel(type){
       return `
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;">
 
-        <!-- ── TOP: Avatar + User Name + Team + Date ── -->
+        
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
           <div style="width:42px;height:42px;border-radius:12px;background:${accent};display:grid;place-items:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;">${l.userName?l.userName[0].toUpperCase():'?'}</div>
           <div style="flex:1;min-width:0;">
@@ -3300,14 +3576,14 @@ function openIssuePanel(type){
           </div>
         </div>
 
-        <!-- ── REASON block — shown for ALL types ── -->
+        
         ${l.reason?`
         <div style="background:rgba(242,92,92,.07);border:1px solid rgba(242,92,92,.25);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
           <div style="font-size:10px;color:var(--danger);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">📝 REASON</div>
           <div style="font-size:13px;color:var(--text);line-height:1.5;">${l.reason}</div>
         </div>`:''}
 
-        <!-- ── Physical Damage block ── -->
+        
         ${l.physDamage&&l.physDamage!=='None'&&l.physDamage!==''?`
         <div style="background:rgba(247,131,79,.08);border:1px solid rgba(247,131,79,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
           <div style="font-size:10px;color:var(--accent3);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">🔧 PHYSICAL DAMAGE</div>
@@ -3316,7 +3592,7 @@ function openIssuePanel(type){
           ${l.complaintImg?`<a href="${l.complaintImg}" target="_blank" style="font-size:12px;color:var(--accent);display:inline-block;margin-top:6px;">📷 View Image</a>`:''}
         </div>`:''}
 
-        <!-- ── Action block ── -->
+        
         ${l.action&&l.action.trim()!==''?`
         <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;">
           <div style="font-size:10px;color:var(--accent);font-weight:800;letter-spacing:.6px;margin-bottom:4px;">📋 ACTION NEEDED</div>
@@ -3324,7 +3600,7 @@ function openIssuePanel(type){
           ${l.userIssues?`<div style="font-size:10px;color:var(--text3);margin-top:8px;font-weight:800;letter-spacing:.6px;">🐛 USER ISSUES</div><div style="font-size:13px;color:var(--text);margin-top:3px;">${l.userIssues}</div>`:''}
         </div>`:''}
 
-        <!-- ── Hardware stats row ── -->
+        
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:10px;">
           ${l.battery?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">🔋 BATTERY</div><div style="font-weight:700;color:${parseFloat(l.battery)<30?'var(--danger)':parseFloat(l.battery)<=60?'var(--accent3)':'var(--accent2)'};">${l.battery}%</div></div>`:''}
           ${l.hddHealth?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">💾 HDD</div><div style="font-weight:700;font-size:11px;color:${l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)'};">${l.hddHealth}</div></div>`:''}
@@ -3335,13 +3611,12 @@ function openIssuePanel(type){
           ${l.procRam?`<div style="background:var(--surface);border-radius:7px;padding:7px 10px;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:2px;">💻 PROC/RAM</div><div style="font-weight:700;font-size:11px;">${l.procRam}</div></div>`:''}
         </div>
 
-        <!-- ── Full Report button ── -->
+        
         <button onclick="closeIssuePanel();openUserReport('${safeUser}');" style="width:100%;background:var(--accent);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
       </div>`;
     }).join(''));
   }
-
-  const modal=$$('issuePanelModal'); if(modal){ modal.style.display='block'; modal.scrollTop=0; }
+  const modal = $$('issuePanelModal'); if(modal){ modal.style.display='block'; modal.scrollTop=0; }
 }
 
 function closeIssuePanel(){
@@ -3359,127 +3634,65 @@ document.addEventListener('click', e=>{
 function openHddPanel(status){
   const logs = getFilteredLogs();
   const filtered = logs.filter(l=>l.hddHealth===status);
-  const col = status==='Good'?'var(--accent2)':status==='Under Monitoring'?'var(--accent3)':'var(--danger)';
-  const icon = status==='Good'?'✅':status==='Under Monitoring'?'⚠️':'🔴';
-  $$('hddBatModalTitle').innerHTML = `${icon} HDD — <span style="color:${col};">${status}</span>`;
-  $$('hddBatModalSub').textContent  = filtered.length + ' user' + (filtered.length===1?'':'s');
+  const col  = status==='Good'?'var(--accent2)':status==='Under Monitoring'?'var(--accent3)':'var(--danger)';
+  const icon = status==='Good'?'\u2705':status==='Under Monitoring'?'\u26a0\ufe0f':'\U0001F534';
+  $$('hddBatModalTitle').innerHTML = icon+' HDD &mdash; <span style="color:'+col+';">'+status+'</span>';
+  $$('hddBatModalSub').textContent = filtered.length+' user'+(filtered.length===1?'':'s');
   if(!filtered.length){
-    $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
+    $$('hddBatModalBody').innerHTML='<div style="color:var(--text3);text-align:center;padding:24px 0;">No users in this category</div>';
   } else {
-    $$('hddBatModalBody').innerHTML = filtered.map(l=>{
-      const hPct    = l.hddHealthPct ? l.hddHealthPct+'%' : '—';
-      const temp    = l.hddTemp ? l.hddTemp+'°C' : '—';
-      const statCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
-      const tempCol = l.hddTemp&&parseFloat(l.hddTemp)>65?'var(--danger)':parseFloat(l.hddTemp)>=50?'var(--accent3)':'var(--accent2)';
-      const safeU   = (l.userName||'').replace(/'/g,"\'");
-      return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${statCol};">
-        <!-- User Name -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-          <div>
-            <div style="font-size:16px;font-weight:800;color:var(--text);">${l.userName||'Unknown'}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.team||'—'} &nbsp;·&nbsp; Asset: <strong>${l.assetId||'—'}</strong> &nbsp;·&nbsp; ${l.date||'—'}</div>
-          </div>
-          <span style="padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:${statCol};color:#fff;flex-shrink:0;">${l.hddHealth}</span>
-        </div>
-        <!-- Reason if any -->
-        ${l.reason?`<div style="background:rgba(242,92,92,.07);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;"><span style="color:var(--danger);font-weight:700;">📝 Reason: </span><span style="color:var(--text);">${l.reason}</span></div>`:''}
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">HEALTH %</div><div style="font-weight:800;font-size:15px;color:${statCol};">${hPct}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">TEMPERATURE</div><div style="font-weight:800;font-size:15px;color:${tempCol};">${temp}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">TOTAL / USED</div><div style="font-weight:700;font-size:12px;">${l.hddTotal||'—'} / ${l.hddUsed||'—'}</div></div>
-        </div>
-        <button onclick="closeHddBatModal();openUserReport('${safeU}');" style="width:100%;margin-top:10px;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
-      </div>`;
+    const rows = filtered.map(function(l){
+      const hPct   = l.hddHealthPct!=null?parseFloat(l.hddHealthPct):null;
+      const temp   = l.hddTemp?parseFloat(l.hddTemp):null;
+      const sCol   = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
+      const tCol   = temp!=null?(temp>65?'var(--danger)':temp>=50?'var(--accent3)':'var(--accent2)'):'var(--text3)';
+      const barW   = hPct!=null?Math.min(100,hPct):0;
+      const safeU  = (l.userName||'').replace(/'/g,"\\'");
+      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+sCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+sCol+';white-space:nowrap;">'+(hPct!=null?hPct+'%':'—')+'</span></div></td><td style="padding:8px;text-align:center;font-size:12px;font-weight:700;color:'+tCol+';">'+(temp!=null?temp+'\u00b0C':'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.hddTotal||'—')+'</td></tr>';
     }).join('');
+    $$('hddBatModalBody').innerHTML='<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">HEALTH</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">TEMP</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">SIZE</th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px;padding-bottom:4px;">Tap any row to view full report</div>';
   }
-  const m = $$('hddBatModal'); m.style.display='flex';
+  $$('hddBatModal').style.display='flex';
 }
 
-// ── Battery pill click panel ──
+// \u2014 Battery pill click panel —
 function openBatPanel(status){
   const logs = getFilteredLogs();
   let filtered;
-  if(status==='Good')               filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)>60);
-  else if(status==='Under Monitoring') filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60);
-  else                              filtered = logs.filter(l=>l.battery&&parseFloat(l.battery)<30);
+  if(status==='Good')                  filtered=logs.filter(l=>l.battery&&parseFloat(l.battery)>60);
+  else if(status==='Under Monitoring') filtered=logs.filter(l=>l.battery&&parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60);
+  else                                 filtered=logs.filter(l=>l.battery&&parseFloat(l.battery)<30);
   const col  = status==='Good'?'var(--accent2)':status==='Under Monitoring'?'var(--accent3)':'var(--danger)';
-  const icon = status==='Good'?'✅':status==='Under Monitoring'?'⚠️':'🔴';
-  $$('hddBatModalTitle').innerHTML = `${icon} Battery — <span style="color:${col};">${status}</span>`;
-  $$('hddBatModalSub').textContent  = filtered.length + ' user' + (filtered.length===1?'':'s');
+  const icon = status==='Good'?'\u2705':status==='Under Monitoring'?'\u26a0\ufe0f':'\U0001F534';
+  $$('hddBatModalTitle').innerHTML = icon+' Battery &mdash; <span style="color:'+col+';">'+status+'</span>';
+  $$('hddBatModalSub').textContent = filtered.length+' user'+(filtered.length===1?'':'s');
   if(!filtered.length){
-    $$('hddBatModalBody').innerHTML = `<div style="color:var(--text3);text-align:center;padding:20px;">No users in this category</div>`;
+    $$('hddBatModalBody').innerHTML='<div style="color:var(--text3);text-align:center;padding:24px 0;">No users in this category</div>';
   } else {
-    $$('hddBatModalBody').innerHTML = [...filtered].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
+    const rows = [...filtered].sort(function(a,b){return parseFloat(a.battery)-parseFloat(b.battery);}).map(function(l){
       const pct    = parseFloat(l.battery);
       const batCol = pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
       const barW   = Math.min(100,pct);
-      const safeU  = (l.userName||'').replace(/'/g,"\'");
-      return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${batCol};">
-        <!-- User Name -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-          <div>
-            <div style="font-size:16px;font-weight:800;color:var(--text);">${l.userName||'Unknown'}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${l.team||'—'} &nbsp;·&nbsp; Asset: <strong>${l.assetId||'—'}</strong> &nbsp;·&nbsp; ${l.date||'—'}</div>
-          </div>
-          <span style="font-size:22px;font-weight:900;color:${batCol};">${pct}%</span>
-        </div>
-        <!-- Battery bar -->
-        <div style="height:8px;background:var(--border);border-radius:4px;margin-bottom:10px;">
-          <div style="height:8px;border-radius:4px;width:${barW}%;background:${batCol};transition:width .4s;"></div>
-        </div>
-        <!-- Reason if any -->
-        ${l.reason?`<div style="background:rgba(242,92,92,.07);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;"><span style="color:var(--danger);font-weight:700;">📝 Reason: </span><span style="color:var(--text);">${l.reason}</span></div>`:''}
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">STATUS</div><div style="font-weight:800;font-size:12px;color:${batCol};">${status}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">DESIGN CAP</div><div style="font-weight:700;">${l.batDesign||'—'}</div></div>
-          <div style="background:var(--surface);border-radius:7px;padding:8px 10px;text-align:center;"><div style="color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;">FULL CHARGE</div><div style="font-weight:700;">${l.batFull||'—'}</div></div>
-        </div>
-        <button onclick="closeHddBatModal();openUserReport('${safeU}');" style="width:100%;margin-top:10px;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;">👁 View Full Report</button>
-      </div>`;
+      const safeU  = (l.userName||'').replace(/'/g,"\\'");
+      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+batCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+batCol+';white-space:nowrap;">'+pct+'%</span></div></td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batDesign||'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batFull||'—')+'</td></tr>';
     }).join('');
+    $$('hddBatModalBody').innerHTML='<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">BATTERY</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">DESIGN</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">FULL CHG</th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px;padding-bottom:4px;">Tap any row to view full report</div>';
   }
-  const m = $$('hddBatModal'); m.style.display='flex';
+  $$('hddBatModal').style.display='flex';
 }
-
-function closeHddBatModal(){
-  const m=$$('hddBatModal'); if(m) m.style.display='none';
-}
-
-// helper — get currently filtered logs for panel
-function getFilteredLogs(){
-  const dashSC2 = val('dashSysCheck');
-  const team   = val('dashTeam');
-  const user   = val('dashUser');
-  let logs = [...perfLogs];
-  if(dashSC2) logs=logs.filter(l=>l.sysCheckId==dashSC2);
-  if(team&&team!=='ALL'&&team!=='DAY'&&team!=='NIGHT') logs=logs.filter(l=>l.team===team);
-  else if(team==='DAY')   logs=logs.filter(l=>l.team&&l.team.startsWith('Day'));
-  else if(team==='NIGHT') logs=logs.filter(l=>l.team&&l.team.startsWith('Night'));
-  if(user&&user!=='all')  logs=logs.filter(l=>l.userName===user);
-  return logs;
-}
-
 function openUserReport(userName){
   _reportUserName = userName;
   const userLogs = perfLogs.filter(l=>l.userName===userName);
-  if(!userLogs.length){ alert('No data found for '+userName); return; }
-  const latest = userLogs[userLogs.length-1];
-
-  // Avatar + header
-  const el = $$('urm_avatar'); if(el) el.textContent = userName[0].toUpperCase();
+  if(!userLogs.length){ alert('No performance logs found for '+userName); return; }
+  const latest = [...userLogs].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const scores = userLogs.map(l=>parseFloat(l.sysScore||0)).filter(x=>!isNaN(x));
+  const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+  const bats = userLogs.map(l=>parseFloat(l.battery)).filter(x=>!isNaN(x));
+  const avgBat = bats.length ? (bats.reduce((a,b)=>a+b,0)/bats.length).toFixed(0) : '—';
   setText('urm_name', userName);
-  setText('urm_meta', (latest.team||'No team') + ' · ' + userLogs.length + ' total entries · Last: ' + (latest.date||latest.time||'—'));
-
-  // Score cards
-  const avg = key => { const v=userLogs.filter(l=>l[key]&&!isNaN(parseFloat(l[key]))); return v.length?(v.reduce((s,l)=>s+parseFloat(l[key]),0)/v.length).toFixed(1)+'%':'—'; };
-  const sc = v => parseFloat(v)>=8?'var(--accent2)':parseFloat(v)>=6?'var(--accent3)':'var(--danger)';
-  const avgSys=avg('sysScore'), avgTeam=avg('teamScore'), avgApp=avg('appScore'), avgBat=avg('battery');
-  setText('urm_totalEntries', userLogs.length);
-  setText('urm_avgSys',  avgSys!=='—'?avgSys+'/10':'—');  const s1=$$('urm_avgSys');  if(s1&&avgSys!=='—')  s1.style.color=sc(avgSys);
-  setText('urm_avgTeam', avgTeam!=='—'?avgTeam+'/10':'—'); const s2=$$('urm_avgTeam'); if(s2&&avgTeam!=='—') s2.style.color=sc(avgTeam);
-  setText('urm_avgApp',  avgApp!=='—'?avgApp+'/10':'—');  const s3=$$('urm_avgApp');  if(s3&&avgApp!=='—')  s3.style.color=sc(avgApp);
+  setText('urm_av', userName[0]||'?');
+  setText('urm_logCount', userLogs.length);
+  setText('urm_avgScore', avgScore);
   setText('urm_avgBat',  avgBat);  const s4=$$('urm_avgBat');
   if(s4&&avgBat!=='—') s4.style.color=parseFloat(avgBat)<30?'var(--danger)':parseFloat(avgBat)<50?'var(--accent3)':'var(--accent2)';
 
@@ -3496,7 +3709,7 @@ function openUserReport(userName){
   if(hddCaution) flags.push(['💾 '+hddCaution+' Caution HDD/SSD','var(--accent3)']);
   if(lowBat)     flags.push(['🔋 '+lowBat+' Low battery entry(s)','var(--accent3)']);
   if(!flags.length) flags.push(['✅ No issues flagged','var(--accent2)']);
-  setHTML('urm_flags', flags.map(([t,c])=>`<span style="padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:${c}22;color:${c};border:1px solid ${c}44;">${t}</span>`).join(''));
+  setHTML('urm_flags', flags.map(function(x){return '<span style="padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;background:'+x[1]+'22;color:'+x[1]+';border:1px solid '+x[1]+'44;">'+x[0]+'</span>';}).join(''));
 
   // Latest entry detail grid
   const detail = [
@@ -3521,16 +3734,9 @@ function openUserReport(userName){
   ];
   if(latest.action)       detail.push(['📋 Action', latest.action]);
   if(latest.userIssues)   detail.push(['🐛 Issues', latest.userIssues]);
-  if(latest.physDamage&&latest.physDamage!=='None'){
-    detail.push(['⚠️ Damage Type', latest.physDamage]);
-    if(latest.physDamageNote) detail.push(['📝 Damage Description', latest.physDamageNote]);
-  }
+  if(latest.physDamage&&latest.physDamage!=='None') detail.push(['⚠️ Damage', latest.physDamage+(latest.physDamageNote?' — '+latest.physDamageNote:'')]);
   if(latest.reason)       detail.push(['📝 Reason', latest.reason]);
-  setHTML('urm_latestDetail', detail.map(([label,val])=>`
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:3px;">${label}</div>
-      <div style="font-size:13px;font-weight:600;color:var(--text);">${val}</div>
-    </div>`).join(''));
+  setHTML('urm_latestDetail', detail.map(function(d){return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;"><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">'+d[0]+'</div><div style="font-size:13px;font-weight:600;color:var(--text);">'+d[1]+'</div></div>';}).join(''));
 
   // Checklist from latest
   const chks = [
@@ -3546,33 +3752,12 @@ function openUserReport(userName){
     ['Bitlocker',      latest.bitlocker],
     ['Restarted',      latest.sysPerfRestart],
   ];
-  setHTML('urm_checklist', chks.map(([label,done])=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:${done===true||done==='true'?'rgba(56,217,169,.1)':'var(--surface2)'};border:1px solid ${done===true||done==='true'?'var(--accent2)44':'var(--border)'};">
-      <span style="font-size:16px;">${done===true||done==='true'?'✅':'⬜'}</span>
-      <span style="font-size:12px;color:${done===true||done==='true'?'var(--accent2)':'var(--text3)'};">${label}</span>
-    </div>`).join(''));
+  setHTML('urm_checklist', chks.map(function(ck){var lb=ck[0],dn=ck[1],ok=dn===true||dn==='true';return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:'+(ok?'rgba(56,217,169,.1)':'var(--surface2)')+';border:1px solid '+(ok?'var(--accent2)':'var(--border)')+'44;"><span style="font-size:16px;">'+(ok?'✅':'⬜')+'</span><span style="font-size:12px;color:'+(ok?'var(--accent2)':'var(--text3)')+';">'+lb+'</span></div>';}).join(''));
 
   // History table
   const scoreCol = v => parseFloat(v)>=80?'var(--accent2)':parseFloat(v)>=60?'var(--accent3)':'var(--danger)';
-  const sPill = s => { if(!s) return '—'; const col=s==='Good'?'var(--accent2)':s==='Critical'||s==='Poor'?'var(--danger)':'var(--accent3)'; return `<span style="padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;background:${col};color:#fff;">${s}</span>`; };
-  setHTML('urm_historyTb', [...userLogs].reverse().map((l,i)=>`<tr>
-    <td>${i+1}</td>
-    <td style="font-size:12px;">${l.date||'—'}</td>
-    <td style="font-family:monospace;font-size:12px;">${l.assetId||'—'}</td>
-    <td style="font-size:12px;">${l.month||'—'}</td>
-    <td style="font-weight:700;color:${scoreCol(l.sysScore||0)};">${l.sysScore||'—'}${l.sysScore?'/10':''}</td>
-    <td style="font-weight:700;color:${scoreCol(l.teamScore||0)};">${l.teamScore||'—'}${l.teamScore?'/10':''}</td>
-    <td style="font-weight:700;color:${scoreCol(l.appScore||0)};">${l.appScore||'—'}${l.appScore?'/10':''}</td>
-    <td>${sPill(l.status)}</td>
-    <td style="font-size:12px;">${l.internet||'—'}</td>
-    <td style="font-size:12px;">${l.dlSpeed?l.dlSpeed+' Mbps':'—'}</td>
-    <td style="font-size:12px;">${l.ulSpeed?l.ulSpeed+' Mbps':'—'}</td>
-    <td style="font-size:12px;color:${l.battery&&parseFloat(l.battery)<50?'var(--danger)':'var(--text2)'};">${l.battery?l.battery+'%':'—'}</td>
-    <td style="font-size:12px;color:${l.hddHealth==='Bad'?'var(--danger)':l.hddHealth==='Caution'?'var(--accent3)':'var(--text2)'};">${l.hddHealth||'—'}</td>
-    <td style="font-size:12px;color:${l.physDamage&&l.physDamage!=='None'?'var(--accent3)':'var(--text2)'};">${l.physDamage||'—'}</td>
-    <td style="font-size:12px;color:var(--text2);max-width:180px;">${l.physDamageNote||'—'}</td>
-    <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.action||'—'}</td>
-  </tr>`).join(''));
+  const sPill = s => { if(!s) return '—'; const col=s==='Good'?'var(--accent2)':s==='Critical'||s==='Poor'?'var(--danger)':'var(--accent3)'; return '<span style="padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;background:'+col+';color:#fff;">'+s+'</span>'; };
+  setHTML('urm_historyTb', [...userLogs].reverse().map(function(l,i){return '<tr><td>'+(i+1)+'</td><td style="font-size:12px;">'+(l.date||'—')+'</td><td style="font-family:monospace;font-size:12px;">'+(l.assetId||'—')+'</td><td style="font-size:12px;">'+(l.month||'—')+'</td><td style="font-weight:700;color:'+scoreCol(l.sysScore||0)+';">'+( l.sysScore||'—')+(l.sysScore?'/10':'')+'</td><td style="font-weight:700;color:'+scoreCol(l.teamScore||0)+';">'+( l.teamScore||'—')+(l.teamScore?'/10':'')+'</td><td style="font-weight:700;color:'+scoreCol(l.appScore||0)+';">'+( l.appScore||'—')+(l.appScore?'/10':'')+'</td><td>'+sPill(l.status)+'</td><td style="font-size:12px;">'+(l.internet||'—')+'</td><td style="font-size:12px;">'+(l.dlSpeed?l.dlSpeed+' Mbps':'—')+'</td><td style="font-size:12px;">'+(l.ulSpeed?l.ulSpeed+' Mbps':'—')+'</td><td style="font-size:12px;color:'+(l.battery&&parseFloat(l.battery)<50?'var(--danger)':'var(--text2)')+';">'+( l.battery?l.battery+'%':'—')+'</td><td style="font-size:12px;color:'+(l.hddHealth==='Bad'?'var(--danger)':l.hddHealth==='Caution'?'var(--accent3)':'var(--text2)')+';">'+( l.hddHealth||'—')+'</td><td style="font-size:12px;color:'+(l.physDamage&&l.physDamage!=='None'?'var(--accent3)':'var(--text2)')+';">'+( l.physDamage||'—')+'</td><td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+( l.action||'—')+'</td></tr>';}).join(''));
 
   // Show modal
   const modal = $$('userReportModal'); if(modal){ modal.style.display='block'; modal.scrollTop=0; }
@@ -3607,17 +3792,17 @@ document.addEventListener('click', e=>{
 
 function downloadExcel(){
   let csv='';
-  const svcSummary=arr=>{if(!arr||!arr.length)return',,,' ; const l=arr[arr.length-1]; return `"${l.status||''}","${l.date||''}","${l.provider||''}","${l.cost||''}"`; };
+  const svcSummary=arr=>{if(!arr||!arr.length)return',,,'; const l=arr[arr.length-1]; return '"'+(l.status||'')+'",'+'"'+(l.date||'')+'",'+'"'+(l.provider||'')+'",'+'"'+(l.cost||'')+'"'; };
   const svcCount=arr=>arr&&arr.length?arr.length:0;
   csv+='LAPTOP ASSETS\nAsset ID,Laptop User,Model,Serial No,Brand,Processor,RAM,Warranty,Purchase Date,# Service Records,Latest Status,Latest Date,Latest Provider,Latest Cost\n';
-  assignedLogs.forEach(a=>{csv+=`"${a.assetId}","${a.userName||''}","${a.model||''}","${a.serial||''}","${a.brand||''}","${a.proc||''}","${a.ram||''}","${a.warranty||''}","${a.purchaseDate||''}",${svcCount(a.services)},${svcSummary(a.services)}\n`;});
+  assignedLogs.forEach(a=>{csv+='"'+(a.assetId)+'","'+(a.userName||'')+'","'+(a.model||'')+'","'+(a.serial||'')+'","'+(a.brand||'')+'","'+(a.proc||'')+'","'+(a.ram||'')+'","'+(a.warranty||'')+'","'+(a.purchaseDate||'')+'",'+(svcCount(a.services))+','+(svcSummary(a.services))+'\n';});
   csv+='\nSUPPORTING ASSETS\nAsset ID,Assigned User,Laptop,Serial No,Brand,Headset,UPS,Keyboard,Mouse,Warranty,Purchase Date,# Service Records,Latest Status\n';
-  supportLogs.forEach(s=>{csv+=`"${s.assetId}","${s.userName||''}","${s.laptop||''}","${s.serial||''}","${s.brand||''}","${s.headset||''}","${s.ups||''}","${s.keyboard||''}","${s.mouse||''}","${s.warranty||''}","${s.purchaseDate||''}",${svcCount(s.services)},${svcSummary(s.services)}\n`;});
+  supportLogs.forEach(s=>{csv+='"'+(s.assetId)+'","'+(s.userName||'')+'","'+(s.laptop||'')+'","'+(s.serial||'')+'","'+(s.brand||'')+'","'+(s.headset||'')+'","'+(s.ups||'')+'","'+(s.keyboard||'')+'","'+(s.mouse||'')+'","'+(s.warranty||'')+'","'+(s.purchaseDate||'')+'",'+(svcCount(s.services))+','+(svcSummary(s.services))+'\n';});
   csv+='\nBACKUP ASSETS\nType,Asset ID,Prev User,Model,Serial No,Brand,Processor,RAM,Headset,Mouse,Keyboard,Collected,Reason,Warranty,Purchase Date,# Service Records\n';
-  backupLogs.forEach(b=>{csv+=`"${b.fromType}","${b.assetId}","${b.prevUser||''}","${b.model||''}","${b.serial||''}","${b.brand||''}","${b.proc||''}","${b.ram||''}","${b.headset||''}","${b.mouse||''}","${b.keyboard||''}","${b.collectedDate||''}","${b.reason||''}","${b.warranty||''}","${b.purchaseDate||''}",${svcCount(b.services)}\n`;});
+  backupLogs.forEach(b=>{csv+='"'+(b.fromType)+'","'+(b.assetId)+'","'+(b.prevUser||'')+'","'+(b.model||'')+'","'+(b.serial||'')+'","'+(b.brand||'')+'","'+(b.proc||'')+'","'+(b.ram||'')+'","'+(b.headset||'')+'","'+(b.mouse||'')+'","'+(b.keyboard||'')+'","'+(b.collectedDate||'')+'","'+(b.reason||'')+'","'+(b.warranty||'')+'","'+(b.purchaseDate||'')+'",'+(svcCount(b.services))+'\n';});
   csv+='\nDEAD ASSETS\nAsset ID,Prev User,Serial No,Brand,Reason,Date,Warranty,Purchase Date,Notes,# Service Records\n';
-  deadLogs.forEach(d=>{csv+=`"${d.assetId}","${d.prevUser||''}","${d.serial||''}","${d.brand||''}","${d.reason||''}","${d.date||''}","${d.warranty||''}","${d.purchaseDate||''}","${d.notes||''}",${svcCount(d.services)}\n`;});
-  csv+=`\nSUMMARY\nCategory,Count\nLaptop Assets,${assignedLogs.length}\nSupporting Assets,${supportLogs.length}\nBackup Assets,${backupLogs.length}\nDead Assets,${deadLogs.length}\nTotal,${assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length}\n`;
+  deadLogs.forEach(d=>{csv+='"'+(d.assetId)+'","'+(d.prevUser||'')+'","'+(d.serial||'')+'","'+(d.brand||'')+'","'+(d.reason||'')+'","'+(d.date||'')+'","'+(d.warranty||'')+'","'+(d.purchaseDate||'')+'","'+(d.notes||'')+'",'+(svcCount(d.services))+'\n';});
+  csv+='\nSUMMARY\nCategory,Count\nLaptop Assets,'+(assignedLogs.length)+'\nSupporting Assets,'+(supportLogs.length)+'\nBackup Assets,'+(backupLogs.length)+'\nDead Assets,'+(deadLogs.length)+'\nTotal,'+(assignedLogs.length+supportLogs.length+backupLogs.length+deadLogs.length)+'\n';
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -3646,7 +3831,7 @@ function showFbLoading(msg){
     el=document.createElement('div');
     el.id='fbLoadOverlay';
     el.style.cssText='position:fixed;inset:0;background:rgba(10,12,16,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
-    el.innerHTML=`<div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;"></div><div id="fbLoadMsg" style="color:var(--text2);font-size:14px;">${msg||'Connecting…'}</div>`;
+    el.innerHTML='<div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;"></div><div id="fbLoadMsg" style="color:var(--text2);font-size:14px;">'+(msg||'Connecting…')+'</div>';
     document.body.appendChild(el);
     if(!document.getElementById('spinStyle')){
       const s=document.createElement('style');s.id='spinStyle';
@@ -3663,18 +3848,7 @@ function showFbStatus(ok){
   // Add pulse keyframe if not already added
   if(!document.getElementById('fbPulseStyle')){
     const s=document.createElement('style'); s.id='fbPulseStyle';
-    s.textContent=`
-      @keyframes fbPulseGreen {
-        0%   { box-shadow: 0 0 0 0 rgba(56,217,169,.6); }
-        70%  { box-shadow: 0 0 0 6px rgba(56,217,169,0); }
-        100% { box-shadow: 0 0 0 0 rgba(56,217,169,0); }
-      }
-      @keyframes fbPulseRed {
-        0%   { box-shadow: 0 0 0 0 rgba(242,92,92,.7); }
-        70%  { box-shadow: 0 0 0 6px rgba(242,92,92,0); }
-        100% { box-shadow: 0 0 0 0 rgba(242,92,92,0); }
-      }
-    `;
+    s.textContent='@keyframes fbPulseGreen{0%{box-shadow:0 0 0 0 rgba(56,217,169,.6)}70%{box-shadow:0 0 0 6px rgba(56,217,169,0)}100%{box-shadow:0 0 0 0 rgba(56,217,169,0)}}@keyframes fbPulseRed{0%{box-shadow:0 0 0 0 rgba(242,92,92,.7)}70%{box-shadow:0 0 0 6px rgba(242,92,92,0)}100%{box-shadow:0 0 0 0 rgba(242,92,92,0)}}';
     document.head.appendChild(s);
   }
   let el=$$('fbStatusDot');
@@ -3897,7 +4071,7 @@ async function handleLogin(){
     $$('appScreen').classList.add('active');
     setText('tbAv',   acct.name[0].toUpperCase());
     setText('tbName', acct.name);
-    $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none';
+    $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none'; const _hcUM=$$('homeCardUM'); if(_hcUM)_hcUM.style.display=acct.role==='Admin'?'flex':'none';
 
     await fbBootstrap();
     goHome();
@@ -3982,7 +4156,7 @@ window.addEventListener('load', async ()=>{
           <th>S.No</th><th>Date</th><th>Asset ID</th><th>Month</th>
           <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
           <th>Internet</th><th>DL</th><th>UL</th><th>Battery</th>
-          <th>HDD</th><th>Damage</th><th>Damage Description</th><th>Action</th>
+          <th>HDD</th><th>Damage</th><th>Action</th>
         </tr></thead>
         <tbody id="urm_historyTb"></tbody></table>
       </div>
@@ -4008,8 +4182,8 @@ window.addEventListener('load', async ()=>{
 </div>
 
 <!-- HDD / Battery Panel Modal -->
-<div id="hddBatModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;" onclick="if(event.target===this)closeHddBatModal()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;padding:24px;position:relative;">
+<div id="hddBatModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeHddBatModal()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:96%;max-width:620px;max-height:88vh;overflow-y:auto;padding:18px 14px;position:relative;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div>
         <div id="hddBatModalTitle" style="font-size:16px;font-weight:700;color:var(--text);"></div>
