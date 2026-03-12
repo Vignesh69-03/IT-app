@@ -945,14 +945,14 @@ document.dispatchEvent(new Event('firebase-ready'));
       <!-- SSD/HDD Health -->
       <div class="tw" style="padding:18px;">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">💾 SSD / HDD Condition</h3>
-        <div id="pd_ssdSummary" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;"></div>
-        <div id="pd_ssdList"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+        <div id="pd_ssdSummary" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <div id="pd_ssdList" style="max-height:460px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
       <!-- Battery Health -->
       <div class="tw" style="padding:18px;">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🔋 Battery Condition</h3>
-        <div id="pd_batSummary" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;"></div>
-        <div id="pd_batList"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+        <div id="pd_batSummary" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <div id="pd_batList" style="max-height:460px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
     </div>
 
@@ -2472,7 +2472,7 @@ function refreshPerfDash(){
   const hddGood    = logs.filter(l=>l.hddHealth==='Good').length;
   const hddMonitor = logs.filter(l=>l.hddHealth==='Under Monitoring').length;
   const hddChange  = logs.filter(l=>l.hddHealth==='Need to Change').length;
-  const clickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${col};color:#fff;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
+  const clickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:${col};color:#fff;cursor:pointer;white-space:nowrap;display:inline-block;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
   setHTML('pd_ssdSummary',
     clickPill(hddGood+' Good','var(--accent2)',"openHddPanel('Good')") + ' ' +
     clickPill(hddMonitor+' Under Monitoring','var(--accent3)',"openHddPanel('Under Monitoring')") + ' ' +
@@ -2481,15 +2481,16 @@ function refreshPerfDash(){
   const hddWarn = logs.filter(l=>l.hddHealth==='Under Monitoring'||l.hddHealth==='Need to Change');
   setHTML('pd_ssdList', hddAll.length ? hddAll.map(l=>{
     const hCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
-    return `<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:var(--surface2);border-left:3px solid ${hCol};">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div><div style="font-size:13px;font-weight:600;">${l.userName}</div><div style="font-size:11px;color:var(--text3);">${l.assetId||'—'} · ${l.date||''}</div></div>
-        <div style="text-align:right;">
-          <span style="padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${hCol};color:#fff;">${l.hddHealth}${l.hddHealthPct?' — '+l.hddHealthPct+'%':''}</span>
-          ${l.hddTemp?`<div style="font-size:11px;color:var(--text3);margin-top:2px;">🌡 ${l.hddTemp}°C</div>`:''}
-        </div>
-      </div>
-    </div>`;
+    const hPct = l.hddHealthPct!=null?Math.min(100,parseFloat(l.hddHealthPct)):0;
+    const statusLabel = l.hddHealth||(hPct>=70?'Good':hPct>=40?'Under Monitoring':'Need to Change');
+    return '<div style="margin-bottom:6px;padding:7px 9px;border-radius:8px;background:var(--surface2);border-left:3px solid '+hCol+';">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'
+      +'<span style="font-weight:600;">'+l.userName+' <span style="color:var(--text3);font-size:11px;">'+(l.assetId||'')+'</span></span>'
+      +'<span style="font-weight:700;color:'+hCol+';">'+(hPct?hPct+'% — ':'')+statusLabel+'</span>'
+      +'</div>'
+      +'<div style="height:5px;background:var(--border);border-radius:3px;">'
+      +'<div style="height:5px;border-radius:3px;width:'+hPct+'%;background:'+hCol+';transition:width .4s;"></div>'
+      +'</div></div>';
   }).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
 
   // ── Battery Health ──
@@ -2499,7 +2500,7 @@ function refreshPerfDash(){
   const batMonitor = bats.filter(l=>parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60).length;
   const batGood    = bats.filter(l=>parseFloat(l.battery)>60).length;
   const avgBatCol  = avgBatNum===null?'var(--border)':avgBatNum>60?'var(--accent2)':avgBatNum>=30?'var(--accent3)':'var(--danger)';
-  const batClickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${col};color:#fff;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
+  const batClickPill = (txt,col,fn) => `<span onclick="${fn}" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;background:${col};color:#fff;cursor:pointer;white-space:nowrap;display:inline-block;transition:opacity .15s;" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${txt} ▾</span>`;
   setHTML('pd_batSummary', bats.length ?
     `<span style="padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${avgBatCol};color:#fff;">${avgBatNum!==null?avgBatNum+'%':'—'} Avg</span>` + ' ' +
     batClickPill(batGood+' Good','var(--accent2)',"openBatPanel('Good')") + ' ' +
@@ -2510,15 +2511,14 @@ function refreshPerfDash(){
     const pct=parseFloat(l.battery);
     const col=pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
     const statusLabel=pct<30?'Need to Change':pct<=60?'Under Monitoring':'Good';
-    return `<div style="margin-bottom:10px;padding:8px 10px;border-radius:8px;background:var(--surface2);border-left:3px solid ${col};">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:600;">${l.userName} <span style="color:var(--text3);font-size:11px;">${l.assetId||''}</span></span>
-        <span style="font-weight:700;color:${col};">${pct}% — ${statusLabel}</span>
-      </div>
-      <div style="height:5px;background:var(--border);border-radius:3px;">
-        <div style="height:5px;border-radius:3px;width:${pct}%;background:${col};transition:width .4s;"></div>
-      </div>
-    </div>`;
+    return '<div style="margin-bottom:6px;padding:7px 9px;border-radius:8px;background:var(--surface2);border-left:3px solid '+col+';">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'
+      +'<span style="font-weight:600;">'+l.userName+' <span style="color:var(--text3);font-size:11px;">'+(l.assetId||'')+'</span></span>'
+      +'<span style="font-weight:700;color:'+col+';">'+pct+'% — '+statusLabel+'</span>'
+      +'</div>'
+      +'<div style="height:5px;background:var(--border);border-radius:3px;">'
+      +'<div style="height:5px;border-radius:3px;width:'+Math.min(100,pct)+'%;background:'+col+';transition:width .4s;"></div>'
+      +'</div></div>';
   }).join('') : '<div style="color:var(--text3);font-size:13px;">No battery data</div>');
 
   // ── Per-User Score Table ──
@@ -3492,7 +3492,7 @@ function downloadSummaryCSV(){
     'Status','Internet','DL Speed','UL Speed','Physical Damage','HDD Health','Battery%'];
   const rows = rows2.map(l=>[l.userName,l.team,l.assetId,l.date,l.sysScore,l.teamScore,
     l.appScore,l.status,l.internet,l.dlSpeed,l.ulSpeed,l.physDamage,l.hddHealth,l.battery]);
-  downloadCSV(`Summary_${month}.csv`, toCSV(headers, rows));
+  downloadCSV('Summary_'+getPerfMonth()+'.csv', toCSV(headers, rows));
 }
 
 // Download all logs in dashboard view
@@ -3512,7 +3512,7 @@ function downloadAllLogsCSV(){
   const rows = [...logs].reverse().map(l=>[l.userName,l.team,l.date,l.assetId,
     l.sysScore,l.teamScore,l.appScore,l.status,l.internet,l.dlSpeed,l.ulSpeed,
     l.action,l.physDamage]);
-  downloadCSV(`AllLogs_${month}.csv`, toCSV(headers, rows));
+  downloadCSV('AllLogs_'+getPerfMonth()+'.csv', toCSV(headers, rows));
 }
 
 // ── User Full Report Modal ──
@@ -3631,6 +3631,23 @@ document.addEventListener('click', e=>{
 
 
 // ── HDD pill click panel ──
+function getFilteredLogs(){
+  const scFilt   = ($$('dashSysCheck')||{}).value||'';
+  const teamFilt = ($$('dashTeam')||{}).value||'';
+  const userFilt = ($$('dashUser')||{}).value||'';
+  let logs = [...perfLogs];
+  if(scFilt)                  logs=logs.filter(l=>String(l.sysCheckId)===scFilt);
+  if(teamFilt==='DAY')        logs=logs.filter(l=>(l.team||'').startsWith('Day'));
+  else if(teamFilt==='NIGHT') logs=logs.filter(l=>(l.team||'').startsWith('Night'));
+  else if(teamFilt)           logs=logs.filter(l=>l.team===teamFilt);
+  if(userFilt)                logs=logs.filter(l=>l.userName===userFilt);
+  // Use latest entry per user
+  const seen={};
+  const latest=[];
+  [...logs].reverse().forEach(l=>{ if(!seen[l.userName]){ seen[l.userName]=true; latest.push(l); } });
+  return latest;
+}
+
 function openHddPanel(status){
   const logs = getFilteredLogs();
   const filtered = logs.filter(l=>l.hddHealth===status);
@@ -3648,9 +3665,9 @@ function openHddPanel(status){
       const tCol   = temp!=null?(temp>65?'var(--danger)':temp>=50?'var(--accent3)':'var(--accent2)'):'var(--text3)';
       const barW   = hPct!=null?Math.min(100,hPct):0;
       const safeU  = (l.userName||'').replace(/'/g,"\\'");
-      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+sCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+sCol+';white-space:nowrap;">'+(hPct!=null?hPct+'%':'—')+'</span></div></td><td style="padding:8px;text-align:center;font-size:12px;font-weight:700;color:'+tCol+';">'+(temp!=null?temp+'\u00b0C':'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.hddTotal||'—')+'</td></tr>';
+      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+sCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+sCol+';white-space:nowrap;">'+(hPct!=null?hPct+'%':'—')+'</span></div></td><td style="padding:8px;text-align:center;font-size:12px;font-weight:700;color:'+tCol+';">'+(temp!=null?temp+'\u00b0C':'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.hddTotal||'—')+'</td></tr>';
     }).join('');
-    $$('hddBatModalBody').innerHTML='<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">HEALTH</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">TEMP</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">SIZE</th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px;padding-bottom:4px;">Tap any row to view full report</div>';
+    $$('hddBatModalBody').innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:280px;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">HEALTH</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">TEMP</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">SIZE</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px;padding:6px 0;border-top:1px solid var(--border);">👆 Tap any row to open user report</div>';
   }
   $$('hddBatModal').style.display='flex';
 }
@@ -3674,12 +3691,16 @@ function openBatPanel(status){
       const batCol = pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
       const barW   = Math.min(100,pct);
       const safeU  = (l.userName||'').replace(/'/g,"\\'");
-      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+batCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+batCol+';white-space:nowrap;">'+pct+'%</span></div></td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batDesign||'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batFull||'—')+'</td></tr>';
+      return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;" onclick="closeHddBatModal();openUserReport(\'' + safeU + '\');" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'"><td style="padding:8px 10px;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+(l.userName||'—')+'</div><div style="font-size:10px;color:var(--text3);">'+(l.assetId||'—')+'</div></td><td style="padding:8px;min-width:90px;"><div style="display:flex;align-items:center;gap:5px;"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:36px;"><div style="height:5px;border-radius:3px;width:'+barW+'%;background:'+batCol+';"></div></div><span style="font-size:12px;font-weight:800;color:'+batCol+';white-space:nowrap;">'+pct+'%</span></div></td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batDesign||'—')+'</td><td style="padding:8px;text-align:center;font-size:11px;color:var(--text2);">'+(l.batFull||'—')+'</td></tr>';
     }).join('');
-    $$('hddBatModalBody').innerHTML='<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">BATTERY</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">DESIGN</th><th style="padding:7px 8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">FULL CHG</th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px;padding-bottom:4px;">Tap any row to view full report</div>';
+    $$('hddBatModalBody').innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:280px;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">USER</th><th style="padding:8px;text-align:left;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">BATTERY</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">DESIGN</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">FULL CHG</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px;padding:6px 0;border-top:1px solid var(--border);">👆 Tap any row to open user report</div>';
   }
   $$('hddBatModal').style.display='flex';
 }
+function closeHddBatModal(){
+  const m=$$('hddBatModal'); if(m) m.style.display='none';
+}
+
 function openUserReport(userName){
   _reportUserName = userName;
   const userLogs = perfLogs.filter(l=>l.userName===userName);
@@ -4183,15 +4204,17 @@ window.addEventListener('load', async ()=>{
 
 <!-- HDD / Battery Panel Modal -->
 <div id="hddBatModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeHddBatModal()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:96%;max-width:620px;max-height:88vh;overflow-y:auto;padding:18px 14px;position:relative;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:96%;max-width:620px;max-height:92vh;display:flex;flex-direction:column;position:relative;">
+    <!-- Sticky header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;">
       <div>
         <div id="hddBatModalTitle" style="font-size:16px;font-weight:700;color:var(--text);"></div>
         <div id="hddBatModalSub" style="font-size:12px;color:var(--text3);margin-top:2px;"></div>
       </div>
-      <button onclick="closeHddBatModal()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      <button onclick="closeHddBatModal()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;margin-left:12px;">✕</button>
     </div>
-    <div id="hddBatModalBody"></div>
+    <!-- Scrollable body -->
+    <div id="hddBatModalBody" style="overflow-y:auto;padding:12px 14px 16px;flex:1;"></div>
   </div>
 </div>
 </body>
