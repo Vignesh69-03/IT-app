@@ -924,19 +924,19 @@ document.dispatchEvent(new Event('firebase-ready'));
       <!-- User System Score -->
       <div class="tw" style="padding:18px;">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">📊 User System Score</h3>
-        <div id="pd_userScoreBars"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+        <div id="pd_userScoreBars" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
 
       <!-- Checklist Completion -->
       <div class="tw" style="padding:18px;">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">✅ Checklist Rate</h3>
-        <div id="pd_checklist"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+        <div id="pd_checklist" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
 
       <!-- Team Leaderboard -->
       <div class="tw" style="padding:18px;">
         <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🏆 Team Leaderboard</h3>
-        <div id="pd_leaderboard"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+        <div id="pd_leaderboard" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
       </div>
     </div>
 
@@ -959,8 +959,8 @@ document.dispatchEvent(new Event('firebase-ready'));
     <!-- Per-User Score Table -->
     <div class="tw" style="margin-bottom:16px;">
       <div class="th"><h3>👤 Per-User Scores</h3><span style="font-size:11px;color:var(--text3);">Latest entry per user</span><button onclick="downloadSummaryCSV()" class="btn" style="margin-left:auto;font-size:11px;padding:4px 12px;">⬇ Download Summary CSV</button></div>
-      <div style="overflow-x:auto;">
-        <table><thead><tr>
+      <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+        <table style="min-width:900px;"><thead style="position:sticky;top:0;z-index:2;background:var(--surface);"><tr>
           <th>System Check</th><th>User</th><th>Team</th><th>Asset ID</th><th>Date</th>
           <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
           <th>Internet</th><th>DL Speed</th><th>UL Speed</th><th>Physical Damage</th><th>Report</th>
@@ -972,9 +972,17 @@ document.dispatchEvent(new Event('firebase-ready'));
 
     <!-- All Logs Table -->
     <div class="tw">
-      <div class="th"><h3>📋 All Performance Logs</h3><button onclick="downloadAllLogsCSV()" class="btn" style="margin-left:auto;font-size:11px;padding:4px 12px;">⬇ Download CSV</button></div>
-      <div style="overflow-x:auto;">
-        <table style="min-width:900px;"><thead><tr>
+      <div class="th" style="flex-wrap:wrap;gap:8px;">
+        <h3>📋 All Performance Logs</h3>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;">
+          <div style="position:relative;">
+            <input id="pd_logSearch" type="text" placeholder="🔍 Search user, team, asset…" oninput="filterPdLogs()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px 5px 10px;font-size:12px;color:var(--text);width:210px;outline:none;">
+          </div>
+          <button onclick="downloadAllLogsCSV()" class="btn" style="font-size:11px;padding:4px 12px;">⬇ Download CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;max-height:420px;overflow-y:auto;">
+        <table style="min-width:900px;"><thead style="position:sticky;top:0;z-index:2;background:var(--surface);"><tr>
           <th>System Check</th><th>User</th><th>Team</th><th>Date</th><th>Asset ID</th>
           <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
           <th>Internet</th><th>DL</th><th>UL</th><th>Action</th><th>Damage</th>
@@ -2437,18 +2445,25 @@ function refreshPerfDash(){
     .map(([name,vals])=>[name, vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'0'])
     .sort((a,b)=>parseFloat(b[1])-parseFloat(a[1]));
   const maxScore = Math.max(...userScoreAvgs.map(x=>parseFloat(x[1])),1);
-  setHTML('pd_userScoreBars', userScoreAvgs.length ? userScoreAvgs.map(([name,score])=>{
+  const rankIcons = ['🥇','🥈','🥉'];
+  setHTML('pd_userScoreBars', userScoreAvgs.length ? userScoreAvgs.map(([name,score],idx)=>{
     const pct = ((parseFloat(score)/10)*100).toFixed(1);
-    const col = parseFloat(score)>=80?'var(--accent2)':parseFloat(score)>=60?'var(--accent3)':'var(--danger)';
-    return `<div style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
-        <span style="font-weight:600;color:var(--text);">${name}</span>
-        <span style="font-weight:700;color:${col};">${score}/10</span>
-      </div>
-      <div style="height:7px;background:var(--border);border-radius:4px;">
-        <div style="height:7px;border-radius:4px;width:${pct}%;background:${col};transition:width .4s;"></div>
-      </div>
-    </div>`;
+    const s = parseFloat(score);
+    const col = s>=8?'#22d3a0':s>=6?'#f97316':'#f25c5c';
+    const glow = s>=8?'rgba(34,211,160,.35)':s>=6?'rgba(249,115,22,.35)':'rgba(242,92,92,.35)';
+    const rank = rankIcons[idx]||'';
+    return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +(rank?'<span style="font-size:14px;line-height:1;">'+rank+'</span>':'<span style="width:20px;height:20px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--text3);">'+(idx+1)+'</span>')
+      +'<span style="font-size:13px;font-weight:700;color:var(--text);">'+name+'</span>'
+      +'</div>'
+      +'<span style="font-size:13px;font-weight:800;color:'+col+';background:rgba(0,0,0,.3);padding:2px 8px;border-radius:6px;border:1px solid '+col+';">'+score+'/10</span>'
+      +'</div>'
+      +'<div style="height:8px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;">'
+      +'<div style="height:8px;border-radius:6px;width:'+pct+'%;background:linear-gradient(90deg,'+col+','+col+'cc);box-shadow:0 0 8px '+glow+';transition:width .5s;"></div>'
+      +'</div>'
+      +'</div>';
   }).join('') : '<div style="color:var(--text3);font-size:13px;">No score data</div>');
 
   // ── Checklist ──
@@ -2480,16 +2495,17 @@ function refreshPerfDash(){
   const hddAll = logs.filter(l=>l.hddHealth);
   const hddWarn = logs.filter(l=>l.hddHealth==='Under Monitoring'||l.hddHealth==='Need to Change');
   setHTML('pd_ssdList', hddAll.length ? hddAll.map(l=>{
-    const hCol = l.hddHealth==='Need to Change'?'var(--danger)':l.hddHealth==='Under Monitoring'?'var(--accent3)':'var(--accent2)';
+    const hCol = l.hddHealth==='Need to Change'?'#f25c5c':l.hddHealth==='Under Monitoring'?'#f97316':'#22d3a0';
+    const glow = l.hddHealth==='Need to Change'?'rgba(242,92,92,.4)':l.hddHealth==='Under Monitoring'?'rgba(249,115,22,.4)':'rgba(34,211,160,.4)';
     const hPct = l.hddHealthPct!=null?Math.min(100,parseFloat(l.hddHealthPct)):0;
     const statusLabel = l.hddHealth||(hPct>=70?'Good':hPct>=40?'Under Monitoring':'Need to Change');
-    return '<div style="margin-bottom:6px;padding:7px 9px;border-radius:8px;background:var(--surface2);border-left:3px solid '+hCol+';">'
-      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'
-      +'<span style="font-weight:600;">'+l.userName+' <span style="color:var(--text3);font-size:11px;">'+(l.assetId||'')+'</span></span>'
-      +'<span style="font-weight:700;color:'+hCol+';">'+(hPct?hPct+'% — ':'')+statusLabel+'</span>'
+    return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);border-left:3px solid '+hCol+';">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+      +'<span style="font-size:13px;font-weight:700;color:var(--text);">'+l.userName+'<span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:5px;">'+(l.assetId||'')+'</span></span>'
+      +'<span style="font-size:11px;font-weight:800;color:'+hCol+';background:rgba(0,0,0,.3);padding:2px 7px;border-radius:6px;white-space:nowrap;">'+(hPct?hPct+'% — ':'')+statusLabel+'</span>'
       +'</div>'
-      +'<div style="height:5px;background:var(--border);border-radius:3px;">'
-      +'<div style="height:5px;border-radius:3px;width:'+hPct+'%;background:'+hCol+';transition:width .4s;"></div>'
+      +'<div style="height:8px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;">'
+      +'<div style="height:8px;border-radius:6px;width:'+hPct+'%;background:linear-gradient(90deg,'+hCol+','+hCol+'bb);box-shadow:0 0 10px '+glow+';transition:width .5s;"></div>'
       +'</div></div>';
   }).join('') : '<div style="color:var(--accent2);font-size:13px;">✅ All drives healthy</div>');
 
@@ -2509,15 +2525,16 @@ function refreshPerfDash(){
     '<span style="color:var(--text3);font-size:12px;">No data</span>');
   setHTML('pd_batList', bats.length ? [...bats].sort((a,b)=>parseFloat(a.battery)-parseFloat(b.battery)).map(l=>{
     const pct=parseFloat(l.battery);
-    const col=pct<30?'var(--danger)':pct<=60?'var(--accent3)':'var(--accent2)';
+    const col=pct<30?'#f25c5c':pct<=60?'#f97316':'#22d3a0';
+    const glow=pct<30?'rgba(242,92,92,.4)':pct<=60?'rgba(249,115,22,.4)':'rgba(34,211,160,.4)';
     const statusLabel=pct<30?'Need to Change':pct<=60?'Under Monitoring':'Good';
-    return '<div style="margin-bottom:6px;padding:7px 9px;border-radius:8px;background:var(--surface2);border-left:3px solid '+col+';">'
-      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'
-      +'<span style="font-weight:600;">'+l.userName+' <span style="color:var(--text3);font-size:11px;">'+(l.assetId||'')+'</span></span>'
-      +'<span style="font-weight:700;color:'+col+';">'+pct+'% — '+statusLabel+'</span>'
+    return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);border-left:3px solid '+col+';">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+      +'<span style="font-size:13px;font-weight:700;color:var(--text);">'+l.userName+'<span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:5px;">'+(l.assetId||'')+'</span></span>'
+      +'<span style="font-size:11px;font-weight:800;color:'+col+';background:rgba(0,0,0,.3);padding:2px 7px;border-radius:6px;white-space:nowrap;">'+pct+'% — '+statusLabel+'</span>'
       +'</div>'
-      +'<div style="height:5px;background:var(--border);border-radius:3px;">'
-      +'<div style="height:5px;border-radius:3px;width:'+Math.min(100,pct)+'%;background:'+col+';transition:width .4s;"></div>'
+      +'<div style="height:8px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;">'
+      +'<div style="height:8px;border-radius:6px;width:'+Math.min(100,pct)+'%;background:linear-gradient(90deg,'+col+','+col+'bb);box-shadow:0 0 10px '+glow+';transition:width .5s;"></div>'
       +'</div></div>';
   }).join('') : '<div style="color:var(--text3);font-size:13px;">No battery data</div>');
 
@@ -2546,10 +2563,11 @@ function refreshPerfDash(){
   }).join(''));
 
   // ── All Logs ──
-  setHTML('pd_logs', [...logs].reverse().map(l=>{
+  // store for search
+  window._allPdLogRows = [...logs].reverse().map(l=>{
     const scObj2 = sysChecks.find(s=>String(s.id)===String(l.sysCheckId));
     const scTag  = scObj2 ? '<span style="background:var(--surface2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;color:var(--accent);">'+scObj2.name+'</span>' : '<span style="color:var(--text3);font-size:11px;">—</span>';
-    return '<tr>'
+    const html = '<tr>'
     +'<td>'+scTag+'</td>'
     +'<td><strong>'+l.userName+'</strong></td>'
     +'<td style="font-size:12px;color:var(--text2);">'+(l.team||'—')+'</td>'
@@ -2565,7 +2583,20 @@ function refreshPerfDash(){
     +'<td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;">'+(l.action||'—')+'</td>'
     +'<td style="font-size:12px;color:'+(l.physDamage&&l.physDamage!=='None'?'var(--danger)':'var(--text2)')+';">'+(l.physDamage||'—')+'</td>'
     +'</tr>';
-  }).join(''));
+    // store searchable text alongside
+    return { html, search: (l.userName+' '+(l.team||'')+' '+(l.assetId||'')+' '+(l.date||'')+' '+(l.status||'')+' '+(l.internet||'')).toLowerCase() };
+  });
+  filterPdLogs();
+}
+
+function filterPdLogs(){
+  const q = (($$('pd_logSearch')||{}).value||'').toLowerCase().trim();
+  const rows = (window._allPdLogRows||[]);
+  const filtered = q ? rows.filter(r=>r.search.includes(q)) : rows;
+  setHTML('pd_logs', filtered.length
+    ? filtered.map(r=>r.html).join('')
+    : '<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:24px;">No matching logs</td></tr>'
+  );
 }
 
 // ══════════════════════════════════════════
