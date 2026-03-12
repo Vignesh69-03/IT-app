@@ -200,6 +200,18 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .act-item:hover{background:var(--surface2);color:var(--text);}
 .act-item.danger{color:var(--danger);}
 .act-item.danger:hover{background:rgba(255,89,89,.08);}
+
+/* ── Custom slim scrollbars ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(79,142,247,.35);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(79,142,247,.65);}
+#pd_userScoreBars::-webkit-scrollbar-thumb,
+#pd_checklist::-webkit-scrollbar-thumb,
+#pd_leaderboard::-webkit-scrollbar-thumb,
+#pd_ssdList::-webkit-scrollbar-thumb,
+#pd_batList::-webkit-scrollbar-thumb{background:rgba(79,142,247,.4);}
+* { scrollbar-width:thin; scrollbar-color:rgba(79,142,247,.35) transparent; }
 </style>
 <!-- Firebase SDK -->
 <script type="module">
@@ -2450,19 +2462,15 @@ function refreshPerfDash(){
     const pct = ((parseFloat(score)/10)*100).toFixed(1);
     const s = parseFloat(score);
     const col = s>=8?'#22d3a0':s>=6?'#f97316':'#f25c5c';
-    const glow = s>=8?'rgba(34,211,160,.35)':s>=6?'rgba(249,115,22,.35)':'rgba(242,92,92,.35)';
-    const rank = rankIcons[idx]||'';
-    return '<div style="margin-bottom:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
-      +'<div style="display:flex;align-items:center;gap:6px;">'
-      +(rank?'<span style="font-size:14px;line-height:1;">'+rank+'</span>':'<span style="width:20px;height:20px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--text3);">'+(idx+1)+'</span>')
-      +'<span style="font-size:13px;font-weight:700;color:var(--text);">'+name+'</span>'
+    const glow = s>=8?'rgba(34,211,160,.3)':s>=6?'rgba(249,115,22,.3)':'rgba(242,92,92,.3)';
+    const rank = rankIcons[idx]||('<span style="font-size:10px;color:var(--text3);min-width:16px;text-align:center;">'+(idx+1)+'</span>');
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'
+      +'<span style="font-size:13px;min-width:20px;text-align:center;">'+rank+'</span>'
+      +'<span style="font-size:12px;font-weight:600;color:var(--text);min-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+name+'</span>'
+      +'<div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">'
+      +'<div style="height:5px;border-radius:4px;width:'+pct+'%;background:'+col+';box-shadow:0 0 6px '+glow+';transition:width .5s;"></div>'
       +'</div>'
-      +'<span style="font-size:13px;font-weight:800;color:'+col+';background:rgba(0,0,0,.3);padding:2px 8px;border-radius:6px;border:1px solid '+col+';">'+score+'/10</span>'
-      +'</div>'
-      +'<div style="height:8px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;">'
-      +'<div style="height:8px;border-radius:6px;width:'+pct+'%;background:linear-gradient(90deg,'+col+','+col+'cc);box-shadow:0 0 8px '+glow+';transition:width .5s;"></div>'
-      +'</div>'
+      +'<span style="font-size:12px;font-weight:800;color:'+col+';min-width:36px;text-align:right;">'+score+'</span>'
       +'</div>';
   }).join('') : '<div style="color:var(--text3);font-size:13px;">No score data</div>');
 
@@ -2473,7 +2481,16 @@ function refreshPerfDash(){
   setHTML('pd_checklist', chkItems.map(([label,key])=>{
     const done=logs.filter(l=>l[key]===true||l[key]==='true').length;
     const pct=n?Math.round((done/n)*100):0;
-    return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text2);">${label}</span><span style="font-weight:700;color:${pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'};">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px;"><div style="height:5px;border-radius:3px;width:${pct}%;background:${pct>=80?'var(--accent2)':pct>=50?'var(--accent3)':'var(--danger)'};"></div></div></div>`;
+    const col=pct>=80?'#22d3a0':pct>=50?'#f97316':'#f25c5c';
+    const glow=pct>=80?'rgba(34,211,160,.35)':pct>=50?'rgba(249,115,22,.35)':'rgba(242,92,92,.35)';
+    return '<div style="margin-bottom:7px;">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">'
+      +'<span style="color:var(--text2);">'+label+'</span>'
+      +'<span style="font-weight:700;color:'+col+';">'+pct+'%</span>'
+      +'</div>'
+      +'<div style="height:6px;background:rgba(255,255,255,.07);border-radius:6px;overflow:hidden;">'
+      +'<div style="height:6px;border-radius:6px;width:'+pct+'%;background:linear-gradient(90deg,'+col+','+col+'bb);box-shadow:0 0 8px '+glow+';transition:width .5s;"></div>'
+      +'</div></div>';
   }).join(''));
 
   // ── Team Leaderboard ──
@@ -2481,7 +2498,25 @@ function refreshPerfDash(){
   logs.forEach(l=>{ if(!l.team) return; if(!teamScores[l.team]) teamScores[l.team]=[]; if(l.sysScore&&!isNaN(parseFloat(l.sysScore))) teamScores[l.team].push(parseFloat(l.sysScore)); });
   const teamAvgs=Object.entries(teamScores).map(([t,v])=>([t,(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1)])).sort((a,b)=>b[1]-a[1]);
   const medals=['🥇','🥈','🥉'];
-  setHTML('pd_leaderboard', teamAvgs.length?teamAvgs.map(([t,v],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;">${medals[i]||'  '} ${t.split(' - ')[1]||t} <span style="font-size:10px;color:var(--text3);">${t.split(' - ')[0]||''}</span></span><span style="font-weight:700;font-size:13px;color:${scoreColor(v)};">${v}/10</span></div>`).join(''):'<div style="color:var(--text3);font-size:13px;">No team data</div>');
+  setHTML('pd_leaderboard', teamAvgs.length?teamAvgs.map(([t,v],i)=>{
+    const col = parseFloat(v)>=8?'#22d3a0':parseFloat(v)>=6?'#f97316':'#f25c5c';
+    const glow = parseFloat(v)>=8?'rgba(34,211,160,.3)':parseFloat(v)>=6?'rgba(249,115,22,.3)':'rgba(242,92,92,.3)';
+    const pct = ((parseFloat(v)/10)*100).toFixed(0);
+    const teamName = t.split(' - ')[1]||t;
+    const shift = t.split(' - ')[0]||'';
+    const rank = medals[i]||('<span style="font-size:10px;color:var(--text3);min-width:16px;text-align:center;">'+(i+1)+'</span>');
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'
+      +'<span style="font-size:13px;min-width:20px;text-align:center;">'+rank+'</span>'
+      +'<div style="min-width:72px;">'
+      +'<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+teamName+'</div>'
+      +'<div style="font-size:10px;color:var(--text3);">'+shift+'</div>'
+      +'</div>'
+      +'<div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">'
+      +'<div style="height:5px;border-radius:4px;width:'+pct+'%;background:'+col+';box-shadow:0 0 6px '+glow+';transition:width .5s;"></div>'
+      +'</div>'
+      +'<span style="font-size:12px;font-weight:800;color:'+col+';min-width:36px;text-align:right;">'+v+'/10</span>'
+      +'</div>';
+  }).join(''):'<div style="color:var(--text3);font-size:13px;">No team data</div>');
 
   // ── SSD/HDD Health ──
   const hddGood    = logs.filter(l=>l.hddHealth==='Good').length;
