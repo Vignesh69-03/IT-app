@@ -112,7 +112,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .fi textarea{resize:vertical;min-height:80px;}
 
 /* APP */
-#appScreen{flex-direction:column;}height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
+#appScreen{flex-direction:column;}
+.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
 .tb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;cursor:pointer;flex-shrink:0;}
 .tb-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;}
 .tb-logo span{color:var(--accent);}
@@ -291,12 +292,12 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .dsc{
   background:var(--surface);
   border:1px solid var(--border);
+  border-top:3px solid var(--accent);
   border-radius:14px;padding:20px 22px;
   position:relative;overflow:hidden;
   transition:transform .2s,box-shadow .2s;
 }
 .dsc:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(79,142,247,.15);}
-.dsc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dc,#4f8ef7),transparent);}
 .dsc-glow{position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;pointer-events:none;}
 .dsc-label{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .dsc-val{font-size:34px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;margin-bottom:4px;}
@@ -307,119 +308,14 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 .dic{
   background:var(--surface);
   border:1px solid var(--border);
-  border-radius:14px;padding:18px;
+  border-radius:14px;padding:20px 18px;
   cursor:pointer;transition:transform .15s,box-shadow .15s;
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;
   position:relative;overflow:hidden;
 }
 .dic:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.25);}
-.dic-icon{font-size:22px;margin-bottom:4px;}
-.dic-val{font-size:30px;font-weight:800;font-family:'DM Mono',monospace;}
-.dic-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
-.dic-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-
-/* Panel wrapper */
-.dpanel{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;
-  position:relative;
-}
-.dpanel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(79,142,247,.35),transparent);}
-.dpanel-hdr{
-  display:flex;align-items:center;gap:8px;
-  padding:12px 16px;
-  border-bottom:1px solid var(--border);
-  background:rgba(79,142,247,.03);
-  font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--text3);
-  text-transform:uppercase;flex-wrap:wrap;
-}
-.dpanel-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
-.dpanel > div:last-child{padding:12px 14px;}
-
-/* Sci-fi table */
-.dtable{width:100%;min-width:900px;border-collapse:collapse;}
-.dtable thead{position:sticky;top:0;z-index:2;}
-.dtable thead tr{background:var(--bg);}
-.dtable th{padding:10px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
-.dtable tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
-.dtable tbody tr:hover{background:var(--surface2);}
-.dtable td{padding:9px 12px;font-size:12px;color:var(--text2);}
-.dtd-empty{text-align:center;color:var(--text3);padding:32px!important;font-size:13px;}
-
-/* Download button */
-.dbtn{
-  background:rgba(79,142,247,.1);
-  border:1px solid rgba(79,142,247,.3);
-  color:var(--accent);padding:4px 12px;border-radius:7px;
-  cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;
-  transition:all .15s;white-space:nowrap;
-}
-.dbtn:hover{background:rgba(79,142,247,.2);border-color:var(--accent);box-shadow:0 0 10px rgba(79,142,247,.25);}
-
-/* Override view bg for perfDash */
-#v-perfDash{
-  overflow-y:auto;
-  background:var(--bg);
-  background-image:
-    linear-gradient(rgba(79,142,247,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79,142,247,.05) 1px, transparent 1px);
-  background-size:50px 50px;
-}
-#v-perfDash strong{color:var(--accent);}
-#v-perfDash .dtable td strong{color:var(--text);font-weight:700;}
-
-/* Sci-fi chart panels */
-.cpanel{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;
-  position:relative;
-}
-.cpanel::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(79,142,247,.5),transparent);
-}
-.cpanel-hdr{
-  display:flex;align-items:center;gap:8px;
-  padding:12px 16px;
-  border-bottom:1px solid var(--border);
-  background:rgba(79,142,247,.04);
-  font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--text3);
-  text-transform:uppercase;
-}
-.cpanel-body{padding:16px;}
-.cpanel-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
-
-/* Stat cards */
-.dsc{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:14px;padding:20px 22px;
-  position:relative;overflow:hidden;
-  transition:transform .2s,box-shadow .2s;
-}
-.dsc:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(79,142,247,.15);}
-.dsc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dc,#4f8ef7),transparent);}
-.dsc-glow{position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;pointer-events:none;}
-.dsc-label{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
-.dsc-val{font-size:34px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;margin-bottom:4px;}
-.dsc-sub{font-size:11px;color:var(--text3);margin-bottom:14px;}
-.dsc-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
-
-/* Issue cards */
-.dic{
-  background:var(--surface);
-  border:1px solid;
-  border-radius:14px;padding:18px;
-  cursor:pointer;transition:transform .15s,box-shadow .15s;
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;
-  position:relative;overflow:hidden;
-}
-.dic::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(79,142,247,.05),transparent 70%);}
-.dic:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.25);}
-.dic-icon{font-size:22px;margin-bottom:4px;}
-.dic-val{font-size:30px;font-weight:800;font-family:'DM Mono',monospace;}
+.dic-icon{font-size:24px;margin-bottom:2px;}
+.dic-val{font-size:32px;font-weight:800;font-family:'DM Mono',monospace;}
 .dic-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
 .dic-sub{font-size:11px;color:var(--text3);margin-top:2px;}
 
@@ -1118,16 +1014,16 @@ document.dispatchEvent(new Event('firebase-ready'));
   </div>
 
   <!-- PERF SUMMARY DASHBOARD -->
-  <div class="view" id="v-perfDash" style="padding:20px 24px;background:#060e1f;min-height:100vh;">
+  <div class="view" id="v-perfDash" style="padding:20px 24px;background:var(--bg);min-height:100vh;">
 
     <!-- DASH HEADER -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
       <div>
-        <div style="font-size:11px;letter-spacing:3px;color:#4f8ef7;text-transform:uppercase;margin-bottom:4px;">SYSTEM PERFORMANCE</div>
-        <h1 style="font-size:22px;font-weight:800;color:#e8f4ff;letter-spacing:-0.5px;margin:0;">Performance Summary Dashboard</h1>
+        <div style="font-size:11px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">SYSTEM PERFORMANCE</div>
+        <h1 style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin:0;">Performance Summary Dashboard</h1>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span class="badge bp" id="pd_badge" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:#4f8ef7;font-size:11px;letter-spacing:1px;">March 2026</span>
+        <span class="badge bp" id="pd_badge" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:var(--accent);font-size:11px;letter-spacing:1px;">March 2026</span>
         <select class="msel" id="dashSysCheck" onchange="refreshPerfDash()" style="background:var(--surface2);border:1px solid rgba(79,142,247,.3);color:var(--accent);font-size:12px;padding:5px 10px;border-radius:7px;outline:none;">
           <option value="">All Checks</option>
         </select>
@@ -1146,29 +1042,29 @@ document.dispatchEvent(new Event('firebase-ready'));
     </div>
 
     <!-- TOP STAT CARDS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
-      <div class="dsc" style="--dc:#4f8ef7;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;">
+      <div class="dsc" style="--dc:#4f8ef7;border-top:3px solid #4f8ef7;">
         <div class="dsc-glow" style="background:rgba(79,142,247,.12);"></div>
         <div class="dsc-label">AVG SYSTEM SCORE</div>
         <div class="dsc-val" id="pd_sysScore" style="color:#4f8ef7;">—</div>
         <div class="dsc-sub" id="pd_sysScoreS">No data</div>
         <div class="dsc-bar"><div id="pd_sysScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#4f8ef7,#7ab0ff);width:0%;transition:width .8s;"></div></div>
       </div>
-      <div class="dsc" style="--dc:#22d3a0;">
+      <div class="dsc" style="--dc:#22d3a0;border-top:3px solid #22d3a0;">
         <div class="dsc-glow" style="background:rgba(34,211,160,.12);"></div>
         <div class="dsc-label">AVG TEAM SCORE</div>
         <div class="dsc-val" id="pd_teamScore" style="color:#22d3a0;">—</div>
         <div class="dsc-sub" id="pd_teamScoreS">No data</div>
         <div class="dsc-bar"><div id="pd_teamScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#22d3a0,#5ef5cc);width:0%;transition:width .8s;"></div></div>
       </div>
-      <div class="dsc" style="--dc:#f97316;">
+      <div class="dsc" style="--dc:#f97316;border-top:3px solid #f97316;">
         <div class="dsc-glow" style="background:rgba(249,115,22,.12);"></div>
         <div class="dsc-label">AVG APP SCORE</div>
         <div class="dsc-val" id="pd_appScore" style="color:#f97316;">—</div>
         <div class="dsc-sub" id="pd_appScoreS">No data</div>
         <div class="dsc-bar"><div id="pd_appScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#f97316,#fba85a);width:0%;transition:width .8s;"></div></div>
       </div>
-      <div class="dsc" style="--dc:#a78bfa;">
+      <div class="dsc" style="--dc:#a78bfa;border-top:3px solid #a78bfa;">
         <div class="dsc-glow" style="background:rgba(167,139,250,.12);"></div>
         <div class="dsc-label">TOTAL ENTRIES</div>
         <div class="dsc-val" id="pd_cnt" style="color:#a78bfa;">0</div>
@@ -1178,29 +1074,29 @@ document.dispatchEvent(new Event('firebase-ready'));
     </div>
 
     <!-- ISSUE CARDS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
-      <div class="dic" onclick="openIssuePanel('poor')" style="border-color:rgba(242,92,92,.4);--dc:#f25c5c;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;">
+      <div class="dic" onclick="openIssuePanel('poor')" style="border:1px solid rgba(242,92,92,.35);border-top:3px solid #f25c5c;background:rgba(242,92,92,.06);">
         <div class="dic-icon">⚠️</div>
         <div class="dic-val" id="pd_poorCnt" style="color:#f25c5c;">0</div>
-        <div class="dic-label">POOR / CRITICAL</div>
+        <div class="dic-label" style="color:#f25c5c;">POOR / CRITICAL</div>
         <div class="dic-sub" id="pd_poorS">Click to view</div>
       </div>
-      <div class="dic" onclick="openIssuePanel('damage')" style="border-color:rgba(249,115,22,.4);--dc:#f97316;">
+      <div class="dic" onclick="openIssuePanel('damage')" style="border:1px solid rgba(249,115,22,.35);border-top:3px solid #f97316;background:rgba(249,115,22,.06);">
         <div class="dic-icon">🔧</div>
         <div class="dic-val" id="pd_dmgCnt" style="color:#f97316;">0</div>
-        <div class="dic-label">PHYSICAL DAMAGE</div>
+        <div class="dic-label" style="color:#f97316;">PHYSICAL DAMAGE</div>
         <div class="dic-sub" id="pd_dmgS">Click to view</div>
       </div>
-      <div class="dic" onclick="openIssuePanel('action')" style="border-color:rgba(249,115,22,.4);--dc:#f97316;">
+      <div class="dic" onclick="openIssuePanel('action')" style="border:1px solid rgba(167,139,250,.35);border-top:3px solid #a78bfa;background:rgba(167,139,250,.06);">
         <div class="dic-icon">📋</div>
-        <div class="dic-val" id="pd_actionCnt" style="color:#f97316;">0</div>
-        <div class="dic-label">ACTION NEEDED</div>
+        <div class="dic-val" id="pd_actionCnt" style="color:#a78bfa;">0</div>
+        <div class="dic-label" style="color:#a78bfa;">ACTION NEEDED</div>
         <div class="dic-sub" id="pd_actionS">Click to view</div>
       </div>
-      <div class="dic" onclick="openIssuePanel('good')" style="border-color:rgba(34,211,160,.4);--dc:#22d3a0;">
+      <div class="dic" onclick="openIssuePanel('good')" style="border:1px solid rgba(34,211,160,.35);border-top:3px solid #22d3a0;background:rgba(34,211,160,.06);">
         <div class="dic-icon">✅</div>
         <div class="dic-val" id="pd_goodCnt" style="color:#22d3a0;">0</div>
-        <div class="dic-label">GOOD STATUS</div>
+        <div class="dic-label" style="color:#22d3a0;">GOOD STATUS</div>
         <div class="dic-sub" id="pd_goodS">Click to view</div>
       </div>
     </div>
@@ -1210,19 +1106,50 @@ document.dispatchEvent(new Event('firebase-ready'));
 
       <!-- Donut: Score Distribution -->
       <div class="cpanel">
-        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#4f8ef7;color:#4f8ef7;"></span>SCORE DISTRIBUTION</div>
-        <div class="cpanel-body" style="display:flex;align-items:center;justify-content:center;gap:20px;padding:12px 16px;">
-          <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
-            <canvas id="ch_scoreDist" width="130" height="130"></canvas>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
-              <div id="ch_scoreDistCenter" style="font-size:22px;font-weight:800;color:#4f8ef7;font-family:'DM Mono',monospace;">—</div>
-              <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Avg</div>
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#4f8ef7;color:#4f8ef7;"></span>📊 SCORE DISTRIBUTION</div>
+        <div class="cpanel-body" style="display:flex;flex-direction:column;gap:10px;padding:12px 16px;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+            <div style="position:relative;width:120px;height:120px;flex-shrink:0;">
+              <canvas id="ch_scoreDist" width="120" height="120"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                <div id="ch_scoreDistCenter" style="font-size:22px;font-weight:800;color:#4f8ef7;font-family:'DM Mono',monospace;">—</div>
+                <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Avg</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#22d3a0;box-shadow:0 0 6px rgba(34,211,160,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;">Good</div><div style="font-size:10px;color:#22d3a0;font-weight:700;">≥ 8 / 10</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;">Average</div><div style="font-size:10px;color:#f97316;font-weight:700;">6 – 7.9 / 10</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f25c5c;box-shadow:0 0 6px rgba(242,92,92,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;">Poor</div><div style="font-size:10px;color:#f25c5c;font-weight:700;">&lt; 6 / 10</div></div>
+              </div>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:8px;" id="ch_scoreDistLegend">
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#22d3a0;box-shadow:0 0 6px rgba(34,211,160,.6);display:inline-block;"></span><span style="color:var(--text2);">Good ≥8</span></div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.6);display:inline-block;"></span><span style="color:var(--text2);">Avg ≥6</span></div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#f25c5c;box-shadow:0 0 6px rgba(242,92,92,.6);display:inline-block;"></span><span style="color:var(--text2);">Poor &lt;6</span></div>
+          <!-- Threshold scale bar -->
+          <div style="border-top:1px solid var(--border);padding-top:8px;">
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">SYSTEM SCORE SCALE ( / 10 )</div>
+            <div style="display:flex;border-radius:6px;overflow:hidden;height:8px;">
+              <div style="flex:6;background:#f25c5c;" title="Poor: 0–6"></div>
+              <div style="flex:2;background:#f97316;" title="Average: 6–8"></div>
+              <div style="flex:2;background:#22d3a0;" title="Good: 8–10"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px;">
+              <span style="color:#f25c5c;font-weight:700;">0</span>
+              <span style="color:#f97316;font-weight:700;">6</span>
+              <span style="color:#f97316;font-weight:700;">8</span>
+              <span style="color:#22d3a0;font-weight:700;">10</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:1px;color:var(--text3);">
+              <span>⛔ Poor</span>
+              <span style="text-align:center;">👁 Average</span>
+              <span style="text-align:right;">✅ Good</span>
+            </div>
           </div>
         </div>
       </div>
