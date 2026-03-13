@@ -17,32 +17,102 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .screen.active{display:flex;}
 
 /* LOGIN */
-#loginScreen{align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(79,142,247,.15),transparent 70%),var(--bg);}
-.lc{width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:slideUp .5s ease;}
-.ll{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
-.lm{width:38px;height:38px;background:var(--accent);border-radius:10px;display:grid;place-items:center;font-size:18px;font-weight:700;color:#fff;}
-.lt{font-size:20px;font-weight:700;} .lt span{color:var(--accent);}
-.lh1{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
-.lh2{color:var(--text2);font-size:14px;margin-bottom:32px;}
-.fi{margin-bottom:18px;}
+#loginScreen{
+  align-items:center;
+  justify-content:center;
+  background:#0a0c10;
+  position:relative;
+  overflow:hidden;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 40%,rgba(79,142,247,.12),transparent 60%),
+             radial-gradient(ellipse at 75% 70%,rgba(79,142,247,.06),transparent 55%);
+  pointer-events:none;
+}
+.lc{
+  width:340px;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:48px 32px;
+  box-shadow:none;
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:2;
+  animation:slideUp .5s ease;
+}
+/* Avatar circle */
+.login-avatar{
+  width:72px;height:72px;
+  background:rgba(79,142,247,.15);
+  border:2px solid rgba(79,142,247,.4);
+  border-radius:50%;
+  display:grid;place-items:center;
+  margin-bottom:18px;
+  font-size:32px;
+  box-shadow:0 4px 24px rgba(79,142,247,.2);
+}
+.lh1{
+  font-size:15px;font-weight:600;
+  color:var(--text);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:32px;
+  text-align:center;
+}
+.lh2{display:none;}
+.ll{display:none;}
+
+/* Fields */
+.login-field{
+  width:100%;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:24px;padding-bottom:8px;
+  transition:border-color .2s;
+}
+.login-field:focus-within{border-bottom-color:var(--accent);}
+.login-field-icon{font-size:16px;opacity:.6;flex-shrink:0;}
+.login-field input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:inherit;font-size:14px;
+  letter-spacing:.3px;
+}
+.login-field input::placeholder{color:var(--text3);}
+
+.lerr{color:var(--danger);font-size:12px;margin-bottom:12px;min-height:16px;text-align:center;width:100%;}
+
+.btn-login{
+  width:100%;padding:14px;
+  background:var(--accent);
+  border:none;
+  border-radius:8px;color:#fff;
+  font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-top:8px;
+  box-shadow:0 4px 20px rgba(79,142,247,.35);
+}
+.btn-login:hover{background:#6a9ff8;transform:translateY(-1px);box-shadow:0 8px 28px rgba(79,142,247,.45);}
+.btn-login:active{transform:scale(.98);}
+
+.login-left{display:none;}
+.lhint{margin-top:20px;text-align:center;font-size:11px;color:var(--text3);letter-spacing:.5px;}
+.lhint span{color:var(--accent);font-weight:600;}
+.chk-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:background .15s;}
+.chk-row:hover{background:var(--surface);}
+.chk-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent);}
+
+/* APP FORM FIELDS */
+.fi{display:block;margin-bottom:18px;}
 .fi label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
 .fi input,.fi select,.fi textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
 .fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.12);}
 .fi select option{background:var(--surface2);}
 .fi textarea{resize:vertical;min-height:80px;}
-.lerr{color:var(--danger);font-size:13px;margin-bottom:14px;min-height:18px;}
-.btn-login{width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 20px rgba(79,142,247,.35);}
-.btn-login:hover{background:#6a9ff8;} .btn-login:active{transform:scale(.98);}
-.lhint{margin-top:20px;text-align:center;font-size:12px;color:var(--text3);}
-.lhint span{color:var(--accent);}
-.chk-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:background .15s;}
-.chk-row:hover{background:var(--surface);}
-.chk-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent);}
-
 
 /* APP */
-#appScreen{flex-direction:column;}
-.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
+#appScreen{flex-direction:column;}height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;}
 .tb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;cursor:pointer;flex-shrink:0;}
 .tb-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;}
 .tb-logo span{color:var(--accent);}
@@ -212,7 +282,188 @@ tbody tr:hover td{background:rgba(255,255,255,.015);}
 #pd_ssdList::-webkit-scrollbar-thumb,
 #pd_batList::-webkit-scrollbar-thumb{background:rgba(79,142,247,.4);}
 * { scrollbar-width:thin; scrollbar-color:rgba(79,142,247,.35) transparent; }
+
+/* ═══════════════════════════════════════════
+   SCI-FI PERFORMANCE DASHBOARD COMPONENTS
+═══════════════════════════════════════════ */
+
+/* Stat cards */
+.dsc{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.dsc:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(79,142,247,.15);}
+.dsc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dc,#4f8ef7),transparent);}
+.dsc-glow{position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;pointer-events:none;}
+.dsc-label{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.dsc-val{font-size:34px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;margin-bottom:4px;}
+.dsc-sub{font-size:11px;color:var(--text3);margin-bottom:14px;}
+.dsc-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+
+/* Issue cards */
+.dic{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;
+  position:relative;overflow:hidden;
+}
+.dic:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.25);}
+.dic-icon{font-size:22px;margin-bottom:4px;}
+.dic-val{font-size:30px;font-weight:800;font-family:'DM Mono',monospace;}
+.dic-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
+.dic-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* Panel wrapper */
+.dpanel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  position:relative;
+}
+.dpanel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(79,142,247,.35),transparent);}
+.dpanel-hdr{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(79,142,247,.03);
+  font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--text3);
+  text-transform:uppercase;flex-wrap:wrap;
+}
+.dpanel-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+.dpanel > div:last-child{padding:12px 14px;}
+
+/* Sci-fi table */
+.dtable{width:100%;min-width:900px;border-collapse:collapse;}
+.dtable thead{position:sticky;top:0;z-index:2;}
+.dtable thead tr{background:var(--bg);}
+.dtable th{padding:10px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dtable tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+.dtable tbody tr:hover{background:var(--surface2);}
+.dtable td{padding:9px 12px;font-size:12px;color:var(--text2);}
+.dtd-empty{text-align:center;color:var(--text3);padding:32px!important;font-size:13px;}
+
+/* Download button */
+.dbtn{
+  background:rgba(79,142,247,.1);
+  border:1px solid rgba(79,142,247,.3);
+  color:var(--accent);padding:4px 12px;border-radius:7px;
+  cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;
+  transition:all .15s;white-space:nowrap;
+}
+.dbtn:hover{background:rgba(79,142,247,.2);border-color:var(--accent);box-shadow:0 0 10px rgba(79,142,247,.25);}
+
+/* Override view bg for perfDash */
+#v-perfDash{
+  overflow-y:auto;
+  background:var(--bg);
+  background-image:
+    linear-gradient(rgba(79,142,247,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,.05) 1px, transparent 1px);
+  background-size:50px 50px;
+}
+#v-perfDash strong{color:var(--accent);}
+#v-perfDash .dtable td strong{color:var(--text);font-weight:700;}
+
+/* Sci-fi chart panels */
+.cpanel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  position:relative;
+}
+.cpanel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(79,142,247,.5),transparent);
+}
+.cpanel-hdr{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(79,142,247,.04);
+  font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--text3);
+  text-transform:uppercase;
+}
+.cpanel-body{padding:16px;}
+.cpanel-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+
+/* Stat cards */
+.dsc{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.dsc:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(79,142,247,.15);}
+.dsc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dc,#4f8ef7),transparent);}
+.dsc-glow{position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;pointer-events:none;}
+.dsc-label{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.dsc-val{font-size:34px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;margin-bottom:4px;}
+.dsc-sub{font-size:11px;color:var(--text3);margin-bottom:14px;}
+.dsc-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+
+/* Issue cards */
+.dic{
+  background:var(--surface);
+  border:1px solid;
+  border-radius:14px;padding:18px;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;
+  position:relative;overflow:hidden;
+}
+.dic::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(79,142,247,.05),transparent 70%);}
+.dic:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.25);}
+.dic-icon{font-size:22px;margin-bottom:4px;}
+.dic-val{font-size:30px;font-weight:800;font-family:'DM Mono',monospace;}
+.dic-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
+.dic-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* Panel wrapper */
+.dpanel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  position:relative;
+}
+.dpanel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(79,142,247,.35),transparent);}
+.dpanel-hdr{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(79,142,247,.03);
+  font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--text3);
+  text-transform:uppercase;flex-wrap:wrap;
+}
+.dpanel-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+.dpanel > div:last-child{padding:12px 14px;}
+
+/* Sci-fi table */
+.dtable{width:100%;min-width:900px;border-collapse:collapse;}
+.dtable thead{position:sticky;top:0;z-index:2;}
+.dtable thead tr{background:var(--bg);}
+.dtable th{padding:10px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dtable tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+.dtable tbody tr:hover{background:var(--surface2);}
+.dtable td{padding:9px 12px;font-size:12px;color:var(--text2);}
+.dtd-empty{text-align:center;color:var(--text3);padding:32px!important;font-size:13px;}
+
+/* Download button */
+.dbtn{
+  background:rgba(79,142,247,.1);
+  border:1px solid rgba(79,142,247,.3);
+  color:var(--accent);padding:4px 12px;border-radius:7px;
+  cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;
+  transition:all .15s;white-space:nowrap;
+}
+.dbtn:hover{background:rgba(79,142,247,.2);border-color:var(--accent);box-shadow:0 0 10px rgba(79,142,247,.25);}
 </style>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp }                                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -256,15 +507,19 @@ document.dispatchEvent(new Event('firebase-ready'));
 <!-- LOGIN -->
 <div id="loginScreen" class="screen active">
   <div class="lc">
-    <div class="ll"><div class="lm">T</div><div class="lt">Tech<span>Track</span></div></div>
-    <div class="lh1">Welcome back</div>
-    <div class="lh2">Sign in to access the management system</div>
-    <div class="fi"><label>Email / Username</label><input type="email" id="loginUser" placeholder="your@gmail.com or admin"/></div>
-    <div class="fi"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+    <div class="login-avatar">👤</div>
+    <div class="lh1">TechTrack Login</div>
+    <div class="login-field">
+      <span class="login-field-icon">✉️</span>
+      <input type="email" id="loginUser" placeholder="Email ID / Username" autocomplete="username"/>
+    </div>
+    <div class="login-field">
+      <span class="login-field-icon">🔒</span>
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password"/>
+    </div>
     <div class="lerr" id="loginErr"></div>
-    <button class="btn-login" onclick="handleLogin()">Sign In</button>
-    <div style="margin-top:20px;text-align:center;font-size:12px;color:var(--text3);">Created by <span style="color:var(--accent);font-weight:600;">Vignesh</span></div>
-
+    <button class="btn-login" onclick="handleLogin()">LOGIN</button>
+    <div class="lhint" style="margin-top:24px;">© 2026 <span>TechTrack</span></div>
   </div>
 </div>
 
@@ -863,143 +1118,297 @@ document.dispatchEvent(new Event('firebase-ready'));
   </div>
 
   <!-- PERF SUMMARY DASHBOARD -->
-  <div class="view" id="v-perfDash">
-    <div class="ph">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <h1>Performance Summary Dashboard</h1><span class="badge bp" id="pd_badge">March 2026</span>
-      </div>
-      <p>Aggregated performance data filtered by system check and team</p>
-    </div>
+  <div class="view" id="v-perfDash" style="padding:20px 24px;background:#060e1f;min-height:100vh;">
 
-    <!-- Filters -->
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;">
-      <span style="font-size:12px;font-weight:600;color:var(--text2);">📋 System Check:</span>
-      <select class="msel" id="dashSysCheck" onchange="refreshPerfDash()">
-        <option value="">All Checks</option>
-      </select>
-      <span style="font-size:12px;font-weight:600;color:var(--text2);">👥 Team:</span>
-      <select class="msel" id="dashTeam" onchange="onDashTeamChange()">
-        <option value="">All Teams</option>
-        <option value="DAY">☀️ All Day Team</option>
-        <option value="NIGHT">🌙 All Night Team</option>
-        <optgroup label="☀️ Day Team">
-          <option value="Day - SEO">SEO</option>
-          <option value="Day - Content">Content</option>
-          <option value="Day - Tech">Tech</option>
-          <option value="Day - Admin">Admin</option>
-          <option value="Day - Accountants">Accountants</option>
-        </optgroup>
-        <optgroup label="🌙 Night Team">
-          <option value="Night - Sales">Sales</option>
-          <option value="Night - Execution">Execution</option>
-          <option value="Night - Downloading">Downloading</option>
-        </optgroup>
-      </select>
-      <span style="font-size:12px;font-weight:600;color:var(--text2);">👤 User:</span>
-      <select class="msel" id="dashUser" onchange="refreshPerfDash()">
-        <option value="">All Users</option>
-      </select>
-      <button onclick="clearDashFilters()" style="background:none;border:1px solid var(--border);color:var(--text3);padding:5px 10px;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;">✕ Clear</button>
-    </div>
-
-    <!-- Score Cards -->
-    <div class="sg" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
-      <div class="sc c1"><div class="sl">Avg System Score</div><div class="sv" id="pd_sysScore">—</div><div class="ss" id="pd_sysScoreS">No data</div></div>
-      <div class="sc c2"><div class="sl">Avg Team Score</div><div class="sv" id="pd_teamScore">—</div><div class="ss" id="pd_teamScoreS">No data</div></div>
-      <div class="sc c3"><div class="sl">Avg App Score</div><div class="sv" id="pd_appScore">—</div><div class="ss" id="pd_appScoreS">No data</div></div>
-      <div class="sc c4"><div class="sl">Total Entries</div><div class="sv" id="pd_cnt">0</div><div class="ss" id="pd_cntS">0 users</div></div>
-    </div>
-
-    <!-- Issues Overview -->
-    <div class="sg" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
-      <div class="sc" style="border-color:var(--danger);cursor:pointer;transition:transform .15s,box-shadow .15s;" onclick="openIssuePanel('poor')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(242,92,92,.2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-        <div class="sl">⚠️ Poor / Critical</div><div class="sv" style="color:var(--danger);" id="pd_poorCnt">0</div><div class="ss" id="pd_poorS">No issues</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Click to view users</div>
+    <!-- DASH HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-size:11px;letter-spacing:3px;color:#4f8ef7;text-transform:uppercase;margin-bottom:4px;">SYSTEM PERFORMANCE</div>
+        <h1 style="font-size:22px;font-weight:800;color:#e8f4ff;letter-spacing:-0.5px;margin:0;">Performance Summary Dashboard</h1>
       </div>
-      <div class="sc" style="border-color:var(--accent3);cursor:pointer;transition:transform .15s,box-shadow .15s;" onclick="openIssuePanel('damage')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(247,131,79,.2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-        <div class="sl">🔧 Physical Damage</div><div class="sv" style="color:var(--accent3);" id="pd_dmgCnt">0</div><div class="ss" id="pd_dmgS">Reports</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Click to view users</div>
-      </div>
-      <div class="sc" style="border-color:var(--accent3);cursor:pointer;transition:transform .15s,box-shadow .15s;" onclick="openIssuePanel('action')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(247,131,79,.2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-        <div class="sl">📋 Action Needed</div><div class="sv" style="color:var(--accent3);" id="pd_actionCnt">0</div><div class="ss" id="pd_actionS">Entries</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Click to view users</div>
-      </div>
-      <div class="sc" style="border-color:var(--accent2);cursor:pointer;transition:transform .15s,box-shadow .15s;" onclick="openIssuePanel('good')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(56,217,169,.2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-        <div class="sl">✅ Good Status</div><div class="sv" style="color:var(--accent2);" id="pd_goodCnt">0</div><div class="ss" id="pd_goodS">Entries</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Click to view users</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge bp" id="pd_badge" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:#4f8ef7;font-size:11px;letter-spacing:1px;">March 2026</span>
+        <select class="msel" id="dashSysCheck" onchange="refreshPerfDash()" style="background:var(--surface2);border:1px solid rgba(79,142,247,.3);color:var(--accent);font-size:12px;padding:5px 10px;border-radius:7px;outline:none;">
+          <option value="">All Checks</option>
+        </select>
+        <select class="msel" id="dashTeam" onchange="onDashTeamChange()" style="background:var(--surface2);border:1px solid rgba(79,142,247,.3);color:var(--accent);font-size:12px;padding:5px 10px;border-radius:7px;outline:none;">
+          <option value="">All Teams</option>
+          <option value="DAY">☀️ All Day</option>
+          <option value="NIGHT">🌙 All Night</option>
+          <optgroup label="Day"><option value="Day - SEO">SEO</option><option value="Day - Content">Content</option><option value="Day - Tech">Tech</option><option value="Day - Admin">Admin</option><option value="Day - Accountants">Accountants</option></optgroup>
+          <optgroup label="Night"><option value="Night - Sales">Sales</option><option value="Night - Execution">Execution</option><option value="Night - Downloading">Downloading</option></optgroup>
+        </select>
+        <select class="msel" id="dashUser" onchange="refreshPerfDash()" style="background:var(--surface2);border:1px solid rgba(79,142,247,.3);color:var(--accent);font-size:12px;padding:5px 10px;border-radius:7px;outline:none;">
+          <option value="">All Users</option>
+        </select>
+        <button onclick="clearDashFilters()" style="background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);color:var(--accent);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;">✕ Clear</button>
       </div>
     </div>
 
-    <!-- Speed + Checklist + Leaderboard -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
-
-      <!-- User System Score -->
-      <div class="tw" style="padding:18px;">
-        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">📊 User System Score</h3>
-        <div id="pd_userScoreBars" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+    <!-- TOP STAT CARDS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+      <div class="dsc" style="--dc:#4f8ef7;">
+        <div class="dsc-glow" style="background:rgba(79,142,247,.12);"></div>
+        <div class="dsc-label">AVG SYSTEM SCORE</div>
+        <div class="dsc-val" id="pd_sysScore" style="color:#4f8ef7;">—</div>
+        <div class="dsc-sub" id="pd_sysScoreS">No data</div>
+        <div class="dsc-bar"><div id="pd_sysScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#4f8ef7,#7ab0ff);width:0%;transition:width .8s;"></div></div>
       </div>
-
-      <!-- Checklist Completion -->
-      <div class="tw" style="padding:18px;">
-        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">✅ Checklist Rate</h3>
-        <div id="pd_checklist" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      <div class="dsc" style="--dc:#22d3a0;">
+        <div class="dsc-glow" style="background:rgba(34,211,160,.12);"></div>
+        <div class="dsc-label">AVG TEAM SCORE</div>
+        <div class="dsc-val" id="pd_teamScore" style="color:#22d3a0;">—</div>
+        <div class="dsc-sub" id="pd_teamScoreS">No data</div>
+        <div class="dsc-bar"><div id="pd_teamScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#22d3a0,#5ef5cc);width:0%;transition:width .8s;"></div></div>
       </div>
-
-      <!-- Team Leaderboard -->
-      <div class="tw" style="padding:18px;">
-        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🏆 Team Leaderboard</h3>
-        <div id="pd_leaderboard" style="max-height:320px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      <div class="dsc" style="--dc:#f97316;">
+        <div class="dsc-glow" style="background:rgba(249,115,22,.12);"></div>
+        <div class="dsc-label">AVG APP SCORE</div>
+        <div class="dsc-val" id="pd_appScore" style="color:#f97316;">—</div>
+        <div class="dsc-sub" id="pd_appScoreS">No data</div>
+        <div class="dsc-bar"><div id="pd_appScoreBar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#f97316,#fba85a);width:0%;transition:width .8s;"></div></div>
       </div>
-    </div>
-
-    <!-- SSD + Battery Health -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-      <!-- SSD/HDD Health -->
-      <div class="tw" style="padding:18px;">
-        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">💾 SSD / HDD Condition</h3>
-        <div id="pd_ssdSummary" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;"></div>
-        <div id="pd_ssdList" style="max-height:460px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
-      </div>
-      <!-- Battery Health -->
-      <div class="tw" style="padding:18px;">
-        <h3 style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;">🔋 Battery Condition</h3>
-        <div id="pd_batSummary" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;"></div>
-        <div id="pd_batList" style="max-height:460px;overflow-y:auto;padding-right:2px;"><div style="color:var(--text3);font-size:13px;">No data</div></div>
+      <div class="dsc" style="--dc:#a78bfa;">
+        <div class="dsc-glow" style="background:rgba(167,139,250,.12);"></div>
+        <div class="dsc-label">TOTAL ENTRIES</div>
+        <div class="dsc-val" id="pd_cnt" style="color:#a78bfa;">0</div>
+        <div class="dsc-sub" id="pd_cntS">0 users</div>
+        <div class="dsc-bar"><div style="height:100%;border-radius:2px;background:linear-gradient(90deg,#a78bfa,#c4b5fd);width:100%;"></div></div>
       </div>
     </div>
 
-    <!-- Per-User Score Table -->
-    <div class="tw" style="margin-bottom:16px;">
-      <div class="th"><h3>👤 Per-User Scores</h3><span style="font-size:11px;color:var(--text3);">Latest entry per user</span><button onclick="downloadSummaryCSV()" class="btn" style="margin-left:auto;font-size:11px;padding:4px 12px;">⬇ Download Summary CSV</button></div>
-      <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
-        <table style="min-width:900px;"><thead style="position:sticky;top:0;z-index:2;background:var(--surface);"><tr>
+    <!-- ISSUE CARDS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+      <div class="dic" onclick="openIssuePanel('poor')" style="border-color:rgba(242,92,92,.4);--dc:#f25c5c;">
+        <div class="dic-icon">⚠️</div>
+        <div class="dic-val" id="pd_poorCnt" style="color:#f25c5c;">0</div>
+        <div class="dic-label">POOR / CRITICAL</div>
+        <div class="dic-sub" id="pd_poorS">Click to view</div>
+      </div>
+      <div class="dic" onclick="openIssuePanel('damage')" style="border-color:rgba(249,115,22,.4);--dc:#f97316;">
+        <div class="dic-icon">🔧</div>
+        <div class="dic-val" id="pd_dmgCnt" style="color:#f97316;">0</div>
+        <div class="dic-label">PHYSICAL DAMAGE</div>
+        <div class="dic-sub" id="pd_dmgS">Click to view</div>
+      </div>
+      <div class="dic" onclick="openIssuePanel('action')" style="border-color:rgba(249,115,22,.4);--dc:#f97316;">
+        <div class="dic-icon">📋</div>
+        <div class="dic-val" id="pd_actionCnt" style="color:#f97316;">0</div>
+        <div class="dic-label">ACTION NEEDED</div>
+        <div class="dic-sub" id="pd_actionS">Click to view</div>
+      </div>
+      <div class="dic" onclick="openIssuePanel('good')" style="border-color:rgba(34,211,160,.4);--dc:#22d3a0;">
+        <div class="dic-icon">✅</div>
+        <div class="dic-val" id="pd_goodCnt" style="color:#22d3a0;">0</div>
+        <div class="dic-label">GOOD STATUS</div>
+        <div class="dic-sub" id="pd_goodS">Click to view</div>
+      </div>
+    </div>
+
+    <!-- CHART ROW: 3 charts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+
+      <!-- Donut: Score Distribution -->
+      <div class="cpanel">
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#4f8ef7;color:#4f8ef7;"></span>SCORE DISTRIBUTION</div>
+        <div class="cpanel-body" style="display:flex;align-items:center;justify-content:center;gap:20px;padding:12px 16px;">
+          <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
+            <canvas id="ch_scoreDist" width="130" height="130"></canvas>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+              <div id="ch_scoreDistCenter" style="font-size:22px;font-weight:800;color:#4f8ef7;font-family:'DM Mono',monospace;">—</div>
+              <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Avg</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="ch_scoreDistLegend">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#22d3a0;box-shadow:0 0 6px rgba(34,211,160,.6);display:inline-block;"></span><span style="color:var(--text2);">Good ≥8</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.6);display:inline-block;"></span><span style="color:var(--text2);">Avg ≥6</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:10px;height:10px;border-radius:50%;background:#f25c5c;box-shadow:0 0 6px rgba(242,92,92,.6);display:inline-block;"></span><span style="color:var(--text2);">Poor &lt;6</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut: HDD Health -->
+      <div class="cpanel">
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#38bdf8;color:#38bdf8;"></span>💾 SSD / HDD HEALTH</div>
+        <div class="cpanel-body" style="display:flex;flex-direction:column;gap:10px;padding:12px 16px;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+            <div style="position:relative;width:120px;height:120px;flex-shrink:0;">
+              <canvas id="ch_hddDist" width="120" height="120"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                <div id="ch_hddDistCenter" style="font-size:22px;font-weight:800;color:#38bdf8;font-family:'DM Mono',monospace;">—</div>
+                <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Good</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#22d3a0;box-shadow:0 0 6px rgba(34,211,160,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_hddL1">Good</div><div style="font-size:10px;color:#22d3a0;font-weight:700;">&gt; 80%</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_hddL2">Monitoring</div><div style="font-size:10px;color:#f97316;font-weight:700;">50% – 80%</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f25c5c;box-shadow:0 0 6px rgba(242,92,92,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_hddL3">Need Change</div><div style="font-size:10px;color:#f25c5c;font-weight:700;">&lt; 50%</div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Threshold scale bar -->
+          <div style="border-top:1px solid var(--border);padding-top:8px;">
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">HEALTH % SCALE</div>
+            <div style="display:flex;border-radius:6px;overflow:hidden;height:8px;">
+              <div style="flex:50;background:#f25c5c;" title="Need to Change: 0–50%"></div>
+              <div style="flex:30;background:#f97316;" title="Under Monitoring: 50–80%"></div>
+              <div style="flex:20;background:#22d3a0;" title="Good: 80–100%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px;">
+              <span style="color:#f25c5c;font-weight:700;">0%</span>
+              <span style="color:#f97316;font-weight:700;">50%</span>
+              <span style="color:#f97316;font-weight:700;">80%</span>
+              <span style="color:#22d3a0;font-weight:700;">100%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:1px;color:var(--text3);">
+              <span>⛔ Change</span>
+              <span style="text-align:center;">👁 Monitor</span>
+              <span style="text-align:right;">✅ Good</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut: Battery -->
+      <div class="cpanel">
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#fb923c;color:#fb923c;"></span>🔋 BATTERY HEALTH</div>
+        <div class="cpanel-body" style="display:flex;flex-direction:column;gap:10px;padding:12px 16px;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+            <div style="position:relative;width:120px;height:120px;flex-shrink:0;">
+              <canvas id="ch_batDist" width="120" height="120"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                <div id="ch_batDistCenter" style="font-size:22px;font-weight:800;color:#fb923c;font-family:'DM Mono',monospace;">—</div>
+                <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;">Avg%</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#22d3a0;box-shadow:0 0 6px rgba(34,211,160,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_batL1">Good</div><div style="font-size:10px;color:#22d3a0;font-weight:700;">&gt; 60%</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_batL2">Monitoring</div><div style="font-size:10px;color:#f97316;font-weight:700;">30% – 60%</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#f25c5c;box-shadow:0 0 6px rgba(242,92,92,.6);display:inline-block;flex-shrink:0;"></span>
+                <div><div style="color:var(--text);font-weight:600;" id="ch_batL3">Need Change</div><div style="font-size:10px;color:#f25c5c;font-weight:700;">&lt; 30%</div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Threshold scale bar -->
+          <div style="border-top:1px solid var(--border);padding-top:8px;">
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">BATTERY % SCALE</div>
+            <div style="display:flex;border-radius:6px;overflow:hidden;height:8px;">
+              <div style="flex:30;background:#f25c5c;" title="Need to Change: 0–30%"></div>
+              <div style="flex:30;background:#f97316;" title="Under Monitoring: 30–60%"></div>
+              <div style="flex:40;background:#22d3a0;" title="Good: 60–100%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px;">
+              <span style="color:#f25c5c;font-weight:700;">0%</span>
+              <span style="color:#f97316;font-weight:700;">30%</span>
+              <span style="color:#f97316;font-weight:700;">60%</span>
+              <span style="color:#22d3a0;font-weight:700;">100%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:1px;color:var(--text3);">
+              <span>⛔ Change</span>
+              <span style="text-align:center;">👁 Monitor</span>
+              <span style="text-align:right;">✅ Good</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHART ROW 2: Team bar + Checklist radar -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+
+      <!-- Horizontal bar: Team Scores -->
+      <div class="cpanel">
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#a78bfa;color:#a78bfa;"></span>TEAM SCORE CHART</div>
+        <div class="cpanel-body" style="padding:12px 16px;"><canvas id="ch_teamBar" style="width:100%;max-height:200px;"></canvas></div>
+      </div>
+
+      <!-- Bar: Checklist rates -->
+      <div class="cpanel">
+        <div class="cpanel-hdr"><span class="cpanel-dot" style="background:#22d3a0;color:#22d3a0;"></span>CHECKLIST COMPLETION CHART</div>
+        <div class="cpanel-body" style="padding:12px 16px;"><canvas id="ch_chkBar" style="width:100%;max-height:200px;"></canvas></div>
+      </div>
+
+    </div>
+
+    <!-- MAIN 3-COL: USER SCORE | CHECKLIST | LEADERBOARD -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="dpanel">
+        <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#4f8ef7;"></span>USER SYSTEM SCORE</div>
+        <div id="pd_userScoreBars" style="max-height:300px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+      <div class="dpanel">
+        <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#22d3a0;"></span>CHECKLIST RATE</div>
+        <div id="pd_checklist" style="max-height:300px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+      <div class="dpanel">
+        <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#a78bfa;"></span>TEAM LEADERBOARD</div>
+        <div id="pd_leaderboard" style="max-height:300px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+    </div>
+
+    <!-- SSD + BATTERY -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="dpanel">
+        <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#38bdf8;"></span>SSD / HDD CONDITION
+          <div id="pd_ssdSummary" style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;"></div>
+        </div>
+        <div id="pd_ssdList" style="max-height:400px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+      <div class="dpanel">
+        <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#fb923c;"></span>BATTERY CONDITION
+          <div id="pd_batSummary" style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;"></div>
+        </div>
+        <div id="pd_batList" style="max-height:400px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+    </div>
+
+    <!-- PER USER TABLE -->
+    <div class="dpanel" style="margin-bottom:16px;">
+      <div class="dpanel-hdr"><span class="dpanel-dot" style="background:#4f8ef7;"></span>PER-USER SCORES <span style="font-size:10px;color:var(--text3);margin-left:6px;">Latest entry per user</span>
+        <button onclick="downloadSummaryCSV()" class="dbtn" style="margin-left:auto;">⬇ Summary CSV</button>
+      </div>
+      <div style="overflow-x:auto;max-height:360px;overflow-y:auto;">
+        <table class="dtable"><thead><tr>
           <th>System Check</th><th>User</th><th>Team</th><th>Asset ID</th><th>Date</th>
-          <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
-          <th>Internet</th><th>DL Speed</th><th>UL Speed</th><th>Physical Damage</th><th>Report</th>
+          <th>Sys</th><th>Team</th><th>App</th><th>Status</th>
+          <th>Internet</th><th>DL</th><th>UL</th><th>Damage</th><th>Report</th>
         </tr></thead>
-        <tbody id="pd_userTable"><tr><td colspan="12" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody>
+        <tbody id="pd_userTable"><tr><td colspan="14" class="dtd-empty">No data yet</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- All Logs Table -->
-    <div class="tw">
-      <div class="th" style="flex-wrap:wrap;gap:8px;">
-        <h3>📋 All Performance Logs</h3>
-        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;">
-          <div style="position:relative;">
-            <input id="pd_logSearch" type="text" placeholder="🔍 Search user, team, asset…" oninput="filterPdLogs()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px 5px 10px;font-size:12px;color:var(--text);width:210px;outline:none;">
-          </div>
-          <button onclick="downloadAllLogsCSV()" class="btn" style="font-size:11px;padding:4px 12px;">⬇ Download CSV</button>
+    <!-- ALL LOGS TABLE -->
+    <div class="dpanel">
+      <div class="dpanel-hdr" style="flex-wrap:wrap;gap:8px;"><span class="dpanel-dot" style="background:#22d3a0;"></span>ALL PERFORMANCE LOGS
+        <div style="display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap;">
+          <input id="pd_logSearch" type="text" placeholder="🔍 Search user, team, asset…" oninput="filterPdLogs()" style="background:var(--surface2);border:1px solid rgba(79,142,247,.25);border-radius:7px;padding:5px 12px;font-size:12px;color:var(--accent);width:200px;outline:none;">
+          <button onclick="downloadAllLogsCSV()" class="dbtn">⬇ Download CSV</button>
         </div>
       </div>
-      <div style="overflow-x:auto;max-height:420px;overflow-y:auto;">
-        <table style="min-width:900px;"><thead style="position:sticky;top:0;z-index:2;background:var(--surface);"><tr>
+      <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+        <table class="dtable"><thead><tr>
           <th>System Check</th><th>User</th><th>Team</th><th>Date</th><th>Asset ID</th>
-          <th>Sys Score</th><th>Team Score</th><th>App Score</th><th>Status</th>
+          <th>Sys</th><th>Team</th><th>App</th><th>Status</th>
           <th>Internet</th><th>DL</th><th>UL</th><th>Action</th><th>Damage</th>
         </tr></thead>
-        <tbody id="pd_logs"><tr><td colspan="13" style="text-align:center;color:var(--text3);padding:24px;">No data yet</td></tr></tbody></table>
+        <tbody id="pd_logs"><tr><td colspan="14" class="dtd-empty">No data yet</td></tr></tbody></table>
       </div>
     </div>
   </div>
@@ -2593,7 +3002,7 @@ function refreshPerfDash(){
     <td style="font-size:12px;">${l.dlSpeed?l.dlSpeed+' Mbps':'—'}</td>
     <td style="font-size:12px;">${l.ulSpeed?l.ulSpeed+' Mbps':'—'}</td>
     <td style="font-size:12px;color:${l.physDamage&&l.physDamage!=='None'?'var(--danger)':'var(--text2)'};">${l.physDamage||'—'}</td>
-    <td><button onclick="openUserReport('${l.userName.replace(/'/g,"\\'")}')" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">👁 Open</button></td>
+    <td><button onclick="openUserReport('${l.userName.replace(/'/g,"\\'")}')" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:#4f8ef7;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600;">👁 View</button></td>
   </tr>`;
   }).join(''));
 
@@ -2622,6 +3031,133 @@ function refreshPerfDash(){
     return { html, search: (l.userName+' '+(l.team||'')+' '+(l.assetId||'')+' '+(l.date||'')+' '+(l.status||'')+' '+(l.internet||'')).toLowerCase() };
   });
   filterPdLogs();
+
+  // ── UPDATE CHARTS ──
+  updatePerfCharts(logs, chkItems);
+}
+
+function updatePerfCharts(logs, chkItems){
+  if(typeof Chart === 'undefined') return;
+
+  const CHART_DEFAULTS = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{enabled:true} },
+    animation:{ duration:600, easing:'easeInOutQuart' }
+  };
+
+  // Helper: get or create chart
+  function mkChart(id, type, data, opts){
+    const canvas = document.getElementById(id);
+    if(!canvas) return;
+    if(canvas._chartInst) canvas._chartInst.destroy();
+    const ctx = canvas.getContext('2d');
+    canvas._chartInst = new Chart(ctx, { type, data, options: opts });
+  }
+
+  // ── 1. Score Distribution Donut ──
+  const scoreGood  = logs.filter(l=>parseFloat(l.sysScore)>=8).length;
+  const scoreAvg   = logs.filter(l=>parseFloat(l.sysScore)>=6&&parseFloat(l.sysScore)<8).length;
+  const scorePoor  = logs.filter(l=>parseFloat(l.sysScore)<6&&l.sysScore!=null&&l.sysScore!=='').length;
+  const avgSysNum  = logs.length ? (logs.reduce((s,l)=>s+(parseFloat(l.sysScore)||0),0)/logs.length).toFixed(1) : '—';
+  const distEl = document.getElementById('ch_scoreDistCenter');
+  if(distEl) distEl.textContent = avgSysNum;
+  mkChart('ch_scoreDist','doughnut',{
+    datasets:[{ data:[scoreGood||0.001, scoreAvg||0.001, scorePoor||0.001],
+      backgroundColor:['#22d3a0','#f97316','#f25c5c'],
+      borderColor:['rgba(34,211,160,.15)','rgba(249,115,22,.15)','rgba(242,92,92,.15)'],
+      borderWidth:2, hoverOffset:4,
+      borderRadius:4,
+    }]
+  },{...CHART_DEFAULTS, cutout:'72%',
+    plugins:{...CHART_DEFAULTS.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} users`}}}
+  });
+
+  // ── 2. HDD Distribution Donut ──
+  const hddGood2   = logs.filter(l=>l.hddHealth==='Good').length;
+  const hddMon2    = logs.filter(l=>l.hddHealth==='Under Monitoring').length;
+  const hddChg2    = logs.filter(l=>l.hddHealth==='Need to Change').length;
+  const hddCenterEl= document.getElementById('ch_hddDistCenter');
+  if(hddCenterEl) hddCenterEl.textContent = hddGood2;
+  const hddL1=document.getElementById('ch_hddL1'); if(hddL1) hddL1.textContent='Good ('+hddGood2+')';
+  const hddL2=document.getElementById('ch_hddL2'); if(hddL2) hddL2.textContent='Monitor ('+hddMon2+')';
+  const hddL3=document.getElementById('ch_hddL3'); if(hddL3) hddL3.textContent='Change ('+hddChg2+')';
+  mkChart('ch_hddDist','doughnut',{
+    datasets:[{ data:[hddGood2||0.001, hddMon2||0.001, hddChg2||0.001],
+      backgroundColor:['#22d3a0','#f97316','#f25c5c'],
+      borderColor:['rgba(34,211,160,.15)','rgba(249,115,22,.15)','rgba(242,92,92,.15)'],
+      borderWidth:2, hoverOffset:4, borderRadius:4
+    }]
+  },{...CHART_DEFAULTS, cutout:'72%'});
+
+  // ── 3. Battery Distribution Donut ──
+  const bats2   = logs.filter(l=>l.battery!=null&&!isNaN(parseFloat(l.battery)));
+  const batG2   = bats2.filter(l=>parseFloat(l.battery)>60).length;
+  const batM2   = bats2.filter(l=>parseFloat(l.battery)>=30&&parseFloat(l.battery)<=60).length;
+  const batC2   = bats2.filter(l=>parseFloat(l.battery)<30).length;
+  const avgBat2 = bats2.length?Math.round(bats2.reduce((s,l)=>s+parseFloat(l.battery),0)/bats2.length):'—';
+  const batCenterEl= document.getElementById('ch_batDistCenter');
+  if(batCenterEl) batCenterEl.textContent = avgBat2+(avgBat2!=='—'?'%':'');
+  const batL1=document.getElementById('ch_batL1'); if(batL1) batL1.textContent='Good >60% ('+batG2+')';
+  const batL2=document.getElementById('ch_batL2'); if(batL2) batL2.textContent='Monitor ('+batM2+')';
+  const batL3=document.getElementById('ch_batL3'); if(batL3) batL3.textContent='Change <30% ('+batC2+')';
+  mkChart('ch_batDist','doughnut',{
+    datasets:[{ data:[batG2||0.001, batM2||0.001, batC2||0.001],
+      backgroundColor:['#22d3a0','#f97316','#f25c5c'],
+      borderColor:['rgba(34,211,160,.15)','rgba(249,115,22,.15)','rgba(242,92,92,.15)'],
+      borderWidth:2, hoverOffset:4, borderRadius:4
+    }]
+  },{...CHART_DEFAULTS, cutout:'72%'});
+
+  // ── 4. Team Bar Chart (horizontal) ──
+  const teamMap={};
+  logs.forEach(l=>{if(!l.team||!l.sysScore||isNaN(parseFloat(l.sysScore))) return; if(!teamMap[l.team]) teamMap[l.team]=[]; teamMap[l.team].push(parseFloat(l.sysScore));});
+  const tEntries=Object.entries(teamMap).map(([t,v])=>([t.split(' - ')[1]||t,(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1)])).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const teamColors = tEntries.map(([,v])=>parseFloat(v)>=8?'rgba(34,211,160,.85)':parseFloat(v)>=6?'rgba(249,115,22,.85)':'rgba(242,92,92,.85)');
+  const teamGlows  = tEntries.map(([,v])=>parseFloat(v)>=8?'rgba(34,211,160,.5)':parseFloat(v)>=6?'rgba(249,115,22,.5)':'rgba(242,92,92,.5)');
+  mkChart('ch_teamBar','bar',{
+    labels: tEntries.map(x=>x[0]),
+    datasets:[{
+      data: tEntries.map(x=>parseFloat(x[1])),
+      backgroundColor: teamColors,
+      borderColor: teamGlows,
+      borderWidth:1,
+      borderRadius:4,
+      hoverBackgroundColor: teamGlows
+    }]
+  },{
+    ...CHART_DEFAULTS, indexAxis:'y',
+    scales:{
+      x:{ min:0, max:10, grid:{ color:'rgba(79,142,247,.08)', drawTicks:false }, ticks:{ color:'#2e4a6e', font:{size:10}, stepSize:2 }, border:{color:'rgba(79,142,247,.1)'} },
+      y:{ grid:{ display:false }, ticks:{ color:'#7aa3d4', font:{size:11} }, border:{display:false} }
+    },
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>` ${ctx.raw}/10` }, backgroundColor:'rgba(6,15,34,.9)', titleColor:'#8ab4f8', bodyColor:'#7aa3d4', borderColor:'rgba(79,142,247,.3)', borderWidth:1 } }
+  });
+
+  // ── 5. Checklist Bar Chart ──
+  const n2 = logs.length || 1;
+  const chkLabels = chkItems.map(x=>x[0]);
+  const chkVals   = chkItems.map(([,key])=>{
+    const done=logs.filter(l=>l[key]===true||l[key]==='true').length;
+    return Math.round((done/n2)*100);
+  });
+  const chkColors = chkVals.map(v=>v>=80?'rgba(34,211,160,.85)':v>=50?'rgba(249,115,22,.85)':'rgba(242,92,92,.85)');
+  mkChart('ch_chkBar','bar',{
+    labels: chkLabels,
+    datasets:[{
+      data: chkVals,
+      backgroundColor: chkColors,
+      borderColor: chkColors.map(c=>c.replace('.85','1')),
+      borderWidth:1,
+      borderRadius:4
+    }]
+  },{
+    ...CHART_DEFAULTS, indexAxis:'x',
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ color:'#7aa3d4', font:{size:9}, maxRotation:30 }, border:{display:false} },
+      y:{ min:0, max:100, grid:{ color:'rgba(79,142,247,.07)', drawTicks:false }, ticks:{ color:'#2e4a6e', font:{size:10}, callback:v=>v+'%' }, border:{color:'rgba(79,142,247,.1)'} }
+    },
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>` ${ctx.raw}%` }, backgroundColor:'rgba(6,15,34,.9)', titleColor:'#8ab4f8', bodyColor:'#7aa3d4', borderColor:'rgba(79,142,247,.3)', borderWidth:1 } }
+  });
 }
 
 function filterPdLogs(){
