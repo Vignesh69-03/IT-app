@@ -98,6 +98,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 .login-left{display:none;}
 .lhint{margin-top:20px;text-align:center;font-size:11px;color:var(--text3);letter-spacing:.5px;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .lhint span{color:var(--accent);font-weight:600;}
 .chk-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:background .15s;}
 .chk-row:hover{background:var(--surface);}
@@ -407,7 +408,7 @@ document.dispatchEvent(new Event('firebase-ready'));
     <div class="lh1">TechTrack Login</div>
     <div class="login-field">
       <span class="login-field-icon">✉️</span>
-      <input type="email" id="loginUser" placeholder="Email ID / Username" autocomplete="username"/>
+      <input type="text" id="loginUser" placeholder="Email ID / Username" autocomplete="username"/>
     </div>
     <div class="login-field">
       <span class="login-field-icon">🔒</span>
@@ -461,18 +462,13 @@ document.dispatchEvent(new Event('firebase-ready'));
         overflow:hidden; background:radial-gradient(ellipse at 60% 50%, #0a1628 0%, #050d1a 60%, #020710 100%);
         display:flex; align-items:center; justify-content:center;
       }
-      /* Stars */
       #spaceHome .stars { position:absolute; inset:0; pointer-events:none; }
-      /* Orbit ring */
       @keyframes orbitRing { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
       @keyframes orbitRingRev { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(-360deg)} }
-      @keyframes counterRot { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
-      @keyframes counterRotRev { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       @keyframes blackholePulse {
         0%,100%{ box-shadow: 0 0 40px 10px rgba(56,150,255,.25), 0 0 80px 20px rgba(56,100,255,.1); }
         50%    { box-shadow: 0 0 60px 20px rgba(56,150,255,.4), 0 0 120px 40px rgba(56,100,255,.2); }
       }
-      @keyframes accretionSpin { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
       @keyframes diskFloat {
         0%,100%{transform:translate(-50%,-50%) scaleY(1) rotate(-15deg)}
         50%{transform:translate(-50%,-50%) scaleY(1.04) rotate(-15deg)}
@@ -486,35 +482,9 @@ document.dispatchEvent(new Event('firebase-ready'));
         70%{transform:scale(1.15) rotate(4deg); opacity:1}
         100%{transform:scale(1) rotate(0deg); opacity:1}
       }
-      @keyframes nodeHover {
-        0%,100%{transform:translateY(0px)}
-        50%{transform:translateY(-4px)}
-      }
       @keyframes titleFade {
         from{opacity:0; transform:translateY(-12px)}
         to{opacity:1; transform:translateY(0)}
-      }
-      .orbit-node {
-        position:absolute; top:0; left:0;
-        display:flex; flex-direction:column; align-items:center; gap:6px;
-        cursor:pointer;
-        animation: nodePop .6s cubic-bezier(.34,1.56,.64,1) both;
-      }
-      .orbit-node:hover .orbit-icon { transform:scale(1.15); box-shadow:0 0 24px rgba(255,255,255,.25); }
-      .orbit-node:hover .orbit-label { color:#fff; }
-      .orbit-icon {
-        width:54px; height:54px; border-radius:16px;
-        display:grid; place-items:center; font-size:24px;
-        backdrop-filter:blur(10px);
-        transition:transform .25s, box-shadow .25s;
-        border:1px solid rgba(255,255,255,.15);
-        box-shadow:0 4px 20px rgba(0,0,0,.4);
-      }
-      .orbit-label {
-        font-size:11px; font-weight:700; color:rgba(255,255,255,.7);
-        white-space:nowrap; letter-spacing:.4px; text-align:center;
-        transition:color .25s;
-        text-shadow:0 2px 8px rgba(0,0,0,.8);
       }
       .orbit-ring {
         position:absolute; top:50%; left:50%;
@@ -524,51 +494,46 @@ document.dispatchEvent(new Event('firebase-ready'));
     </style>
 
     <div id="spaceHome">
-      <!-- Stars canvas -->
       <canvas id="starCanvas" class="stars"></canvas>
 
-      <!-- Glow rays (like image) -->
+      <!-- Glow rays -->
       <div style="position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;">
-        <!-- rays -->
-        <div style="--ray-angle:-55deg; position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(-55deg);animation:rayPulse 3s ease-in-out infinite;opacity:.5;"></div>
-        <div style="--ray-angle:-45deg; position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(-45deg);animation:rayPulse 3.5s ease-in-out infinite;opacity:.6;"></div>
-        <div style="--ray-angle:-35deg; position:absolute;top:0;left:0;width:580px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(-35deg);animation:rayPulse 4s ease-in-out infinite;opacity:.45;"></div>
-        <div style="--ray-angle:120deg; position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(120deg);animation:rayPulse 3.2s ease-in-out infinite;opacity:.5;"></div>
-        <div style="--ray-angle:130deg; position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(130deg);animation:rayPulse 3.8s ease-in-out infinite;opacity:.55;"></div>
-        <div style="--ray-angle:140deg; position:absolute;top:0;left:0;width:570px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(140deg);animation:rayPulse 4.2s ease-in-out infinite;opacity:.4;"></div>
+        <div style="--ray-angle:-55deg;position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(-55deg);animation:rayPulse 3s ease-in-out infinite;opacity:.5;"></div>
+        <div style="--ray-angle:-45deg;position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(-45deg);animation:rayPulse 3.5s ease-in-out infinite;opacity:.6;"></div>
+        <div style="--ray-angle:-35deg;position:absolute;top:0;left:0;width:580px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(-35deg);animation:rayPulse 4s ease-in-out infinite;opacity:.45;"></div>
+        <div style="--ray-angle:120deg;position:absolute;top:0;left:0;width:600px;height:3px;background:linear-gradient(90deg,rgba(180,130,60,.6),transparent);transform-origin:0 50%;transform:rotate(120deg);animation:rayPulse 3.2s ease-in-out infinite;opacity:.5;"></div>
+        <div style="--ray-angle:130deg;position:absolute;top:0;left:0;width:550px;height:6px;background:linear-gradient(90deg,rgba(200,150,70,.7),transparent);transform-origin:0 50%;transform:rotate(130deg);animation:rayPulse 3.8s ease-in-out infinite;opacity:.55;"></div>
+        <div style="--ray-angle:140deg;position:absolute;top:0;left:0;width:570px;height:4px;background:linear-gradient(90deg,rgba(180,130,60,.5),transparent);transform-origin:0 50%;transform:rotate(140deg);animation:rayPulse 4.2s ease-in-out infinite;opacity:.4;"></div>
       </div>
 
-      <!-- Accretion disk outer glow -->
+      <!-- Accretion disk -->
       <div style="position:absolute;top:50%;left:50%;width:320px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(60,140,255,.18) 0%,transparent 70%);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
-      <!-- Accretion disk ring -->
-      <div style="position:absolute;top:50%;left:50%;width:300px;height:80px;border-radius:50%;border:18px solid transparent;background:radial-gradient(ellipse,rgba(80,160,255,.22),transparent 70%) border-box;box-shadow:0 0 40px rgba(60,140,255,.35), inset 0 0 20px rgba(60,140,255,.2);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
-      <!-- Inner disk bright -->
-      <div style="position:absolute;top:50%;left:50%;width:200px;height:50px;border-radius:50%;border:8px solid rgba(120,190,255,.4);box-shadow:0 0 30px rgba(100,180,255,.5), inset 0 0 10px rgba(100,180,255,.3);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
+      <div style="position:absolute;top:50%;left:50%;width:300px;height:80px;border-radius:50%;border:18px solid transparent;background:radial-gradient(ellipse,rgba(80,160,255,.22),transparent 70%) border-box;box-shadow:0 0 40px rgba(60,140,255,.35),inset 0 0 20px rgba(60,140,255,.2);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
+      <div style="position:absolute;top:50%;left:50%;width:200px;height:50px;border-radius:50%;border:8px solid rgba(120,190,255,.4);box-shadow:0 0 30px rgba(100,180,255,.5),inset 0 0 10px rgba(100,180,255,.3);transform:translate(-50%,-50%) rotate(-15deg);pointer-events:none;animation:diskFloat 4s ease-in-out infinite;"></div>
 
-      <!-- Black hole center -->
+      <!-- Black hole -->
       <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;">
-        <div id="blackHole" title="Click to explore" style="width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,#000 60%,#060c1a 100%);animation:blackholePulse 3s ease-in-out infinite;box-shadow:0 0 40px 10px rgba(40,100,255,.3);transition:box-shadow .4s;">
-        </div>
+        <div id="blackHole" title="Click to explore" style="width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,#000 60%,#060c1a 100%);animation:blackholePulse 3s ease-in-out infinite;box-shadow:0 0 40px 10px rgba(40,100,255,.3);cursor:pointer;transition:box-shadow .4s;"></div>
       </div>
 
-      <!-- Orbit rings (decorative) -->
+      <!-- Orbit rings -->
       <div class="orbit-ring" style="width:260px;height:260px;margin-left:-130px;margin-top:-130px;"></div>
       <div class="orbit-ring" style="width:380px;height:380px;margin-left:-190px;margin-top:-190px;opacity:.08;"></div>
 
-      <!-- Title top -->
+      <!-- Title -->
       <div style="position:absolute;top:32px;left:0;right:0;text-align:center;animation:titleFade .8s ease both;pointer-events:none;">
         <div style="font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(100,170,255,.7);text-transform:uppercase;">TechTrack</div>
         <div style="font-size:22px;font-weight:900;color:#fff;margin-top:4px;text-shadow:0 0 30px rgba(80,150,255,.5);">Management System</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;">Select a module to begin</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;">Click the center to explore modules</div>
       </div>
 
-      <!-- Orbit nodes — positioned via JS -->
+      <!-- Orbit nodes container -->
       <div id="orbitNodes" style="position:absolute;top:50%;left:50%;width:0;height:0;"></div>
     </div>
 
     <script>
     (function(){
-      // ── Stars ──
+      // Stars
       const canvas = document.getElementById('starCanvas');
       function resizeCanvas(){
         if(!canvas) return;
@@ -586,49 +551,29 @@ document.dispatchEvent(new Event('firebase-ready'));
       window.addEventListener('resize', resizeCanvas);
       setTimeout(resizeCanvas, 100);
 
-      // ── Module definitions ──
+      // Module definitions
       const modules = [
-        { icon:'⚡', label:'System\nPerformance', color:'#4f8ef7', nav:'perfUsers'   },
-        { icon:'📈', label:'Performance\nSummary', color:'#a855f7', nav:'perfDash'    },
-        { icon:'🗂️', label:'Asset\nSheet',         color:'#38d9a9', nav:'assetDetail' },
-        { icon:'🔐', label:'User\nManagement',      color:'#fb923c', nav:'userMgmt',  adminOnly:true },
+        { icon:'⚡', label:'System\nPerformance', color:'#4f8ef7', nav:'perfUsers' },
+        { icon:'📈', label:'Performance\nSummary',  color:'#a855f7', nav:'perfDash' },
+        { icon:'🗂️', label:'Asset\nSheet',          color:'#38d9a9', nav:'assetDetail' },
+        { icon:'🔐', label:'User\nManagement',       color:'#fb923c', nav:'userMgmt', adminOnly:true },
       ];
 
       let expanded = false;
       const RADIUS = 160;
       const nodeEls = [];
-
-      // ── Build each node absolutely on the SPACE container ──
       const space = document.getElementById('spaceHome');
 
-      modules.forEach((m) => {
+      modules.forEach(m => {
         const wrap = document.createElement('div');
-        wrap.style.cssText = [
-          'position:absolute',
-          'display:flex',
-          'flex-direction:column',
-          'align-items:center',
-          'gap:6px',
-          'cursor:pointer',
-          'opacity:0',
-          'pointer-events:none',
-          'transition:opacity .4s ease, left .5s cubic-bezier(.34,1.56,.64,1), top .5s cubic-bezier(.34,1.56,.64,1)',
-          'z-index:20',
-        ].join(';');
-        if(m.adminOnly){ wrap.id='homeCardUM'; }
+        wrap.style.cssText = 'position:absolute;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s ease,left .5s cubic-bezier(.34,1.56,.64,1),top .5s cubic-bezier(.34,1.56,.64,1);z-index:20;';
+        if(m.adminOnly) wrap.id = 'homeCardUM';
 
         const icon = document.createElement('div');
-        icon.style.cssText = [
-          'width:54px','height:54px','border-radius:16px',
-          'display:grid','place-items:center','font-size:26px',
-          'background:'+m.color+'cc',
-          'border:1.5px solid '+m.color,
-          'box-shadow:0 4px 24px rgba(0,0,0,.5)',
-          'transition:transform .2s',
-        ].join(';');
+        icon.style.cssText = 'width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:'+m.color+'cc;border:1.5px solid '+m.color+';box-shadow:0 4px 24px rgba(0,0,0,.5);transition:transform .2s;';
         icon.textContent = m.icon;
-        icon.addEventListener('mouseenter',()=>icon.style.transform='scale(1.15)');
-        icon.addEventListener('mouseleave',()=>icon.style.transform='');
+        icon.addEventListener('mouseenter', ()=>icon.style.transform='scale(1.15)');
+        icon.addEventListener('mouseleave', ()=>icon.style.transform='');
 
         const lbl = document.createElement('div');
         lbl.style.cssText = 'font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-align:center;line-height:1.4;text-shadow:0 2px 8px rgba(0,0,0,.9);white-space:nowrap;';
@@ -637,7 +582,6 @@ document.dispatchEvent(new Event('firebase-ready'));
         wrap.appendChild(icon);
         wrap.appendChild(lbl);
         wrap.addEventListener('click', e => { e.stopPropagation(); nav(m.nav); });
-
         space.appendChild(wrap);
         nodeEls.push({ el: wrap, m });
       });
@@ -645,26 +589,23 @@ document.dispatchEvent(new Event('firebase-ready'));
       function getCenter(){
         const bh = document.getElementById('blackHole');
         const sr = space.getBoundingClientRect();
-        const br = bh ? bh.getBoundingClientRect() : { left: sr.width/2, top: sr.height/2, width:72, height:72 };
-        return {
-          x: br.left - sr.left + br.width/2,
-          y: br.top  - sr.top  + br.height/2,
-        };
+        const br = bh ? bh.getBoundingClientRect() : {left:sr.width/2,top:sr.height/2,width:72,height:72};
+        return { x: br.left-sr.left+br.width/2, y: br.top-sr.top+br.height/2 };
       }
 
       function showNodes(){
-        const visible = nodeEls.filter(n => !n.m.adminOnly || n.el.style.display !== 'none');
+        const visible = nodeEls.filter(n => {
+          if(n.m.adminOnly) return n.el.style.display !== 'none';
+          return typeof canAccess==='function' ? canAccess(n.m.nav) : true;
+        });
         const count = visible.length;
         const c = getCenter();
         visible.forEach((nd, idx) => {
           const angle = (idx * 360/count - 90) * Math.PI / 180;
-          const tx = c.x + Math.cos(angle) * RADIUS;
-          const ty = c.y + Math.sin(angle) * RADIUS;
-          // position so the node CENTER lands on tx,ty
-          nd.el.style.left = tx + 'px';
-          nd.el.style.top  = ty + 'px';
-          nd.el.style.transform = 'translate(-50%, -50%)';
-          nd.el.style.transitionDelay = (idx * 0.07) + 's';
+          nd.el.style.left  = (c.x + Math.cos(angle)*RADIUS) + 'px';
+          nd.el.style.top   = (c.y + Math.sin(angle)*RADIUS) + 'px';
+          nd.el.style.transform = 'translate(-50%,-50%)';
+          nd.el.style.transitionDelay = (idx*0.07)+'s';
           nd.el.style.opacity = '1';
           nd.el.style.pointerEvents = 'all';
         });
@@ -674,8 +615,8 @@ document.dispatchEvent(new Event('firebase-ready'));
       function hideNodes(){
         const c = getCenter();
         nodeEls.forEach(nd => {
-          nd.el.style.left = c.x + 'px';
-          nd.el.style.top  = c.y + 'px';
+          nd.el.style.left = c.x+'px';
+          nd.el.style.top  = c.y+'px';
           nd.el.style.transform = 'translate(-50%,-50%) scale(0.1)';
           nd.el.style.opacity = '0';
           nd.el.style.pointerEvents = 'none';
@@ -684,28 +625,20 @@ document.dispatchEvent(new Event('firebase-ready'));
         expanded = false;
       }
 
-      // init positions to center (hidden)
       setTimeout(()=>{
         const c = getCenter();
         nodeEls.forEach(nd => {
-          nd.el.style.left = c.x + 'px';
-          nd.el.style.top  = c.y + 'px';
+          nd.el.style.left = c.x+'px';
+          nd.el.style.top  = c.y+'px';
           nd.el.style.transform = 'translate(-50%,-50%) scale(0.1)';
         });
       }, 150);
 
-      // Click black hole
       const bh = document.getElementById('blackHole');
       if(bh){
-        bh.style.cursor = 'pointer';
-        bh.addEventListener('click', e => {
-          e.stopPropagation();
-          expanded ? hideNodes() : showNodes();
-        });
+        bh.addEventListener('click', e => { e.stopPropagation(); expanded ? hideNodes() : showNodes(); });
       }
-
-      // Click outside collapses
-      space.addEventListener('click', () => { if(expanded) hideNodes(); });
+      space.addEventListener('click', ()=>{ if(expanded) hideNodes(); });
 
       window._spaceNodeEls   = nodeEls;
       window._spaceShowNodes = showNodes;
@@ -713,6 +646,7 @@ document.dispatchEvent(new Event('firebase-ready'));
     })();
     </script>
   </div>
+
 
   <!-- PERF USER LIST -->
   <div class="view" id="v-perfUsers">
@@ -1355,8 +1289,27 @@ document.dispatchEvent(new Event('firebase-ready'));
         <div class="fi"><label>Gmail Address <span style="color:var(--text3);font-weight:400;">(used as login username)</span></label><input type="email" id="um_email" placeholder="e.g. john@gmail.com" autocomplete="off"/></div>
         <div class="fi"><label>Username <span style="color:var(--text3);font-weight:400;">(short alias — optional)</span></label><input type="text" id="um_user" placeholder="e.g. jsmith (or leave blank)" autocomplete="off"/></div>
         <div class="fi"><label>Password</label><input type="password" id="um_pass" placeholder="Min 3 characters" autocomplete="new-password"/></div>
-        <div class="fi"><label>Role</label>
-          <select id="um_role"><option>Viewer</option><option>Editor</option><option>Admin</option></select>
+        <div class="fi">
+          <label style="margin-bottom:10px;display:block;">Module Access <span style="color:var(--text3);font-weight:400;">(choose what this user can see)</span></label>
+          <!-- Admin toggle -->
+          <label id="um_adminRow" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:8px;border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.07);margin-bottom:8px;transition:border-color .15s;" onclick="toggleAdminCheck()">
+            <input type="checkbox" id="um_isAdmin" style="accent-color:#f97316;width:15px;height:15px;">
+            <span style="font-weight:700;color:#f97316;">🔐 Admin Access <span style="font-size:11px;font-weight:400;color:var(--text3);">— full access to all modules</span></span>
+          </label>
+          <div id="um_moduleBoxes" style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <input type="checkbox" id="um_acc_perf" style="accent-color:var(--accent);width:15px;height:15px;" checked>
+              <span>⚡ System Performance</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <input type="checkbox" id="um_acc_dash" style="accent-color:var(--accent);width:15px;height:15px;" checked>
+              <span>📈 Performance Summary</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--accent)'">
+              <input type="checkbox" id="um_acc_asset" style="accent-color:var(--accent);width:15px;height:15px;" checked>
+              <span>🗂️ Asset Sheet</span>
+            </label>
+          </div>
         </div>
         <div class="fa">
           <button class="btn p" onclick="createUser()">Create User</button>
@@ -1367,8 +1320,29 @@ document.dispatchEvent(new Event('firebase-ready'));
       </div>
       <div class="tw">
         <div class="th"><h3>Login Accounts</h3><span style="font-size:11px;color:var(--text3);">Admin account is protected</span></div>
-        <table><thead><tr><th>Name</th><th>Gmail</th><th>Username</th><th>Password</th><th>Role</th><th>Created</th><th></th></tr></thead>
+        <table><thead><tr><th>Name</th><th>Gmail</th><th>Username</th><th>Password</th><th>Module Access</th><th>Created</th><th></th></tr></thead>
         <tbody id="um_tb"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+    <!-- EDIT ACCOUNT MODAL -->
+  <div id="editAccModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:420px;max-width:95vw;padding:28px;position:relative;">
+      <button onclick="closeEditAcc()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+      <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:0 0 6px;">Edit Account Access</h3>
+      <div id="editAccName" style="font-size:13px;color:var(--text3);margin-bottom:20px;"></div>
+      <input type="hidden" id="editAccId"/>
+      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:10px;">Module Access</label>
+      <!-- Admin toggle in edit modal -->
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.07);margin-bottom:10px;" onclick="toggleEditAdminCheck()">
+        <input type="checkbox" id="editAcc_isAdmin" style="accent-color:#f97316;width:15px;height:15px;">
+        <span style="font-weight:700;color:#f97316;">🔐 Admin Access <span style="font-size:11px;font-weight:400;color:var(--text3);">— full access to all modules</span></span>
+      </label>
+      <div id="editAccModules"></div>
+      <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="closeEditAcc()" class="btn" style="padding:9px 20px;">Cancel</button>
+        <button onclick="saveEditAcc()" class="btn p" style="padding:9px 24px;">Save Changes</button>
       </div>
     </div>
   </div>
@@ -1978,10 +1952,10 @@ function flash(id){ const e=$$(id); if(e){e.classList.add('show');setTimeout(()=
 function doLogin(){
   // Legacy sync check — only used as fallback; handleLogin is the main async path
   const u = val('loginUser').trim().toLowerCase();
-  const p = val('loginPass').trim();
+  const p = val('loginPass');
   const acct = loginAccounts.find(a =>
     ((a.email && a.email.trim().toLowerCase()===u) || (a.username && a.username.trim().toLowerCase()===u)) &&
-    String(a.password).trim()===p
+    String(a.password)===p
   );
   if(!acct){ setText('loginErr','Invalid username or password.'); return; }
   setText('loginErr','');
@@ -2005,8 +1979,8 @@ function doLogout(){
 // ══════════════════════════════════════════
 // ROLE HELPERS
 // ══════════════════════════════════════════
-function isAdmin()  { return currentUser && currentUser.role === 'Admin'; }
-function isEditor() { return currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Editor'); }
+function isAdmin()  { return !!(currentUser && (currentUser.id===0 || currentUser.isAdmin)); }
+function isEditor() { return !!(currentUser && (isAdmin() || (currentUser.access && currentUser.access.length>0))); }
 function denyAccess(msg){ alert('\u26d4 Access Denied\n\n' + (msg || 'You do not have permission.')); }
 
 // ══════════════════════════════════════════
@@ -2015,17 +1989,20 @@ function denyAccess(msg){ alert('\u26d4 Access Denied\n\n' + (msg || 'You do not
 const VL = {home:'Home','perfUsers':'System Performance','perfForm':'User Form','perfDash':'Performance Summary','userMgmt':'User Management','assetDetail':'Asset Sheet','backupDetail':'Backup Asset Details'};
 const FILTER_VIEWS = ['perfUsers'];
 
-function goHome(){ showView('home'); }
+function goHome(){ showView('home'); if(typeof window._updateTechHeader==='function') window._updateTechHeader(); if(typeof window._applyCardAccess==='function') window._applyCardAccess(); }
 
 function nav(id){
+  if(id!=='home' && typeof canAccess==='function' && !canAccess(id)){
+    denyAccess("You don't have access to this module."); return;
+  }
   if(id==='perfUsers'){
     curSysCheckId=null;
     const lv=$$('sc-listView'); if(lv) lv.style.display='block';
     const uv=$$('sc-userView'); if(uv) uv.style.display='none';
     renderSCGrid();
   }
-  if(id==='perfDash')   refreshPerfDash();
-  if(id==='userMgmt')   renderAccounts();
+  if(id==='perfDash')    refreshPerfDash();
+  if(id==='userMgmt')    renderAccounts();
   if(id==='assetDetail') switchTab('assigned');
   showView(id);
 }
@@ -2297,6 +2274,7 @@ function renderUGrid(){
   }
   if(empty) empty.style.display='none';
   grid.innerHTML = visibleUsers.map(u=>{
+    if(!u || !u.name) return ''; // guard against corrupt records
     const mLogs = perfLogs.filter(l=>l.userId===u.id && l.month===month && logInRange(l));
     const has   = mLogs.length>0;
     return `<div class="uc" onclick="openUForm(${u.id})">
@@ -2316,7 +2294,7 @@ function renderUGrid(){
 // ══════════════════════════════════════════
 function openUForm(id){
   curUserId = id;
-  const u = perfUsers.find(x=>x.id===id); if(!u) return;
+  const u = perfUsers.find(x=>x.id===id); if(!u || !u.name) return;
   const month = getPerfMonth();
   setText('uf_av',    u.name[0].toUpperCase());
   setText('uf_name',  u.name);
@@ -3100,25 +3078,48 @@ function filterPdLogs(){
 // ══════════════════════════════════════════
 // USER MANAGEMENT
 // ══════════════════════════════════════════
+const MODULE_LIST = [
+  {key:'perfUsers',  label:'⚡ System Performance'},
+  {key:'perfDash',   label:'📈 Perf Summary'},
+  {key:'assetDetail',label:'🗂️ Asset Sheet'},
+];
+const ALL_MODULE_KEYS = MODULE_LIST.map(m=>m.key);
+
+function canAccess(moduleKey){
+  if(!currentUser) return false;
+  if(currentUser.id===0) return true;       // built-in admin — full access
+  if(currentUser.isAdmin) return true;       // admin-flagged account — full access
+  if(moduleKey==='userMgmt') return false;   // non-admin never sees user mgmt
+  const acc = currentUser.access || [];
+  return acc.includes(moduleKey);
+}
+
 function createUser(){
   if(!isAdmin()){ denyAccess("Only Admin can create user accounts."); return; }
   const name  = val('um_name').trim();
   const email = val('um_email').trim().toLowerCase();
   const user  = val('um_user').trim().toLowerCase() || (email ? email.split('@')[0] : '');
   const pass  = val('um_pass');
-  const role  = val('um_role');
   const errEl = $$('um_err');
   if(errEl) errEl.textContent='';
   if(!name){ if(errEl) errEl.textContent='Please enter a full name.'; return; }
   if(!email && !user){ if(errEl) errEl.textContent='Please enter a Gmail address.'; return; }
   if(email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)){ if(errEl) errEl.textContent='Please enter a valid Gmail address.'; return; }
   if(!pass||pass.length<3){ if(errEl) errEl.textContent='Password must be at least 3 characters.'; return; }
-  // username = email if provided, else manual username
   const loginKey = email || user;
   if(loginAccounts.find(a=>(a.email||a.username).toLowerCase()===loginKey)){ if(errEl) errEl.textContent='That Gmail/username is already registered.'; return; }
+  // Collect module access
+  const isAdminAcct = !!($$('um_isAdmin')?.checked);
+  const access = [];
+  if(!isAdminAcct){
+    if($$('um_acc_perf')?.checked)  access.push('perfUsers');
+    if($$('um_acc_dash')?.checked)  access.push('perfDash');
+    if($$('um_acc_asset')?.checked) access.push('assetDetail');
+    if(access.length===0){ if(errEl) errEl.textContent='Please select at least one module.'; return; }
+  }
   const d = new Date();
   const created = d.toLocaleString('default',{month:'short'})+' '+d.getDate()+', '+d.getFullYear();
-  loginAccounts.push({id:acctId++,name,email:email||'',username:email||user,password:pass,role,created});
+  loginAccounts.push({id:acctId++,name,email:email||'',username:email||user,password:pass,access,isAdmin:isAdminAcct,created});
   fbSave(COL.accounts, loginAccounts[loginAccounts.length-1]);
   renderAccounts(); flash('um_ok'); clearUM(); _lastSubmitBtn=document.querySelector('[onclick="createUser()"]'); celebrate('Account Created!','Login account added successfully');
 }
@@ -3131,34 +3132,94 @@ function delUser(id){
   fbDelete(COL.accounts, id);
   renderAccounts();
 }
-function clearUM(){ ['um_name','um_email','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; }); const e=$$('um_err'); if(e) e.textContent=''; }
+function toggleAdminCheck(){
+  const isAdm = $$('um_isAdmin')?.checked;
+  const boxes = $$('um_moduleBoxes');
+  if(boxes) boxes.style.opacity = isAdm ? '0.35' : '1';
+  if(boxes) boxes.style.pointerEvents = isAdm ? 'none' : '';
+}
+function clearUM(){
+  ['um_name','um_email','um_user','um_pass'].forEach(id=>{ const e=$$(id); if(e) e.value=''; });
+  const e=$$('um_err'); if(e) e.textContent='';
+  const adm=$$('um_isAdmin'); if(adm) adm.checked=false;
+  toggleAdminCheck();
+  ['um_acc_perf','um_acc_dash','um_acc_asset'].forEach(id=>{const el=$$(id);if(el)el.checked=true;});
+}
 function showPass(btn,pass){ const s=btn.previousElementSibling; const p=typeof pass==='string'?pass:String(pass||''); if(btn.textContent==='show'){s.textContent=p;btn.textContent='hide';s.style.color='var(--text)';}else{s.textContent='•'.repeat(Math.min(p.length,8));btn.textContent='show';s.style.color='var(--text3)';} }
 function renderAccounts(){
   const tb = $$('um_tb'); if(!tb) return;
-  // Hide built-in admin (id===0) from the list
   tb.innerHTML = loginAccounts.filter(a=>a.id!==0).map(a=>{
     const pw = String(a.password||'');
     const emailCell = a.email ? `<span style="color:var(--accent2);font-size:12px;">${a.email}</span>` : `<span style="color:var(--text3);font-size:11px;">—</span>`;
     const pwCell = `<span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);">${'•'.repeat(Math.min(pw.length,8))}</span>
         <button onclick="showPass(this,decodeURIComponent('${encodeURIComponent(pw)}'))" style="background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;margin-left:5px;">show</button>`;
-    const rolePill = `<span class="pill ${a.role==='Admin'?'pb':a.role==='Editor'?'pg':'po'}">${a.role}</span>`;
+    const acc = a.access || ALL_MODULE_KEYS;
+    const accBadges = a.isAdmin
+      ? `<span style="font-size:10px;padding:2px 10px;border-radius:10px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);color:#f97316;font-weight:700;">🔐 Admin Access</span>`
+      : MODULE_LIST.filter(m=>acc.includes(m.key)).map(m=>`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);white-space:nowrap;">${m.label}</span>`).join(' ');
     const actionCell = a.id===0
       ? '<span style="color:var(--text3);font-size:11px;">Protected</span>'
-      : `<button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button>`;
+      : `<div style="display:flex;gap:5px;"><button class="btn" style="padding:3px 9px;font-size:11px;" onclick="openEditAcc(${a.id})">Edit</button><button class="btn d" style="padding:3px 9px;font-size:11px;" onclick="delUser(${a.id})">Delete</button></div>`;
     return `<tr>
       <td><strong>${a.name}</strong></td>
       <td>${emailCell}</td>
       <td style="font-family:'DM Mono',monospace;font-size:13px;">${a.username||'—'}</td>
       <td>${pwCell}</td>
-      <td>${rolePill}</td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:4px;">${accBadges}</div></td>
       <td style="color:var(--text2);font-size:12px;">${a.created||''}</td>
       <td>${actionCell}</td>
     </tr>`;
   }).join('');
 }
 // ══════════════════════════════════════════
+// EDIT ACCOUNT ACCESS
 // ══════════════════════════════════════════
-// ══════════════════════════════════════════
+function openEditAcc(id){
+  const a = loginAccounts.find(x=>x.id===id); if(!a) return;
+  $$('editAccId').value = id;
+  $$('editAccName').textContent = a.name + (a.email ? ' · ' + a.email : '');
+  const isAdm = !!(a.isAdmin);
+  $$('editAcc_isAdmin').checked = isAdm;
+  const acc = a.access || ALL_MODULE_KEYS;
+  const box = $$('editAccModules');
+  box.style.display = 'flex';
+  box.style.flexDirection = 'column';
+  box.style.gap = '8px';
+  box.style.opacity = isAdm ? '0.35' : '1';
+  box.style.pointerEvents = isAdm ? 'none' : '';
+  box.innerHTML = MODULE_LIST.map(m=>`
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <input type="checkbox" data-key="${m.key}" style="accent-color:var(--accent);width:15px;height:15px;" ${acc.includes(m.key)?'checked':''}>
+      <span style="font-size:13px;">${m.label}</span>
+    </label>`).join('');
+  $$('editAccModal').style.display='flex';
+}
+function toggleEditAdminCheck(){
+  const isAdm = $$('editAcc_isAdmin')?.checked;
+  const box = $$('editAccModules');
+  if(box){ box.style.opacity = isAdm ? '0.35' : '1'; box.style.pointerEvents = isAdm ? 'none' : ''; }
+}
+function closeEditAcc(){ $$('editAccModal').style.display='none'; }
+function saveEditAcc(){
+  const id = parseInt($$('editAccId').value);
+  const a = loginAccounts.find(x=>x.id===id); if(!a) return;
+  const isAdm = !!($$('editAcc_isAdmin')?.checked);
+  a.isAdmin = isAdm;
+  if(!isAdm){
+    const boxes = $$('editAccModules').querySelectorAll('input[type=checkbox]');
+    const access = [];
+    boxes.forEach(cb=>{ if(cb.checked) access.push(cb.dataset.key); });
+    if(access.length===0){ alert('Please select at least one module.'); return; }
+    a.access = access;
+  } else {
+    a.access = ALL_MODULE_KEYS;
+  }
+  fbSave(COL.accounts, a);
+  renderAccounts();
+  closeEditAcc();
+  celebrate('Access Updated!','Module permissions saved successfully');
+}
+
 // ══════════════════════════════════════════
 // ASSET SHEET
 // ══════════════════════════════════════════
@@ -3418,28 +3479,31 @@ function refreshAll(){
 
 function applyRoleUI(){
   if(!currentUser) return;
-  const editor = isEditor();
   const admin  = isAdmin();
-  // Asset Entry tab — hide for Viewer
+  const editor = isEditor();
+
+  // Asset Entry tab — hide for view-only users
   const entryTab = $$('tab-entry');
   if(entryTab) entryTab.style.display = editor ? '' : 'none';
+
   // User Management card — Admin only
   const cardUM = $$('cardUM');
   if(cardUM) cardUM.style.display = admin ? 'block' : 'none';
   const hcUM = $$('homeCardUM');
-  if(hcUM){ hcUM.style.display = admin ? 'flex' : 'none'; if(hcUM.dataset&&hcUM.dataset.adminOnly) hcUM.style.display = admin ? '' : 'none'; }
-  // Role badge next to user name in topbar
+  if(hcUM) hcUM.style.display = admin ? 'flex' : 'none';
+
+  // Role badge in topbar
   let badge = $$('roleBadge');
   if(!badge){
     badge = document.createElement('span');
     badge.id = 'roleBadge';
-    badge.style.cssText = 'font-size:10px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;letter-spacing:.5px;vertical-align:middle;';
     const tbName = $$('tbName');
     if(tbName && tbName.parentNode) tbName.parentNode.insertBefore(badge, tbName.nextSibling);
   }
-  const roleStyle = {Admin:'background:#4e6ef2;color:#fff',Editor:'background:#27ae60;color:#fff',Viewer:'background:#e67e22;color:#fff'};
-  badge.textContent = currentUser.role.toUpperCase();
-  badge.style.cssText = 'font-size:10px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;letter-spacing:.5px;vertical-align:middle;' + (roleStyle[currentUser.role]||'background:#555;color:#fff');
+  const roleLabel = admin ? 'ADMIN' : 'MEMBER';
+  const roleColor = admin ? 'background:#4f8ef7;color:#fff' : 'background:#22d3a0;color:#000';
+  badge.textContent = roleLabel;
+  badge.style.cssText = 'font-size:10px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;letter-spacing:.5px;vertical-align:middle;' + roleColor;
 }
 
 // ── DELETE ──
@@ -4557,6 +4621,7 @@ async function fbBootstrap(){
     uId = Math.max(maxId(perfUsers), maxId(sysChecks), 1);
     pId = maxId(perfLogs);
 
+
     if(alertCfgDocs.length){
       const cfg = alertCfgDocs[0];
       alertEmails = Array.isArray(cfg.emails) ? cfg.emails : [];
@@ -4585,49 +4650,54 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 async function handleLogin(){
   const u = val('loginUser').trim().toLowerCase();
-  const p = val('loginPass').trim();  // trim spaces from password too
-  if(!u || !p){ setText('loginErr','Please enter username and password.'); return; }
+  const p = val('loginPass');
+  const errEl = $$('loginErr');
+  if(!u || !p){
+    if(errEl){ errEl.textContent='Please enter username and password.'; errEl.style.display='block'; }
+    return;
+  }
 
-  setText('loginErr','');
+  if(errEl){ errEl.textContent=''; errEl.style.display='block'; }
   showFbLoading('Signing in…');
 
   try {
-    // Always load accounts fresh from Firestore so created users work
     await waitForFb();
     const accts = await fbLoadAll(COL.accounts);
     const builtIn = {id:0,name:'Administrator',username:'admin',password:'vignesh',role:'Admin',created:'Built-in'};
     loginAccounts = [builtIn, ...accts.filter(a=>Number(a.id)!==0)];
 
-    // Match by email OR username (so Gmail login works)
     const acct = loginAccounts.find(a =>
       (
         (a.email && a.email.trim().toLowerCase() === u) ||
         (a.username && a.username.trim().toLowerCase() === u)
       ) &&
-      String(a.password).trim() === p
+      String(a.password) === p
     );
 
+    hideFbLoading();
+
     if(!acct){
-      hideFbLoading();
-      // Show what accounts exist to help debug (remove in production)
-      console.log('Available accounts:', loginAccounts.map(a=>a.username));
-      setText('loginErr','Invalid username or password.');
+      if(errEl){ errEl.textContent='❌ Invalid username or password.'; errEl.style.display='block'; }
+      // Shake the login form
+      const lc = document.querySelector('.lc');
+      if(lc){ lc.style.animation='none'; lc.offsetHeight; lc.style.animation='shake .4s ease'; }
       return;
     }
 
-    // Login success
     currentUser = acct;
     $$('loginScreen').classList.remove('active');
     $$('appScreen').classList.add('active');
     setText('tbAv',   acct.name[0].toUpperCase());
     setText('tbName', acct.name);
-    $$('cardUM').style.display = acct.role==='Admin' ? 'block' : 'none'; const _hcUM=$$('homeCardUM'); if(_hcUM)_hcUM.style.display=acct.role==='Admin'?'flex':'none';
 
     await fbBootstrap();
+    applyRoleUI();
+    if(typeof window._updateTechHeader==='function') window._updateTechHeader();
+    if(typeof window._applyCardAccess==='function') window._applyCardAccess();
     goHome();
   } catch(e){
     hideFbLoading();
-    setText('loginErr','Connection error. Check your internet.');
+    if(errEl){ errEl.textContent='⚠️ Connection error. Check your internet.'; errEl.style.display='block'; }
     console.error('Login error:', e);
   }
 }
@@ -4637,6 +4707,48 @@ window.addEventListener('load', async ()=>{
   try {
     await fbBootstrap();
   } catch(e){ showFbStatus(false); }
+});
+
+// ── Expose all functions to window (required because script is type=module) ──
+Object.assign(window, {
+  // Auth
+  handleLogin, doLogin, doLogout,
+  // Navigation
+  nav, goHome, showView,
+  hardRefresh,
+  // Performance users
+  addPerfUser, delPerfUser, renderUGrid, openUForm, renderULog,
+  createSysCheck, deleteSysCheck, openSysCheck, backToSCList, renderSCGrid,
+  onDashTeamChange, clearDashFilters, refreshPerfDash,
+  // Perf form
+  submitPerf, clearPF, deletePerfEntry, editPerfEntry, cancelEdit,
+  calcBattery, calcBatteryStatus, calcHddUsed, calcHddHealth,
+  clearBatteryAuto, onPhysDamageChange, onTeamChange, onDualMonChange,
+  // Perf dashboard
+  openIssuePanel, closeIssuePanel,
+  openHddPanel, openBatPanel, closeHddBatModal,
+  openUserReport, closeUserReport, downloadUserReportCSV,
+  downloadSummaryCSV, downloadAllLogsCSV, filterPdLogs,
+  // Global filter
+  applyGF,
+  // Assets
+  submitAssetEntry, saveEdit, openEdit, closeEditModal,
+  switchTab, searchAssets,
+  openMove, confirmMoveToBackup, closeMoveModal,
+  moveToDeadDirect, confirmMoveToDead, closeMoveDeadModal,
+  openRestore, confirmRestore, closeRestoreModal,
+  openAssign, confirmAssignUser, closeAssignModal,
+  delAsset,
+  openAlertSettings, closeAlertSettings, addAlertEmail, removeAlertEmail, saveAlertSettings,
+  addServiceRecord, confirmAddServiceRecord,
+  addCustomField, removeCustomField, addSACustomField, toggleSACustom,
+  downloadExcel,
+  // User management
+  createUser, delUser, clearUM, showPass, toggleAdminCheck,
+  openEditAcc, closeEditAcc, saveEditAcc, toggleEditAdminCheck,
+  renderAccounts,
+  // Misc
+  celebrate, flash,
 });
 
 </script>
